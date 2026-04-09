@@ -29,6 +29,31 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
+## Deployment
+
+### Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/atam-git/234photos-frontend)
+
+1. Click the "Deploy with Vercel" button above
+2. Connect your GitHub account
+3. Select the repository
+4. Configure environment variables (if needed)
+5. Click "Deploy"
+
+Or manually:
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy to Vercel
+vercel
+
+# Deploy to production
+vercel --prod
+```
+
 ## Project Structure
 
 ```
@@ -50,6 +75,15 @@ src/
 - Run `npm run lint` to check for linting errors
 - Run `npm run type-check` to check TypeScript types
 - Run `npm test` to run unit tests
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+# Add your environment variables here
+NEXT_PUBLIC_API_URL=your_api_url
+```
 
 ## Documentation
 
