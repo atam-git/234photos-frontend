@@ -1,7 +1,6 @@
 'use client'
 
-import { ChevronRight, Search } from 'lucide-react'
-import Link from 'next/link'
+import { Search } from 'lucide-react'
 
 const features = [
   'Millions of free stock photos',

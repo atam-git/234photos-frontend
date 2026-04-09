@@ -75,7 +75,7 @@ export function EditorChoice() {
             href="/editors-choice"
             className="inline-block px-6 py-3 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors font-medium"
           >
-            See more Editor's Choice
+            See more Editor&apos;s Choice
           </a>
         </div>
       </div>

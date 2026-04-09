@@ -1,11 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, ChevronDown, X, Upload, Menu } from 'lucide-react'
+import { Search, ChevronDown, Upload, Menu } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export function Header() {
-  const [exploreOpen, setExploreOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
@@ -65,8 +64,6 @@ export function Header() {
           <div className="hidden md:block relative">
             <button
               className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-[#191b26] hover:bg-gray-50 rounded transition-colors"
-              onMouseEnter={() => setExploreOpen(true)}
-              onMouseLeave={() => setExploreOpen(false)}
             >
               <span>Explore</span>
               <ChevronDown className="w-4 h-4" />
