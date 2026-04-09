@@ -1,0 +1,108 @@
+/* Free Assets Section Styles */
+
+.freeAssets--section {
+  padding: 60px 20px;
+  background: #fff;
+}
+
+.freeAssets--container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.freeAssets--title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #191b26;
+  margin-bottom: 40px;
+}
+
+.mediaGrid--container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.mediaTile--item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.mediaTile--item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mediaTile--background {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.mediaTile--content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  color: #fff;
+}
+
+.mediaTile--icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.mediaTile--label {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.mediaTile--count {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+/* Media Type Colors */
+.mediaTile--photos {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.mediaTile--illustrations {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.mediaTile--vectors {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.mediaTile--videos {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.mediaTile--music {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.mediaTile--soundEffects {
+  background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.mediaTile--3dModels {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.mediaTile--gifs {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+}

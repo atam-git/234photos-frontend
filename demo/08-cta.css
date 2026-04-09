@@ -1,0 +1,144 @@
+/* CTA Section Styles */
+.ctaSection---2REJ {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  padding: 48px 0;
+}
+
+.ctaCard--gokWF {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.iconWithBackground--0v3sw {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background-color: var(--color);
+}
+
+.iconWithBackground--0v3sw.md--KUVMD {
+  width: 48px;
+  height: 48px;
+}
+
+.iconWithBackground--0v3sw.square--fHDVd {
+  aspect-ratio: 1;
+}
+
+.iconWithBackground--0v3sw.muted--PbYf6 {
+  opacity: 0.08;
+}
+
+.icon--4zPplus9 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon--4zPplus9.lg--lmX-8 {
+  width: 24px;
+  height: 24px;
+}
+
+.layout--od9JT {
+  display: flex;
+}
+
+.layout--od9JT.column--vFh9b {
+  flex-direction: column;
+}
+
+.layout--od9JT.xs--TVnSB {
+  gap: 8px;
+}
+
+.layout--od9JT.align-stretch--DplusI18 {
+  align-items: stretch;
+}
+
+.layout--od9JT.justify-start--Hkn9U {
+  justify-content: flex-start;
+}
+
+.h4--nJoAC {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.text--lk7nQ {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.text--lk7nQ.default--T9-Xr {
+  font-weight: 400;
+}
+
+.ctaButtonContainer--9dhplusS {
+  margin-top: auto;
+}
+
+.button--9NFL8 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.button--9NFL8.tonal--ErkFV {
+  background-color: rgba(25, 27, 38, 0.08);
+  color: rgb(25, 27, 38);
+}
+
+.button--9NFL8.tonal--ErkFV:hover {
+  background-color: rgba(25, 27, 38, 0.12);
+}
+
+.button--9NFL8.primary--rehiP {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.button--9NFL8.primary--rehiP:hover {
+  background-color: #45a049;
+}
+
+.button--9NFL8.stretch--PMRkR {
+  width: 100%;
+}
+
+.button--9NFL8.center--ZZf40 {
+  justify-content: center;
+}
+
+.label--7u8or {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.icon--ydROG {
+  display: inline-flex;
+  align-items: center;
+}
+
+.icon--ydROG.start--vDpluswf {
+  margin-right: 8px;
+}
