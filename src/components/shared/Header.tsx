@@ -25,9 +25,9 @@ export function Header() {
           <Link href="/" aria-label="234photos">
             <div className="hidden md:block">
               <img 
-                src="/logo.jpeg" 
+                src="/logo3.jpeg" 
                 alt="234photos" 
-                className="h-[40px] w-auto"
+                className="h-[50px] w-auto"
               />
             </div>
             <div className="md:hidden">
