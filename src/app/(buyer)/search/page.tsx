@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, Suspense } from 'react'
 import { SlidersHorizontal } from 'lucide-react'
 import { Header } from '@/components/shared/Header'
 import { FilterSidebar } from '@/components/features/search/FilterSidebar'
@@ -27,6 +27,14 @@ type ModalState =
   | { type: 'auth'; defaultTab?: 'login' | 'signup' }
 
 export default function SearchPage() {
+  return (
+    <Suspense>
+      <SearchPageInner />
+    </Suspense>
+  )
+}
+
+function SearchPageInner() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -153,7 +161,7 @@ export default function SearchPage() {
                 assets={results}
                 onAssetClick={(asset) => setModal({ type: 'preview', asset })}
                 onDownload={(asset) => setModal({ type: 'download', asset })}
-                onSaveToBoard={(asset) => setModal({ type: 'auth', defaultTab: 'login' })}
+                onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
                 onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
               />
             )}
@@ -168,7 +176,7 @@ export default function SearchPage() {
           assets={results}
           onClose={closeModal}
           onDownload={(asset) => setModal({ type: 'download', asset })}
-          onSaveToBoard={(asset) => setModal({ type: 'auth', defaultTab: 'login' })}
+          onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
           onAuthRequired={() => setModal({ type: 'auth' })}
         />
       )}

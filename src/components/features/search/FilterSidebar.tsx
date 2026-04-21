@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, SlidersHorizontal, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, PanelLeftClose } from 'lucide-react'
 import { useState } from 'react'
 import { ActiveFilters } from './ActiveFilterChips'
 

@@ -111,7 +111,7 @@ export default function CollectionPage() {
               assets={results}
               onAssetClick={(asset) => setModal({ type: 'preview', asset })}
               onDownload={(asset) => setModal({ type: 'download', asset })}
-              onSaveToBoard={(asset) => setModal({ type: 'auth', defaultTab: 'login' })}
+              onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
               onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
             />
           </div>

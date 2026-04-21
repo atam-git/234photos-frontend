@@ -66,7 +66,7 @@ export function FilterBottomSheet({ filters, onChange, activeCount }: FilterBott
 
         {/* Reuse sidebar content — override sticky/width */}
         <div className="px-5 pb-8">
-          <FilterSidebar filters={filters} onChange={onChange} />
+          <FilterSidebar filters={filters} onChange={onChange} collapsed={false} onToggleCollapse={() => {}} />
         </div>
 
         {/* Apply button */}

@@ -3,8 +3,6 @@ import { Footer } from '@/components/shared/Footer'
 import Link from 'next/link'
 import { ARTICLES } from '@/lib/mock/editorial'
 
-const CATEGORIES = ['All', 'Music', 'Sports', 'Fashion', 'Technology', 'Business']
-
 const CATEGORY_COLORS: Record<string, string> = {
   MUSIC: 'bg-[#FFF0F0] text-[#EE2B24]',
   SPORTS: 'bg-[#F0F7FF] text-[#2B6EEE]',

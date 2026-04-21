@@ -5,8 +5,9 @@ import { Breadcrumb } from '@/components/shared/Breadcrumb'
 import { getArticle, ARTICLES } from '@/lib/mock/editorial'
 import Link from 'next/link'
 
-export default function ArticlePage({ params }: { params: { slug: string } }) {
-  const article = getArticle(params.slug)
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const article = getArticle(slug)
   if (!article) notFound()
 
   const related = ARTICLES.filter((a) => a.slug !== article.slug && a.category === article.category).slice(0, 3)

@@ -7,7 +7,6 @@ import { Footer } from '@/components/shared/Footer'
 import { MasonryGrid } from '@/components/features/search/MasonryGrid'
 import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
-import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { Asset } from '@/components/features/search/AssetCard'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
@@ -162,7 +161,7 @@ export default function ProfilePage() {
           assets={assets}
           onAssetClick={(asset) => setModal({ type: 'preview', asset })}
           onDownload={(asset) => setModal({ type: 'download', asset })}
-          onSaveToBoard={(asset) => setModal({ type: 'auth', defaultTab: 'login' })}
+          onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
           onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
         />
       </main>
@@ -176,7 +175,6 @@ export default function ProfilePage() {
           onAuthRequired={() => setModal({ type: 'auth' })} />
       )}
       {modal.type === 'download' && <DownloadModal asset={modal.asset} onClose={closeModal} onConfirm={closeModal} />}
-      {modal.type === 'board' && <SaveToBoardModal asset={modal.asset} onClose={closeModal} />}
       {modal.type === 'auth' && <AuthModal onClose={closeModal} defaultTab={modal.defaultTab} />}
     </div>
   )
