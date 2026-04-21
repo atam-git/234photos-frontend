@@ -1,6 +1,7 @@
 import { Header } from '@/components/shared/Header'
 import { Hero } from '@/components/shared/Hero'
 import { StatsBar } from '@/components/shared/StatsBar'
+import { CategoryGrid } from '@/components/shared/CategoryGrid'
 import { FreeAssets } from '@/components/shared/FreeAssets'
 import { EditorChoice } from '@/components/shared/EditorChoice'
 import { TrendingContent } from '@/components/shared/TrendingContent'
@@ -16,6 +17,7 @@ export default function HomePage() {
       <main className="flex-1">
         <Hero />
         <StatsBar />
+        <CategoryGrid />
         {/* <FreeAssets /> */}
         {/* <EditorChoice /> */}
         <TrendingContent />
