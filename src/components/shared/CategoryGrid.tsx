@@ -62,7 +62,7 @@ export function CategoryGrid() {
             Explore African content by category
           </h2>
           <a
-            href="/categories"
+            href="/search"
             className="text-[#EE2B24] text-[13px] font-semibold leading-[19.5px] whitespace-nowrap hover:underline"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
           >
@@ -75,7 +75,7 @@ export function CategoryGrid() {
           {categories.map((category) => (
             <a
               key={category.name}
-              href="#"
+              href={`/search?q=${encodeURIComponent(category.name)}`}
               className="relative block rounded-xl overflow-hidden aspect-[4/3] group shadow-[0_2px_8px_0_rgba(0,0,0,0.08)] bg-[#1A1A1A]"
             >
               {/* Image */}

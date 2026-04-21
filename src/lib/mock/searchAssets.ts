@@ -1,0 +1,28 @@
+import { Asset } from '@/components/features/search/AssetCard'
+
+export const MOCK_ASSETS: Asset[] = [
+  { id: '1', src: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=600&q=80', alt: 'African businesswoman', contributor: 'Amara Osei', resolution: 'HD', isFree: false },
+  { id: '2', src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&q=80', alt: 'African business meeting', contributor: 'Chidi Nwosu', resolution: '4K' },
+  { id: '3', src: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80', alt: 'African fashion show', contributor: 'Fatima Diallo', resolution: 'HD', isFree: true },
+  { id: '4', src: 'https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80', alt: 'Jollof rice', contributor: 'Ngozi Adeyemi', resolution: 'HD' },
+  { id: '5', src: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=600&q=80', alt: 'African city street', contributor: 'Kwame Asante', resolution: '4K' },
+  { id: '6', src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80', alt: 'African women traditional attire', contributor: 'Zanele Dlamini', resolution: 'HD', isEditorial: true },
+  { id: '7', src: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=600&q=80', alt: 'African concert', contributor: 'Simi Adebayo', resolution: 'HD' },
+  { id: '8', src: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600&q=80', alt: 'African city aerial', contributor: 'Tunde Bakare', resolution: '4K' },
+  { id: '9', src: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80', alt: 'African office team', contributor: 'Adaeze Okafor', resolution: 'HD', isAI: true },
+  { id: '10', src: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80', alt: 'African musician', contributor: 'Emeka Eze', resolution: 'HD' },
+  { id: '11', src: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80', alt: 'African street food', contributor: 'Aisha Bello', resolution: 'HD', isFree: true },
+  { id: '12', src: 'https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=600&q=80', alt: 'African textiles', contributor: 'Kofi Mensah', resolution: 'HD' },
+  { id: '13', src: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80', alt: 'Lagos tech hub', contributor: 'Yemi Okonkwo', resolution: '4K' },
+  { id: '14', src: 'https://images.unsplash.com/photo-1611348586804-61bf6c080437?w=600&q=80', alt: 'African city skyline', contributor: 'Bola Adesanya', resolution: 'HD' },
+  { id: '15', src: 'https://images.unsplash.com/photo-1590735213920-68192a487bc2?w=600&q=80', alt: 'African street style', contributor: 'Nkechi Obi', resolution: 'HD', isEditorial: true },
+  { id: '16', src: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=600&q=80', alt: 'African man portrait', contributor: 'Seun Lawal', resolution: 'HD' },
+  { id: '17', src: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=600&q=80', alt: 'African football', contributor: 'Chukwu Ibe', resolution: '4K' },
+  { id: '18', src: 'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=600&q=80', alt: 'African heritage', contributor: 'Amina Sow', resolution: 'HD' },
+  { id: '19', src: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600&q=80', alt: 'African wedding', contributor: 'Dayo Adewale', resolution: 'HD', isFree: true },
+  { id: '20', src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80', alt: 'African entrepreneur', contributor: 'Femi Coker', resolution: 'HD' },
+  { id: '21', src: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=600&q=80', alt: 'African woman smiling', contributor: 'Ife Adeyemi', resolution: 'HD' },
+  { id: '22', src: 'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=600&q=80', alt: 'African traditional culture', contributor: 'Musa Garba', resolution: '4K' },
+  { id: '23', src: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80', alt: 'African market', contributor: 'Halima Yusuf', resolution: 'HD' },
+  { id: '24', src: 'https://images.unsplash.com/photo-1489392191049-fc10c97e64b6?w=600&q=80', alt: 'African festival', contributor: 'Olu Martins', resolution: 'HD', isAI: true },
+]

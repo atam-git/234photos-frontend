@@ -75,32 +75,42 @@ export function Footer() {
             {/* App Store & Google Play Buttons */}
             <div className="flex flex-col gap-2">
               {/* App Store */}
-              <a href="#" className="flex items-center gap-[9px] w-[155px] px-[13px] py-[9px] rounded-[7px] border border-[#222] bg-[#111] hover:bg-[#1a1a1a] transition-colors">
-                <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                  <path d="M14.8121 15.4375C14.155 16.4192 13.4583 17.3771 12.3975 17.393C11.3367 17.4167 10.9963 16.7675 9.79292 16.7675C8.58167 16.7675 8.20959 17.3771 7.20417 17.4167C6.16709 17.4563 5.38334 16.3717 4.71834 15.4138C3.36458 13.4584 2.3275 9.85629 3.72083 7.43379C4.40958 6.23046 5.64458 5.47046 6.9825 5.44671C7.99583 5.43087 8.96167 6.13546 9.58709 6.13546C10.2046 6.13546 11.3763 5.28837 12.5954 5.41504C13.11 5.43879 14.5508 5.62087 15.4771 6.98254C15.4058 7.03004 13.7592 7.99587 13.775 9.99879C13.7988 12.3896 15.8729 13.1892 15.8967 13.1971C15.8729 13.2525 15.5642 14.3371 14.8042 15.4375M10.2917 2.77087C10.8696 2.11379 11.8275 1.61504 12.6192 1.58337C12.7221 2.50962 12.35 3.44379 11.7958 4.10879C11.2496 4.78171 10.3471 5.30421 9.46042 5.23296C9.34167 4.32254 9.785 3.37254 10.2917 2.77087Z" fill="white"/>
-                </svg>
-                <div className="flex flex-col">
-                  <span className="text-[#555] text-[10px] font-normal leading-[125%]">Download on the</span>
-                  <span className="text-white text-[13px] font-semibold leading-[125%]">App Store</span>
-                </div>
-              </a>
+              <div className="relative w-[155px]">
+                <span className="absolute -top-2 -right-2 bg-[#B5860B] text-white text-[9px] font-bold uppercase tracking-[0.5px] px-1.5 py-0.5 rounded-full z-10">
+                  Soon
+                </span>
+                <a href="#" className="flex items-center gap-[9px] w-full px-[13px] py-[9px] rounded-[7px] border border-[#222] bg-[#111] opacity-60 cursor-not-allowed">
+                  <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                    <path d="M14.8121 15.4375C14.155 16.4192 13.4583 17.3771 12.3975 17.393C11.3367 17.4167 10.9963 16.7675 9.79292 16.7675C8.58167 16.7675 8.20959 17.3771 7.20417 17.4167C6.16709 17.4563 5.38334 16.3717 4.71834 15.4138C3.36458 13.4584 2.3275 9.85629 3.72083 7.43379C4.40958 6.23046 5.64458 5.47046 6.9825 5.44671C7.99583 5.43087 8.96167 6.13546 9.58709 6.13546C10.2046 6.13546 11.3763 5.28837 12.5954 5.41504C13.11 5.43879 14.5508 5.62087 15.4771 6.98254C15.4058 7.03004 13.7592 7.99587 13.775 9.99879C13.7988 12.3896 15.8729 13.1892 15.8967 13.1971C15.8729 13.2525 15.5642 14.3371 14.8042 15.4375M10.2917 2.77087C10.8696 2.11379 11.8275 1.61504 12.6192 1.58337C12.7221 2.50962 12.35 3.44379 11.7958 4.10879C11.2496 4.78171 10.3471 5.30421 9.46042 5.23296C9.34167 4.32254 9.785 3.37254 10.2917 2.77087Z" fill="white"/>
+                  </svg>
+                  <div className="flex flex-col">
+                    <span className="text-[#555] text-[10px] font-normal leading-[125%]">Download on the</span>
+                    <span className="text-white text-[13px] font-semibold leading-[125%]">App Store</span>
+                  </div>
+                </a>
+              </div>
               {/* Google Play */}
-              <a href="#" className="flex items-center gap-[9px] w-[155px] px-[13px] py-[9px] rounded-[7px] border border-[#222] bg-[#111] hover:bg-[#1a1a1a] transition-colors">
-                <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                  <g clipPath="url(#clip0_footer_play)">
-                    <path d="M2.51742 18.818C2.24566 18.6959 2.01383 18.4997 1.84858 18.2518C1.68334 18.004 1.59137 17.7145 1.58325 17.4167V1.58338C1.59137 1.28559 1.68334 0.996124 1.84858 0.748253C2.01383 0.500382 2.24566 0.304159 2.51742 0.182129L11.5503 9.21505L2.51742 18.818ZM14.4637 12.1046L4.10867 17.7334L10.8141 11.028L14.4637 12.1046ZM16.1499 8.07505C16.4312 8.19227 16.6716 8.39014 16.8406 8.64373C17.0097 8.89732 17.0999 9.19527 17.0999 9.50005C17.0999 9.80482 17.0097 10.1028 16.8406 10.3564C16.6716 10.61 16.4312 10.8078 16.1499 10.925L13.8066 11.6138L10.1491 7.9563L13.8066 4.2988L16.1499 4.90838V8.07505ZM4.10867 1.26671L14.4637 6.89546L10.8141 7.97213L4.10867 1.26671Z" fill="white"/>
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_footer_play">
-                      <rect width="19" height="19" fill="white"/>
-                    </clipPath>
-                  </defs>
-                </svg>
-                <div className="flex flex-col">
-                  <span className="text-[#555] text-[10px] font-normal leading-[125%]">Get it on</span>
-                  <span className="text-white text-[13px] font-semibold leading-[125%]">Google Play</span>
-                </div>
-              </a>
+              <div className="relative w-[155px]">
+                <span className="absolute -top-2 -right-2 bg-[#B5860B] text-white text-[9px] font-bold uppercase tracking-[0.5px] px-1.5 py-0.5 rounded-full z-10">
+                  Soon
+                </span>
+                <a href="#" className="flex items-center gap-[9px] w-full px-[13px] py-[9px] rounded-[7px] border border-[#222] bg-[#111] opacity-60 cursor-not-allowed">
+                  <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                    <g clipPath="url(#clip0_footer_play)">
+                      <path d="M2.51742 18.818C2.24566 18.6959 2.01383 18.4997 1.84858 18.2518C1.68334 18.004 1.59137 17.7145 1.58325 17.4167V1.58338C1.59137 1.28559 1.68334 0.996124 1.84858 0.748253C2.01383 0.500382 2.24566 0.304159 2.51742 0.182129L11.5503 9.21505L2.51742 18.818ZM14.4637 12.1046L4.10867 17.7334L10.8141 11.028L14.4637 12.1046ZM16.1499 8.07505C16.4312 8.19227 16.6716 8.39014 16.8406 8.64373C17.0097 8.89732 17.0999 9.19527 17.0999 9.50005C17.0999 9.80482 17.0097 10.1028 16.8406 10.3564C16.6716 10.61 16.4312 10.8078 16.1499 10.925L13.8066 11.6138L10.1491 7.9563L13.8066 4.2988L16.1499 4.90838V8.07505ZM4.10867 1.26671L14.4637 6.89546L10.8141 7.97213L4.10867 1.26671Z" fill="white"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_footer_play">
+                        <rect width="19" height="19" fill="white"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <div className="flex flex-col">
+                    <span className="text-[#555] text-[10px] font-normal leading-[125%]">Get it on</span>
+                    <span className="text-white text-[13px] font-semibold leading-[125%]">Google Play</span>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -142,7 +152,6 @@ export function Footer() {
                 { label: 'Accessibility', href: '/accessibility' },
                 { label: 'Free trial', href: '/free-trial' },
                 { label: 'Free images', href: '/free-images' },
-                { label: '234photos Studio', href: '/studio' },
               ].map((item) => (
                 <li key={item.label}>
                   <Link

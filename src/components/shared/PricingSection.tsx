@@ -280,7 +280,7 @@ export function PricingSection() {
             </div>
 
             <a
-              href="/contact-sales"
+              href="/contact"
               className="w-full py-3.5 rounded-full bg-[#1A1A1A] text-white text-[14px] font-bold text-center hover:bg-[#333] transition-colors"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             >

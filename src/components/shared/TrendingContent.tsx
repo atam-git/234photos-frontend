@@ -116,7 +116,7 @@ export function TrendingContent() {
               Trending African content
             </h2>
             <a
-              href="/trending"
+              href={`/search?q=trending+african${activeFilter !== 'All' ? `&type=${activeFilter.toLowerCase()}` : ''}`}
               className="text-[#EE2B24] text-[13px] font-semibold leading-[19.5px] hover:underline whitespace-nowrap"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             >
@@ -150,7 +150,7 @@ export function TrendingContent() {
           {trendingImages.map((image) => (
             <a
               key={image.id}
-              href="#"
+              href={`/search?q=${encodeURIComponent(image.alt)}${activeFilter !== 'All' ? `&type=${activeFilter.toLowerCase()}` : ''}`}
               className={`block relative overflow-hidden rounded-[14px] bg-[#E0E0E0] group
                 ${image.desktopClass}
                 ${image.mobileClass}
@@ -164,6 +164,13 @@ export function TrendingContent() {
               />
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              {/* Label on hover */}
+              <div className="absolute bottom-0 left-0 right-0 px-3 py-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <span className="text-white text-[11px] font-semibold drop-shadow"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  {image.alt}
+                </span>
+              </div>
             </a>
           ))}
         </div>

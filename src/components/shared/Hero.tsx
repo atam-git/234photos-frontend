@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-const tabs = ['Photos', 'Vectors', 'Illustrations', 'Footage', 'Music', 'Templates', '3D']
+const tabs = ['Photos', 'Videos', 'Footage', 'Vectors', 'Illustrations', 'Music', 'Templates', '3D']
 
 const galleryImages = [
   {
@@ -36,21 +37,22 @@ const galleryImages = [
 ]
 
 export function Hero() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('Photos')
   const [query, setQuery] = useState('')
 
   return (
     <section className="bg-white overflow-hidden">
       {/* Top Content */}
-      <div className="flex flex-col items-center px-6 pt-16 md:pt-20 pb-10 md:pb-12">
+      <div className="flex flex-col items-center px-6 pt-8 md:pt-10 pb-8 md:pb-10">
         <div className="w-full max-w-[680px] flex flex-col items-center">
           {/* Heading */}
-          <h1 className="text-[#111] text-center font-semibold text-3xl sm:text-4xl md:text-[54px] leading-[1.1] tracking-[-0.03em] mb-4">
+          <h1 className="text-[#111] text-center font-bold text-[32px] sm:text-[42px] md:text-[52px] leading-[1.15] tracking-[-0.02em] mb-4">
             Power your brand with authentic African visuals
           </h1>
 
           {/* Subtitle */}
-          <p className="text-[#777] text-center text-base leading-relaxed mb-8 max-w-[480px]">
+          <p className="text-[#555] text-center text-[15px] leading-relaxed mb-8 max-w-[440px]">
             Royalty-free African images, videos and music for creators and brands worldwide.
           </p>
 
@@ -59,11 +61,17 @@ export function Hero() {
             {tabs.map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setActiveTab(tab)
+                  const params = new URLSearchParams()
+                  if (query.trim()) params.set('q', query.trim())
+                  if (tab !== 'Photos') params.set('type', tab.toLowerCase())
+                  router.push(`/search?${params.toString()}`)
+                }}
                 className={`px-3.5 py-[7px] rounded-lg text-[13.5px] whitespace-nowrap transition-colors ${
                   activeTab === tab
-                    ? 'bg-[#F0F0F0] text-[#111] font-semibold'
-                    : 'text-[#888] font-medium hover:text-[#444] hover:bg-gray-50'
+                    ? 'bg-[#111] text-white font-semibold'
+                    : 'text-[#555] font-medium hover:text-[#111] hover:bg-[#F0F0F0]'
                 }`}
               >
                 {tab}
@@ -73,8 +81,14 @@ export function Hero() {
 
           {/* Search Bar */}
           <form
-            className="flex items-center h-[58px] w-full rounded-full bg-white shadow-[0_2px_0_0_#E8E8E8,0_0_0_1px_#E8E8E8] overflow-hidden"
-            onSubmit={(e) => e.preventDefault()}
+            className="flex items-center h-[58px] w-full rounded-full bg-white shadow-[0_2px_0_0_#D0D0D0,0_0_0_1px_#D0D0D0] overflow-hidden"
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (!query.trim()) return
+              const params = new URLSearchParams({ q: query.trim() })
+              if (activeTab !== 'Photos') params.set('type', activeTab.toLowerCase())
+              router.push(`/search?${params.toString()}`)
+            }}
           >
             {/* Camera Icon Button */}
             <button
@@ -98,7 +112,7 @@ export function Hero() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search African business, fashion, events…"
-              className="flex-1 h-full px-4 bg-transparent border-none outline-none text-[15.5px] text-[#111] placeholder-[#BBB] min-w-0"
+              className="flex-1 h-full px-4 bg-transparent border-none outline-none text-[15.5px] text-[#111] placeholder-[#999] min-w-0"
               autoComplete="off"
             />
 
@@ -119,26 +133,27 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Image Gallery Strip */}
-      <div className="relative h-[292px] sm:h-[320px] md:h-[348px]">
-        {/* Left fade gradient */}
-        <div className="absolute inset-y-0 left-0 w-16 sm:w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-        {/* Right fade gradient */}
-        <div className="absolute inset-y-0 right-0 w-16 sm:w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+      {/* Image Gallery Strip — infinite auto-scroll */}
+      <div className="relative h-[292px] sm:h-[320px] md:h-[348px] overflow-hidden">
+        {/* Left fade */}
+        <div className="absolute inset-y-0 left-0 w-8 sm:w-12 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        {/* Right fade */}
+        <div className="absolute inset-y-0 right-0 w-8 sm:w-12 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
-        {/* Scrolling images */}
-        <div className="flex items-start gap-[10px] h-full px-4 overflow-x-auto scrollbar-hide pb-14">
-          {galleryImages.map((img, i) => (
-            <div
+        {/* Scrolling track — duplicated for seamless loop */}
+        <div className="flex items-start gap-[10px] h-full animate-marquee hover:pause-marquee">
+          {[...galleryImages, ...galleryImages].map((img, i) => (
+            <a
               key={i}
-              className="flex-shrink-0 w-[160px] sm:w-[180px] md:w-[196px] h-[240px] sm:h-[256px] md:h-[272px] rounded-2xl overflow-hidden shadow-[0_1px_8px_0_rgba(0,0,0,0.08)] mt-4"
+              href={`/search?q=${encodeURIComponent(img.alt)}`}
+              className="flex-shrink-0 w-[160px] sm:w-[180px] md:w-[196px] h-[240px] sm:h-[256px] md:h-[272px] rounded-2xl overflow-hidden shadow-[0_1px_8px_0_rgba(0,0,0,0.08)] mt-4 group block"
             >
               <img
                 src={img.src}
                 alt={img.alt}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
-            </div>
+            </a>
           ))}
         </div>
       </div>

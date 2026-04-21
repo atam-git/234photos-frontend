@@ -143,7 +143,7 @@ export function CreativeTools() {
 
               {/* CTA */}
               <a
-                href={tool.href}
+                href="#"
                 className="text-[#EE2B24] text-[13px] font-semibold leading-[19.5px] hover:underline self-start mt-1"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
               >
