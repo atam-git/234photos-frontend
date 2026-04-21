@@ -10,6 +10,7 @@ import { BlogSection } from '@/components/shared/BlogSection'
 import { CreativeTools } from '@/components/shared/CreativeTools'
 import { PricingSection } from '@/components/shared/PricingSection'
 import { CTASection } from '@/components/shared/CTASection'
+import { ContributorSection } from '@/components/shared/ContributorSection'
 import { Footer } from '@/components/shared/Footer'
 
 export default function HomePage() {
@@ -28,6 +29,7 @@ export default function HomePage() {
         <CreativeTools />
         <PricingSection />
         {/* <CTASection /> */}
+        <ContributorSection />
       </main>
       <Footer />
     </div>
