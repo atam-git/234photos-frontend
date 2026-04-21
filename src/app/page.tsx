@@ -16,12 +16,12 @@ export default function HomePage() {
       <main className="flex-1">
         <Hero />
         <StatsBar />
-        <FreeAssets />
-        <EditorChoice />
+        {/* <FreeAssets /> */}
+        {/* <EditorChoice /> */}
         <TrendingContent />
         <Collections />
         <BlogSection />
-        <CTASection />
+        {/* <CTASection /> */}
       </main>
       <Footer />
     </div>
