@@ -8,6 +8,7 @@ import { TrendingContent } from '@/components/shared/TrendingContent'
 import { Collections } from '@/components/shared/Collections'
 import { BlogSection } from '@/components/shared/BlogSection'
 import { CreativeTools } from '@/components/shared/CreativeTools'
+import { PricingSection } from '@/components/shared/PricingSection'
 import { CTASection } from '@/components/shared/CTASection'
 import { Footer } from '@/components/shared/Footer'
 
@@ -25,6 +26,7 @@ export default function HomePage() {
         <Collections />
         <BlogSection />
         <CreativeTools />
+        <PricingSection />
         {/* <CTASection /> */}
       </main>
       <Footer />
