@@ -1,17 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronDown, Upload, Menu, X } from 'lucide-react'
+import { ChevronDown, Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
+
+const navItems = [
+  { label: 'Images', hasDropdown: true },
+  { label: 'Footage', hasDropdown: true },
+  { label: 'Music', hasDropdown: true },
+  { label: 'Templates', hasDropdown: true },
+  { label: 'Pricing', hasDropdown: false },
+]
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
+    const handleScroll = () => setIsScrolled(window.scrollY > 10)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -19,46 +25,41 @@ export function Header() {
   return (
     <header
       className={`sticky top-0 z-[100] bg-white transition-all duration-200 ${
-        isScrolled ? 'border-b border-black/10 shadow-sm' : ''
+        isScrolled ? 'shadow-sm border-b border-black/10' : 'border-b border-transparent'
       }`}
     >
-      <div className="flex items-center justify-between px-5 md:px-8 h-16 max-w-[1440px] mx-auto">
+      <div className="flex items-center justify-between px-5 md:px-8 lg:px-10 h-[60px] max-w-[1440px] mx-auto">
+
         {/* Logo */}
         <Link href="/" aria-label="234photos" className="flex-shrink-0">
-          <div className="hidden md:block">
-            <img src="/logo3.jpeg" alt="234photos" className="h-[50px] w-auto" />
-          </div>
-          <div className="md:hidden">
-            <img src="/logo.jpeg" alt="234photos" className="h-10 w-auto" />
-          </div>
+          <img src="/logo3.jpeg" alt="234photos" className="h-[38px] w-auto hidden md:block" />
+          <img src="/logo.jpeg" alt="234photos" className="h-9 w-auto md:hidden" />
         </Link>
 
-        {/* Desktop Nav Actions */}
-        <nav className="hidden md:flex items-center gap-1">
-          <button className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-[#444] hover:text-[#111] hover:bg-gray-50 rounded-lg transition-colors">
-            Explore
-            <ChevronDown className="w-4 h-4" />
-          </button>
-          <button className="px-4 py-2 text-sm font-medium text-[#444] hover:text-[#111] hover:bg-gray-50 rounded-lg transition-colors">
-            Pricing
-          </button>
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-1 mx-6">
+          {navItems.map((item) => (
+            <button
+              key={item.label}
+              className="flex items-center gap-[3px] px-3 py-2 text-[13.5px] font-medium text-[#111] hover:bg-gray-100 rounded-md transition-colors"
+            >
+              {item.label}
+              {item.hasDropdown && <ChevronDown className="w-[14px] h-[14px] text-[#555]" />}
+            </button>
+          ))}
         </nav>
 
-        {/* Desktop Auth Buttons */}
+        {/* Desktop Auth */}
         <div className="hidden md:flex items-center gap-2">
-          <button className="px-4 py-2 text-sm font-semibold text-[#111] hover:bg-gray-50 rounded-lg transition-colors">
+          <button className="px-5 py-[9px] text-[13.5px] font-medium text-[#111] border border-[#D0D0D0] rounded-full hover:bg-gray-50 transition-colors">
             Log in
           </button>
-          <button className="px-4 py-2 text-sm font-semibold text-[#111] border border-[#ddd] rounded-lg hover:bg-gray-50 transition-colors">
-            Join free
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#EE2B24] text-white rounded-lg text-sm font-semibold hover:bg-[#d42520] transition-colors">
-            <Upload className="w-4 h-4" />
-            Upload
+          <button className="px-5 py-[9px] text-[13.5px] font-semibold text-white bg-[#111] rounded-full hover:bg-[#333] transition-colors">
+            Sign up
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Toggle */}
         <button
           className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -74,23 +75,22 @@ export function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-5 py-4 flex flex-col gap-2">
-          <button className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-[#444] hover:bg-gray-50 rounded-lg transition-colors text-left">
-            Explore <ChevronDown className="w-4 h-4" />
-          </button>
-          <button className="px-3 py-2.5 text-sm font-medium text-[#444] hover:bg-gray-50 rounded-lg transition-colors text-left">
-            Pricing
-          </button>
-          <div className="border-t border-gray-100 mt-1 pt-3 flex flex-col gap-2">
-            <button className="px-3 py-2.5 text-sm font-semibold text-[#111] hover:bg-gray-50 rounded-lg transition-colors text-left">
+        <div className="md:hidden border-t border-gray-100 bg-white px-5 py-4 flex flex-col gap-1">
+          {navItems.map((item) => (
+            <button
+              key={item.label}
+              className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-[#111] hover:bg-gray-50 rounded-lg transition-colors text-left w-full"
+            >
+              {item.label}
+              {item.hasDropdown && <ChevronDown className="w-4 h-4 text-[#555]" />}
+            </button>
+          ))}
+          <div className="border-t border-gray-100 mt-2 pt-3 flex flex-col gap-2">
+            <button className="w-full px-4 py-2.5 text-sm font-medium text-[#111] border border-[#D0D0D0] rounded-full hover:bg-gray-50 transition-colors">
               Log in
             </button>
-            <button className="px-3 py-2.5 text-sm font-semibold text-[#111] border border-[#ddd] rounded-lg hover:bg-gray-50 transition-colors text-left">
-              Join free
-            </button>
-            <button className="flex items-center gap-2 px-3 py-2.5 bg-[#EE2B24] text-white rounded-lg text-sm font-semibold hover:bg-[#d42520] transition-colors">
-              <Upload className="w-4 h-4" />
-              Upload
+            <button className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-[#111] rounded-full hover:bg-[#333] transition-colors">
+              Sign up
             </button>
           </div>
         </div>
