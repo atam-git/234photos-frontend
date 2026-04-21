@@ -1,97 +1,100 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, ChevronDown, Upload, Menu } from 'lucide-react'
+import { ChevronDown, Upload, Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0)
+      setIsScrolled(window.scrollY > 10)
     }
-
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   return (
-    <header className={`sticky top-0 z-[100] bg-white transition-all duration-200 ${isScrolled ? 'border-b border-[rgba(0,0,0,0.1)]' : ''}`}>
-      <div className="flex items-center justify-between px-5 h-16 max-w-[1920px] mx-auto">
+    <header
+      className={`sticky top-0 z-[100] bg-white transition-all duration-200 ${
+        isScrolled ? 'border-b border-black/10 shadow-sm' : ''
+      }`}
+    >
+      <div className="flex items-center justify-between px-5 md:px-8 h-16 max-w-[1440px] mx-auto">
         {/* Logo */}
-        <div className="flex items-center">
-          <Link href="/" aria-label="234photos">
-            <div className="hidden md:block">
-              <img 
-                src="/logo3.jpeg" 
-                alt="234photos" 
-                className="h-[50px] w-auto"
-              />
-            </div>
-            <div className="md:hidden">
-              <img 
-                src="/logo.jpeg" 
-                alt="234photos" 
-                className="h-10 w-auto"
-              />
-            </div>
-          </Link>
-        </div>
-
-        {/* Search Bar */}
-        <div className="hidden md:flex flex-1 max-w-[800px] mx-5">
-          <form className="w-full flex items-center bg-[#f5f5f5] rounded-3xl px-4 py-2">
-            <button type="submit" className="p-2" aria-label="Search 234photos">
-              <Search className="w-6 h-6 text-gray-600" />
-            </button>
-            <input
-              type="search"
-              placeholder="Search 234photos"
-              className="flex-1 mx-3 bg-transparent border-none outline-none text-base text-[#191b26]"
-              autoComplete="off"
-            />
-            <button type="button" className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-[#191b26]">
-              <span>All images</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          </form>
-        </div>
-
-        {/* Actions Right */}
-        <div className="flex items-center gap-3">
-          {/* Explore Dropdown - Desktop Only */}
-          <div className="hidden md:block relative">
-            <button
-              className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-[#191b26] hover:bg-gray-50 rounded transition-colors"
-            >
-              <span>Explore</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
+        <Link href="/" aria-label="234photos" className="flex-shrink-0">
+          <div className="hidden md:block">
+            <img src="/logo3.jpeg" alt="234photos" className="h-[50px] w-auto" />
           </div>
+          <div className="md:hidden">
+            <img src="/logo.jpeg" alt="234photos" className="h-10 w-auto" />
+          </div>
+        </Link>
 
-          {/* Log in - Desktop Only */}
-          <button className="hidden md:block px-4 py-2 text-sm font-medium text-[#191b26] hover:bg-gray-50 rounded transition-colors">
+        {/* Desktop Nav Actions */}
+        <nav className="hidden md:flex items-center gap-1">
+          <button className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-[#444] hover:text-[#111] hover:bg-gray-50 rounded-lg transition-colors">
+            Explore
+            <ChevronDown className="w-4 h-4" />
+          </button>
+          <button className="px-4 py-2 text-sm font-medium text-[#444] hover:text-[#111] hover:bg-gray-50 rounded-lg transition-colors">
+            Pricing
+          </button>
+        </nav>
+
+        {/* Desktop Auth Buttons */}
+        <div className="hidden md:flex items-center gap-2">
+          <button className="px-4 py-2 text-sm font-semibold text-[#111] hover:bg-gray-50 rounded-lg transition-colors">
             Log in
           </button>
-
-          {/* Join */}
-          <button className="px-4 py-2 text-sm font-medium text-[#191b26] border border-gray-300 rounded hover:bg-gray-50 transition-colors">
-            Join
+          <button className="px-4 py-2 text-sm font-semibold text-[#111] border border-[#ddd] rounded-lg hover:bg-gray-50 transition-colors">
+            Join free
           </button>
-
-          {/* Upload - Desktop Only */}
-          <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#cb0001] text-white rounded text-sm font-medium hover:bg-[#b00001] transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#EE2B24] text-white rounded-lg text-sm font-semibold hover:bg-[#d42520] transition-colors">
             <Upload className="w-4 h-4" />
-            <span>Upload</span>
-          </button>
-
-          {/* Mobile Menu - Mobile Only */}
-          <button className="md:hidden p-2">
-            <Menu className="w-6 h-6 text-[#191b26]" />
+            Upload
           </button>
         </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? (
+            <X className="w-5 h-5 text-[#111]" />
+          ) : (
+            <Menu className="w-5 h-5 text-[#111]" />
+          )}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-100 bg-white px-5 py-4 flex flex-col gap-2">
+          <button className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-[#444] hover:bg-gray-50 rounded-lg transition-colors text-left">
+            Explore <ChevronDown className="w-4 h-4" />
+          </button>
+          <button className="px-3 py-2.5 text-sm font-medium text-[#444] hover:bg-gray-50 rounded-lg transition-colors text-left">
+            Pricing
+          </button>
+          <div className="border-t border-gray-100 mt-1 pt-3 flex flex-col gap-2">
+            <button className="px-3 py-2.5 text-sm font-semibold text-[#111] hover:bg-gray-50 rounded-lg transition-colors text-left">
+              Log in
+            </button>
+            <button className="px-3 py-2.5 text-sm font-semibold text-[#111] border border-[#ddd] rounded-lg hover:bg-gray-50 transition-colors text-left">
+              Join free
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2.5 bg-[#EE2B24] text-white rounded-lg text-sm font-semibold hover:bg-[#d42520] transition-colors">
+              <Upload className="w-4 h-4" />
+              Upload
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
