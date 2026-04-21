@@ -3,6 +3,7 @@ import { Hero } from '@/components/shared/Hero'
 import { StatsBar } from '@/components/shared/StatsBar'
 import { FreeAssets } from '@/components/shared/FreeAssets'
 import { EditorChoice } from '@/components/shared/EditorChoice'
+import { TrendingContent } from '@/components/shared/TrendingContent'
 import { Collections } from '@/components/shared/Collections'
 import { BlogSection } from '@/components/shared/BlogSection'
 import { CTASection } from '@/components/shared/CTASection'
@@ -17,6 +18,7 @@ export default function HomePage() {
         <StatsBar />
         <FreeAssets />
         <EditorChoice />
+        <TrendingContent />
         <Collections />
         <BlogSection />
         <CTASection />
