@@ -94,15 +94,14 @@ export function LicenseSelector({ value, onChange }: LicenseSelectorProps) {
                 {l.price}
               </span>
               <div className="relative">
-                <button
-                  type="button"
+                <span
                   onMouseEnter={() => setTooltip(l.value)}
                   onMouseLeave={() => setTooltip(null)}
                   onClick={(e) => e.stopPropagation()}
-                  className="text-[#BBBBBB] hover:text-[#888] transition-colors"
+                  className="text-[#BBBBBB] hover:text-[#888] transition-colors cursor-help inline-flex"
                 >
                   <Info className="w-3.5 h-3.5" />
-                </button>
+                </span>
                 {tooltip === l.value && (
                   <div className="absolute right-0 bottom-full mb-1.5 w-[180px] bg-[#111] text-white text-[11.5px] rounded-lg px-3 py-2 z-10 pointer-events-none"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}

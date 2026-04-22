@@ -16,6 +16,7 @@ import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
+import { useAuthStore } from '@/stores/authStore'
 
 const MEDIA_TABS = ['Photos', 'Videos', 'Footage', 'Vectors', 'Illustrations', 'Music', 'Templates', '3D']
 
@@ -37,6 +38,7 @@ export default function SearchPage() {
 function SearchPageInner() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   const query = searchParams.get('q') ?? ''
   const typeParam = searchParams.get('type') ?? ''
@@ -161,7 +163,7 @@ function SearchPageInner() {
                 assets={results}
                 onAssetClick={(asset) => setModal({ type: 'preview', asset })}
                 onDownload={(asset) => setModal({ type: 'download', asset })}
-                onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
+                onSaveToBoard={(asset) => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
                 onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
               />
             )}
@@ -176,7 +178,7 @@ function SearchPageInner() {
           assets={results}
           onClose={closeModal}
           onDownload={(asset) => setModal({ type: 'download', asset })}
-          onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
+          onSaveToBoard={(asset) => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
           onAuthRequired={() => setModal({ type: 'auth' })}
         />
       )}

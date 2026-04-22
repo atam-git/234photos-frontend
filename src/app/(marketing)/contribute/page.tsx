@@ -1,6 +1,12 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
+import { ContributorApplicationModal } from '@/components/shared/Modals/ContributorApplicationModal'
 import Link from 'next/link'
+import { useAuthStore } from '@/stores/authStore'
 
 const STEPS = [
   { n: '01', title: 'Create your account', desc: 'Sign up free in under 2 minutes. No approval needed to get started.' },
@@ -25,6 +31,25 @@ const FAQS = [
 ]
 
 export default function ContributePage() {
+  const router = useRouter()
+  const [showContributorModal, setShowContributorModal] = useState(false)
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  const user = useAuthStore((state) => state.user)
+  const isContributor = user?.role === 'contributor' && user?.isContributorApproved
+
+  const handleStartContributing = () => {
+    if (!isLoggedIn) {
+      // Not logged in - redirect to signup with contributor intent
+      router.push('/signup?intent=contributor')
+    } else if (isContributor) {
+      // Already a contributor - redirect to dashboard
+      router.push('/dashboard')
+    } else {
+      // Logged in as buyer - show contributor application modal
+      setShowContributorModal(true)
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
@@ -46,11 +71,12 @@ export default function ContributePage() {
               Upload your photos, videos and music. Earn royalties every time your work is downloaded by brands and creators worldwide.
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
-              <Link href="/signup?role=contributor"
+              <button
+                onClick={handleStartContributing}
                 className="px-8 py-3.5 bg-[#EE2B24] text-white text-[14px] font-bold rounded-full hover:bg-[#d42520] transition-colors"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                 Start contributing
-              </Link>
+              </button>
               <Link href="/how-it-works"
                 className="px-8 py-3.5 border border-white/30 text-white text-[14px] font-semibold rounded-full hover:border-white/60 transition-colors"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -127,15 +153,21 @@ export default function ContributePage() {
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Join 100,000+ African creators already earning on 234photos.
             </p>
-            <Link href="/signup?role=contributor"
+            <button
+              onClick={handleStartContributing}
               className="inline-block px-10 py-4 bg-[#EE2B24] text-white text-[14px] font-bold rounded-full hover:bg-[#d42520] transition-colors"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Create contributor account
-            </Link>
+            </button>
           </div>
         </section>
       </main>
       <Footer />
+
+      {/* Modals */}
+      {showContributorModal && (
+        <ContributorApplicationModal onClose={() => setShowContributorModal(false)} />
+      )}
     </div>
   )
 }

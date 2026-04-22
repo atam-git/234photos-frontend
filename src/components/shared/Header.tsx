@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronDown, Menu, X, Grid2X2, LayoutDashboard } from 'lucide-react'
+import { ChevronDown, Menu, X, Grid2X2, LayoutDashboard, LogOut } from 'lucide-react'
 import { useState, useEffect, useRef, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/stores/authStore'
 
 const navItems = [
   { label: 'Home', href: '/' },
@@ -25,6 +26,7 @@ export function Header({ variant = 'default', initialQuery = '', onAuthClick }: 
   const [browseOpen, setBrowseOpen] = useState(false)
   const [query, setQuery] = useState(initialQuery)
   const browseRef = useRef<HTMLDivElement>(null)
+  const { isLoggedIn, user, logout } = useAuthStore()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10)
@@ -58,8 +60,8 @@ export function Header({ variant = 'default', initialQuery = '', onAuthClick }: 
 
         {/* Logo — left */}
         <Link href="/" aria-label="234photos" className="flex-shrink-0">
-          <img src="/logo3.jpeg" alt="234photos" className="h-[34px] w-auto hidden md:block" />
-          <img src="/logo.jpeg" alt="234photos" className="h-8 w-auto md:hidden" />
+          <img src="/logo/234final1black.png" alt="234photos" className="h-[34px] w-auto hidden md:block" />
+          <img src="/logo/234final1black.png" alt="234photos" className="h-8 w-auto md:hidden" />
         </Link>
 
         {variant === 'search' ? (
@@ -164,25 +166,45 @@ export function Header({ variant = 'default', initialQuery = '', onAuthClick }: 
           >
             Contribute →
           </Link>
-          <Link
-            href="/dashboard"
-            className="w-9 h-9 rounded-full border border-[#E0E0E0] flex items-center justify-center hover:border-[#999] transition-colors"
-            title="Dashboard"
-          >
-            <LayoutDashboard className="w-4 h-4 text-[#444]" />
-          </Link>
-          <button
-            onClick={() => onAuthClick?.('login')}
-            className="px-5 py-[7px] text-[13.5px] font-medium text-[#111] border border-[#D0D0D0] rounded-full hover:bg-gray-50 transition-colors"
-          >
-            Log in
-          </button>
-          <button
-            onClick={() => onAuthClick?.('signup')}
-            className="px-5 py-[7px] text-[13.5px] font-semibold text-white bg-[#111] rounded-full hover:bg-[#333] transition-colors"
-          >
-            Sign up
-          </button>
+
+          {isLoggedIn && user ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="w-9 h-9 rounded-full border border-[#E0E0E0] flex items-center justify-center hover:border-[#999] transition-colors"
+                title="Dashboard"
+              >
+                <LayoutDashboard className="w-4 h-4 text-[#444]" />
+              </Link>
+              {/* Avatar */}
+              <Link href="/account" className="shrink-0">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-[#EE2B24] ring-2 ring-[#F0F0F0]">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="w-full h-full flex items-center justify-center text-white text-[11px] font-bold">
+                      {user.name.split(' ').map(n => n[0]).join('')}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="px-5 py-[7px] text-[13.5px] font-medium text-[#111] border border-[#D0D0D0] rounded-full hover:bg-gray-50 transition-colors"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="px-5 py-[7px] text-[13.5px] font-semibold text-white bg-[#111] rounded-full hover:bg-[#333] transition-colors"
+              >
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -224,18 +246,28 @@ export function Header({ variant = 'default', initialQuery = '', onAuthClick }: 
             </Link>
           ))}
           <div className="border-t border-gray-100 mt-2 pt-3 flex flex-col gap-2">
-            <button
-              onClick={() => onAuthClick?.('login')}
-              className="w-full px-4 py-2.5 text-sm font-medium text-[#111] border border-[#D0D0D0] rounded-full hover:bg-gray-50 transition-colors"
-            >
-              Log in
-            </button>
-            <button
-              onClick={() => onAuthClick?.('signup')}
-              className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-[#111] rounded-full hover:bg-[#333] transition-colors"
-            >
-              Sign up
-            </button>
+            {isLoggedIn && user ? (
+              <>
+                <Link href="/overview" className="w-full px-4 py-2.5 text-sm font-medium text-[#111] border border-[#D0D0D0] rounded-full hover:bg-gray-50 transition-colors text-center">
+                  Dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="w-full px-4 py-2.5 text-sm font-medium text-[#111] border border-[#D0D0D0] rounded-full hover:bg-gray-50 transition-colors text-center"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-[#111] rounded-full hover:bg-[#333] transition-colors text-center"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

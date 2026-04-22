@@ -18,6 +18,7 @@ import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { getAssetDetail, getSimilarAssets, getContributorAssets } from '@/lib/mock/assetDetail'
 import { getContributorByName } from '@/lib/mock/contributors'
 import { Asset } from '@/components/features/search/AssetCard'
+import { useAuthStore } from '@/stores/authStore'
 
 type ModalState =
   | { type: 'none' }
@@ -31,6 +32,7 @@ export default function AssetDetailPage() {
   const similarAssets = getSimilarAssets(id)
   const contributorAssets = getContributorAssets(asset.contributor, id)
   const contributorProfile = getContributorByName(asset.contributor)
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   const [license, setLicense] = useState<'standard' | 'enhanced' | 'editorial'>('standard')
   const [liked, setLiked] = useState(false)
@@ -111,7 +113,7 @@ export default function AssetDetailPage() {
             {/* Download + actions */}
             <div className="flex flex-col gap-2.5">
               <button
-                onClick={() => setModal({ type: 'download', asset })}
+                onClick={() => isLoggedIn ? setModal({ type: 'download', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#EE2B24] text-white text-[14px] font-bold rounded-full hover:bg-[#d42520] transition-colors"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
               >
@@ -121,7 +123,7 @@ export default function AssetDetailPage() {
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => setModal({ type: 'auth', defaultTab: 'login' })}
+                  onClick={() => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 border border-[#D0D0D0] text-[#111] text-[13px] font-semibold rounded-full hover:border-[#999] transition-colors"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                 >
@@ -130,7 +132,13 @@ export default function AssetDetailPage() {
                 </button>
 
                 <button
-                  onClick={() => { setLiked(!liked) }}
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      setModal({ type: 'auth', defaultTab: 'login' })
+                      return
+                    }
+                    setLiked(!liked)
+                  }}
                   className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors ${
                     liked ? 'border-[#EE2B24] bg-[#FFF0F0]' : 'border-[#D0D0D0] hover:border-[#999]'
                   }`}
@@ -165,6 +173,7 @@ export default function AssetDetailPage() {
                 country={asset.contributorCountry}
                 totalAssets={asset.contributorAssets}
                 totalDownloads={asset.contributorDownloads}
+                isLoggedIn={isLoggedIn}
                 onAuthRequired={() => setModal({ type: 'auth', defaultTab: 'signup' })}
               />
             </div>

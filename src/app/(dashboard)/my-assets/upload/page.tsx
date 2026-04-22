@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Upload, X, Check, Tag, ChevronRight, FileImage } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
 import Link from 'next/link'
 
 type Step = 'drop' | 'uploading' | 'tagging' | 'done'
@@ -15,7 +16,15 @@ interface UploadFile {
   status: 'uploading' | 'complete' | 'error'
   tags: string[]
   title: string
+  description: string
   category: string
+  resolution: 'HD' | '4K'
+  isAI: boolean
+  isEditorial: boolean
+  // Auto-detected
+  dimensions: string
+  fileSize: string
+  fileType: string
 }
 
 const CATEGORIES = ['Business', 'Fashion', 'Food & Cuisine', 'Nature', 'Sports', 'Technology', 'Culture', 'Architecture', 'Lifestyle', 'Music']
@@ -26,35 +35,39 @@ const AI_TAGS: Record<string, string[]> = {
 
 export default function UploadPage() {
   const router = useRouter()
+  const user = useAuthStore((state) => state.user)
+  const isContributor = user?.role === 'contributor' && user?.isContributorApproved
   const [step, setStep] = useState<Step>('drop')
   const [files, setFiles] = useState<UploadFile[]>([])
   const [dragging, setDragging] = useState(false)
   const [activeFile, setActiveFile] = useState<string | null>(null)
   const [newTag, setNewTag] = useState('')
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setDragging(false)
-    const dropped = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'))
-    addFiles(dropped)
-  }, [])
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return
-    addFiles(Array.from(e.target.files))
-  }
-
-  const addFiles = (rawFiles: File[]) => {
-    const newFiles: UploadFile[] = rawFiles.map(f => ({
-      id: Math.random().toString(36).slice(2),
-      name: f.name,
-      src: URL.createObjectURL(f),
-      progress: 0,
-      status: 'uploading',
-      tags: [...AI_TAGS.default],
-      title: f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
-      category: 'Business',
-    }))
+  const addFiles = useCallback((rawFiles: File[]) => {
+    const newFiles: UploadFile[] = rawFiles.map(f => {
+      // Auto-detect file info
+      const img = new Image()
+      img.src = URL.createObjectURL(f)
+      
+      return {
+        id: Math.random().toString(36).slice(2),
+        name: f.name,
+        src: URL.createObjectURL(f),
+        progress: 0,
+        status: 'uploading',
+        tags: [...AI_TAGS.default],
+        title: f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
+        description: '',
+        category: 'Business',
+        resolution: 'HD',
+        isAI: false,
+        isEditorial: false,
+        // Auto-detected
+        dimensions: '3840 × 2560px', // Would be detected from actual image
+        fileSize: `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
+        fileType: f.type.split('/')[1].toUpperCase(),
+      }
+    })
     setFiles(prev => [...prev, ...newFiles])
     setStep('uploading')
     setActiveFile(newFiles[0]?.id ?? null)
@@ -74,6 +87,43 @@ export default function UploadPage() {
         }
       }, 300)
     })
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setDragging(false)
+    const dropped = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'))
+    addFiles(dropped)
+  }, [addFiles])
+
+  useEffect(() => {
+    if (!isContributor) {
+      router.push('/discover?openContributorModal=true')
+    }
+  }, [isContributor, router])
+
+  if (!isContributor) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 text-4xl">🔒</div>
+          <h2 className="text-xl font-semibold text-[#111] mb-2">Contributor Access Required</h2>
+          <p className="text-[#666] mb-4">Apply to become a contributor to upload assets</p>
+          <button
+            onClick={() => router.push('/discover?openContributorModal=true')}
+            className="inline-block px-6 py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+          >
+            Apply Now
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return
+    addFiles(Array.from(e.target.files))
   }
 
   const addTag = (fileId: string) => {
@@ -94,6 +144,22 @@ export default function UploadPage() {
     setFiles(prev => prev.map(f => f.id === fileId ? { ...f, ...updates } : f))
   }
 
+  const applyToAllFiles = () => {
+    if (!activeFileData) return
+    
+    // Copy these fields to all files (but keep unique titles)
+    const sharedMetadata = {
+      description: activeFileData.description,
+      category: activeFileData.category,
+      resolution: activeFileData.resolution,
+      isAI: activeFileData.isAI,
+      isEditorial: activeFileData.isEditorial,
+      tags: activeFileData.tags,
+    }
+    
+    setFiles(prev => prev.map(f => ({ ...f, ...sharedMetadata })))
+  }
+
   const handleSubmit = () => setStep('done')
 
   const activeFileData = files.find(f => f.id === activeFile)
@@ -102,7 +168,7 @@ export default function UploadPage() {
     <div className="min-h-screen bg-[#F8F8F8]">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-white border-b border-[#F0F0F0] h-[60px] flex items-center px-4 md:px-6 gap-3">
-        <Link href="/dashboard/my-assets" className="flex items-center gap-1.5 text-[13px] text-[#666] hover:text-[#111] transition-colors"
+        <Link href="/my-assets" className="flex items-center gap-1.5 text-[13px] text-[#666] hover:text-[#111] transition-colors"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
           ← Back to My Assets
         </Link>
@@ -120,7 +186,7 @@ export default function UploadPage() {
         </div>
       </header>
 
-      <div className="max-w-[1100px] mx-auto px-4 md:px-6 py-8">
+      <div className="px-4 md:px-6 py-8">
 
         {/* Step: Drop */}
         {step === 'drop' && (
@@ -244,13 +310,96 @@ export default function UploadPage() {
                 <div>
                   <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    Category
+                    Description
                   </label>
-                  <select value={activeFileData.category}
-                    onChange={(e) => updateFile(activeFileData.id, { category: e.target.value })}
-                    className="w-full h-[40px] px-3 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white">
-                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                  </select>
+                  <textarea value={activeFileData.description}
+                    onChange={(e) => updateFile(activeFileData.id, { description: e.target.value })}
+                    placeholder="Describe this asset for potential buyers..."
+                    rows={3}
+                    className="w-full px-3 py-2.5 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors resize-none" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      Category
+                    </label>
+                    <select value={activeFileData.category}
+                      onChange={(e) => updateFile(activeFileData.id, { category: e.target.value })}
+                      className="w-full h-[40px] px-3 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white">
+                      {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      Resolution
+                    </label>
+                    <select value={activeFileData.resolution}
+                      onChange={(e) => updateFile(activeFileData.id, { resolution: e.target.value as 'HD' | '4K' })}
+                      className="w-full h-[40px] px-3 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white">
+                      <option value="HD">HD</option>
+                      <option value="4K">4K</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* File info (read-only) */}
+                <div className="grid grid-cols-3 gap-3 p-3 bg-[#F8F8F8] rounded-xl">
+                  <div>
+                    <p className="text-[10px] font-bold text-[#888] uppercase tracking-[0.5px] mb-0.5"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      Dimensions
+                    </p>
+                    <p className="text-[12px] font-semibold text-[#111]"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      {activeFileData.dimensions}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-[#888] uppercase tracking-[0.5px] mb-0.5"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      File Size
+                    </p>
+                    <p className="text-[12px] font-semibold text-[#111]"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      {activeFileData.fileSize}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-[#888] uppercase tracking-[0.5px] mb-0.5"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      File Type
+                    </p>
+                    <p className="text-[12px] font-semibold text-[#111]"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      {activeFileData.fileType}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Flags */}
+                <div className="flex flex-col gap-2.5">
+                  <label className="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" checked={activeFileData.isAI}
+                      onChange={(e) => updateFile(activeFileData.id, { isAI: e.target.checked })}
+                      className="w-4 h-4 rounded border-[#D0D0D0] text-[#EE2B24] focus:ring-[#EE2B24]" />
+                    <span className="text-[13px] font-medium text-[#111]"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      AI-generated content
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" checked={activeFileData.isEditorial}
+                      onChange={(e) => updateFile(activeFileData.id, { isEditorial: e.target.checked })}
+                      className="w-4 h-4 rounded border-[#D0D0D0] text-[#EE2B24] focus:ring-[#EE2B24]" />
+                    <span className="text-[13px] font-medium text-[#111]"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      Editorial use only
+                    </span>
+                  </label>
                 </div>
 
                 <div>
@@ -289,7 +438,9 @@ export default function UploadPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-[#F0F0F0]">
-                  <button className="text-[13px] text-[#888] hover:text-[#111] transition-colors"
+                  <button 
+                    onClick={applyToAllFiles}
+                    className="text-[13px] text-[#888] hover:text-[#111] transition-colors"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                     Apply to all files
                   </button>
@@ -324,7 +475,7 @@ export default function UploadPage() {
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                 Upload more
               </button>
-              <Link href="/dashboard/my-assets"
+              <Link href="/my-assets"
                 className="px-6 py-2.5 border border-[#D0D0D0] text-[#111] text-[13.5px] font-semibold rounded-full hover:border-[#999] transition-colors"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                 Go to My Assets

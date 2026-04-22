@@ -8,10 +8,15 @@ import { MasonryGrid } from '@/components/features/search/MasonryGrid'
 import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
+import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { Asset } from '@/components/features/search/AssetCard'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
 import { getContributor } from '@/lib/mock/contributors'
-import { MapPin, Calendar, Download, ImageIcon } from 'lucide-react'
+import { MapPin, Calendar, Download, ImageIcon, FolderOpen } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
+import Link from 'next/link'
+
+type Tab = 'portfolio' | 'collections'
 
 type ModalState =
   | { type: 'none' }
@@ -22,17 +27,20 @@ type ModalState =
 
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>()
+  const [tab, setTab] = useState<Tab>('portfolio')
   const [following, setFollowing] = useState(false)
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const closeModal = () => setModal({ type: 'none' })
 
   const handleFollow = () => {
-    if (!following) {
+    if (!isLoggedIn) {
       // Require auth to follow
       setModal({ type: 'auth', defaultTab: 'signup' })
       return
     }
-    setFollowing(false)
+    // Toggle follow state when logged in
+    setFollowing(!following)
   }
 
   // Use real data or build a graceful fallback
@@ -51,6 +59,28 @@ export default function ProfilePage() {
   }
 
   const assets = MOCK_ASSETS.slice(0, 18)
+
+  // Mock collections for this contributor
+  const collections = [
+    {
+      id: '1',
+      name: 'Lagos Street Photography',
+      assetCount: 24,
+      thumbnails: [MOCK_ASSETS[0].src, MOCK_ASSETS[1].src, MOCK_ASSETS[2].src, MOCK_ASSETS[3].src],
+    },
+    {
+      id: '2',
+      name: 'Best of 2026',
+      assetCount: 18,
+      thumbnails: [MOCK_ASSETS[4].src, MOCK_ASSETS[5].src, MOCK_ASSETS[6].src, MOCK_ASSETS[7].src],
+    },
+    {
+      id: '3',
+      name: 'Nigerian Business',
+      assetCount: 32,
+      thumbnails: [MOCK_ASSETS[8].src, MOCK_ASSETS[9].src, MOCK_ASSETS[10].src, MOCK_ASSETS[11].src],
+    },
+  ]
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -147,23 +177,117 @@ export default function ProfilePage() {
 
       {/* Assets grid */}
       <main className="flex-1 max-w-[1280px] mx-auto w-full px-4 md:px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[18px] font-bold text-[#111]"
+        {/* Tabs */}
+        <div className="flex gap-1 border-b border-[#F0F0F0] mb-6">
+          <button
+            onClick={() => setTab('portfolio')}
+            className={`px-4 py-2.5 text-[14px] font-semibold border-b-2 transition-colors ${
+              tab === 'portfolio'
+                ? 'border-[#EE2B24] text-[#EE2B24]'
+                : 'border-transparent text-[#888] hover:text-[#111]'
+            }`}
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            Portfolio
-          </h2>
-          <span className="text-[13px] text-[#888]"
+            Portfolio ({assets.length})
+          </button>
+          <button
+            onClick={() => setTab('collections')}
+            className={`px-4 py-2.5 text-[14px] font-semibold border-b-2 transition-colors ${
+              tab === 'collections'
+                ? 'border-[#EE2B24] text-[#EE2B24]'
+                : 'border-transparent text-[#888] hover:text-[#111]'
+            }`}
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            {assets.length} assets
-          </span>
+            Collections ({collections.length})
+          </button>
         </div>
-        <MasonryGrid
-          assets={assets}
-          onAssetClick={(asset) => setModal({ type: 'preview', asset })}
-          onDownload={(asset) => setModal({ type: 'download', asset })}
-          onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
-          onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
-        />
+
+        {/* Portfolio Tab */}
+        {tab === 'portfolio' && (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-[18px] font-bold text-[#111]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                All Assets
+              </h2>
+              <span className="text-[13px] text-[#888]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                {assets.length} assets
+              </span>
+            </div>
+            <MasonryGrid
+              assets={assets}
+              onAssetClick={(asset) => setModal({ type: 'preview', asset })}
+              onDownload={(asset) => setModal({ type: 'download', asset })}
+              onSaveToBoard={(asset) => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
+              onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
+            />
+          </>
+        )}
+
+        {/* Collections Tab */}
+        {tab === 'collections' && (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-[18px] font-bold text-[#111]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                Curated Collections
+              </h2>
+              <span className="text-[13px] text-[#888]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                {collections.length} collections
+              </span>
+            </div>
+
+            {collections.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-[#F0F0F0] flex flex-col items-center justify-center py-16 px-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-[#F8F8F8] flex items-center justify-center mb-4">
+                  <FolderOpen className="w-7 h-7 text-[#BBBBBB]" />
+                </div>
+                <h3 className="text-[16px] font-bold text-[#111] mb-2"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  No public collections yet
+                </h3>
+                <p className="text-[13px] text-[#666]"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  This contributor hasn't created any public collections
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {collections.map((collection) => (
+                  <Link
+                    key={collection.id}
+                    href={`/collections/${username}/${collection.id}`}
+                    className="group bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden hover:border-[#EE2B24] hover:shadow-lg transition-all"
+                  >
+                    {/* Photo collage */}
+                    <div className="aspect-[4/3] bg-[#E8E8E8] overflow-hidden grid grid-cols-2 gap-0.5">
+                      {collection.thumbnails.slice(0, 4).map((thumb, i) => (
+                        <div key={i} className="relative overflow-hidden bg-[#E8E8E8]">
+                          <img
+                            src={thumb}
+                            alt=""
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="p-5">
+                      <h3 className="text-[15px] font-bold text-[#111] mb-1 line-clamp-1"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        {collection.name}
+                      </h3>
+                      <p className="text-[13px] text-[#888]"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        {collection.assetCount} assets
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </main>
 
       <Footer />
@@ -171,10 +295,11 @@ export default function ProfilePage() {
       {modal.type === 'preview' && (
         <QuickPreviewModal asset={modal.asset} assets={assets} onClose={closeModal}
           onDownload={(a) => setModal({ type: 'download', asset: a })}
-          onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
+          onSaveToBoard={(a) => isLoggedIn ? setModal({ type: 'board', asset: a }) : setModal({ type: 'auth', defaultTab: 'login' })}
           onAuthRequired={() => setModal({ type: 'auth' })} />
       )}
       {modal.type === 'download' && <DownloadModal asset={modal.asset} onClose={closeModal} onConfirm={closeModal} />}
+      {modal.type === 'board' && <SaveToBoardModal asset={modal.asset} onClose={closeModal} />}
       {modal.type === 'auth' && <AuthModal onClose={closeModal} defaultTab={modal.defaultTab} />}
     </div>
   )

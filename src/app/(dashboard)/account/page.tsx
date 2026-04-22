@@ -1,12 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { MOCK_USER } from '@/lib/mock/user'
+import Link from 'next/link'
+import { useAuthStore } from '@/stores/authStore'
 
 export default function AccountPage() {
-  const [name, setName] = useState(MOCK_USER.name)
-  const [email, setEmail] = useState(MOCK_USER.email)
+  const user = useAuthStore((state) => state.user)
+  const [name, setName] = useState(user?.name || '')
+  const [email, setEmail] = useState(user?.email || '')
   const [saved, setSaved] = useState(false)
+
+  if (!user) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 text-4xl">⏳</div>
+          <p className="text-[#666]">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
@@ -15,7 +28,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="max-w-[680px] mx-auto flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-[22px] font-extrabold text-[#111]"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -37,11 +50,11 @@ export default function AccountPage() {
         {/* Avatar */}
         <div className="flex items-center gap-4 mb-6">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-[#EE2B24] shrink-0">
-            {MOCK_USER.avatar ? (
-              <img src={MOCK_USER.avatar} alt={MOCK_USER.name} className="w-full h-full object-cover" />
+            {user.avatar ? (
+              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
             ) : (
               <span className="w-full h-full flex items-center justify-center text-white text-[20px] font-bold">
-                {MOCK_USER.name.split(' ').map(n => n[0]).join('')}
+                {user.name.split(' ').map(n => n[0]).join('')}
               </span>
             )}
           </div>
@@ -81,7 +94,7 @@ export default function AccountPage() {
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Country
             </label>
-            <input type="text" defaultValue={`${MOCK_USER.countryFlag} ${MOCK_USER.country}`}
+            <input type="text" defaultValue={`${user.countryFlag} ${user.country}`}
               className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
           </div>
           <div className="flex items-center gap-3 pt-1">
@@ -103,17 +116,17 @@ export default function AccountPage() {
           </h2>
           <span className="text-[22px] font-extrabold text-[#EE2B24]"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            {MOCK_USER.credits}
+            {user.credits}
           </span>
         </div>
         <p className="text-[13px] text-[#666] mb-4"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
           Credits are used to download assets. 1 credit = 1 Standard download.
         </p>
-        <button className="px-5 py-2.5 bg-[#EE2B24] text-white text-[13.5px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
+        <Link href="/billing" className="inline-block px-5 py-2.5 bg-[#EE2B24] text-white text-[13.5px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
           Buy more credits
-        </button>
+        </Link>
       </div>
 
       {/* Password */}

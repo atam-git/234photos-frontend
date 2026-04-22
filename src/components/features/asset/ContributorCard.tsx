@@ -10,6 +10,7 @@ interface ContributorCardProps {
   country: string
   totalAssets: number
   totalDownloads: string
+  isLoggedIn?: boolean
   onFollow?: () => void
   onAuthRequired?: () => void
 }
@@ -20,6 +21,7 @@ export function ContributorCard({
   country,
   totalAssets,
   totalDownloads,
+  isLoggedIn = false,
   onFollow,
   onAuthRequired,
 }: ContributorCardProps) {
@@ -28,12 +30,19 @@ export function ContributorCard({
   const initials = name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
 
   const handleFollow = () => {
-    if (!following) {
+    // If not logged in, show auth modal
+    if (!isLoggedIn) {
       onAuthRequired?.()
       return
     }
-    setFollowing(false)
-    onFollow?.()
+
+    // Toggle follow state
+    if (!following) {
+      setFollowing(true)
+      onFollow?.()
+    } else {
+      setFollowing(false)
+    }
   }
 
   return (

@@ -133,7 +133,7 @@ export function QuickPreviewModal({
           </div>
 
           {/* Metadata */}
-          <div className="px-5 py-4 border-b border-[#F0F0F0] flex flex-col gap-2">
+          <div className="px-5 py-4 border-b border-[#F0F0F0] flex flex-col gap-2.5">
             {asset.resolution && (
               <div className="flex justify-between text-[12.5px]">
                 <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Resolution</span>
@@ -141,12 +141,28 @@ export function QuickPreviewModal({
               </div>
             )}
             <div className="flex justify-between text-[12.5px]">
+              <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Dimensions</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>3840 × 2560px</span>
+            </div>
+            <div className="flex justify-between text-[12.5px]">
+              <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>File size</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>5.2 MB</span>
+            </div>
+            <div className="flex justify-between text-[12.5px]">
+              <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>File type</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>JPEG</span>
+            </div>
+            <div className="flex justify-between text-[12.5px]">
+              <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Category</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Fashion</span>
+            </div>
+            <div className="flex justify-between text-[12.5px]">
               <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>License</span>
               <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Standard</span>
             </div>
             <div className="flex justify-between text-[12.5px]">
-              <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Type</span>
-              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Photo</span>
+              <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Date added</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Apr 15, 2026</span>
             </div>
           </div>
 

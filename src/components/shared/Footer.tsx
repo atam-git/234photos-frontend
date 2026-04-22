@@ -12,9 +12,9 @@ export function Footer() {
             {/* Logo */}
             <Link href="/" aria-label="234photos — Home" className="flex items-center">
               <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/0fb0245de4d3a7d59f87d46b2525503f700a0207?width=180"
+                src="/logo/234final1white.png"
                 alt="234photos"
-                className="h-[30px] w-auto opacity-[0.92]"
+                className="h-[30px] w-auto"
               />
             </Link>
 

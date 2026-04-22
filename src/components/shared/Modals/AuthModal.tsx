@@ -3,6 +3,7 @@
 import { X, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { ModalBackdrop } from './ModalBackdrop'
+import { useAuthStore } from '@/stores/authStore'
 
 interface AuthModalProps {
   onClose: () => void
@@ -12,9 +13,16 @@ interface AuthModalProps {
 export function AuthModal({ onClose, defaultTab = 'login' }: AuthModalProps) {
   const [tab, setTab] = useState<'login' | 'signup'>(defaultTab)
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
+  const [email, setEmail] = useState('test@example.com')
+  const [password, setPassword] = useState('password123')
+  const [name, setName] = useState('John Doe')
+  const login = useAuthStore((s) => s.login)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    login()
+    onClose()
+  }
 
   return (
     <ModalBackdrop onClose={onClose}>
@@ -22,7 +30,7 @@ export function AuthModal({ onClose, defaultTab = 'login' }: AuthModalProps) {
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
-          <img src="/logo3.jpeg" alt="234photos" className="h-7 w-auto" />
+          <img src="/logo/234final1black.png" alt="234photos" className="h-7 w-auto" />
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full hover:bg-[#F5F5F7] flex items-center justify-center transition-colors"
@@ -75,7 +83,7 @@ export function AuthModal({ onClose, defaultTab = 'login' }: AuthModalProps) {
           </div>
 
           {/* Form */}
-          <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             {tab === 'signup' && (
               <div>
                 <label className="block text-[12px] font-semibold text-[#444] mb-1.5" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>

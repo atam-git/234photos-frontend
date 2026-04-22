@@ -17,6 +17,7 @@ import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { Asset } from '@/components/features/search/AssetCard'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { useAuthStore } from '@/stores/authStore'
 
 const COLLECTION_META: Record<string, { title: string; desc: string; cover: string }> = {
   'african-entrepreneurs': { title: 'African Entrepreneurs', desc: 'Business leaders, founders and innovators across the continent.', cover: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1400&q=80' },
@@ -36,6 +37,7 @@ type ModalState =
 export default function CollectionPage() {
   const { slug } = useParams<{ slug: string }>()
   const meta = COLLECTION_META[slug] ?? { title: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), desc: 'Curated African content.', cover: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=1400&q=80' }
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   const [filters, setFilters] = useState<ActiveFilters>({})
   const [sort, setSort] = useState('relevance')
@@ -111,7 +113,7 @@ export default function CollectionPage() {
               assets={results}
               onAssetClick={(asset) => setModal({ type: 'preview', asset })}
               onDownload={(asset) => setModal({ type: 'download', asset })}
-              onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })}
+              onSaveToBoard={(asset) => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
               onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
             />
           </div>
@@ -120,7 +122,7 @@ export default function CollectionPage() {
 
       <Footer />
 
-      {modal.type === 'preview' && <QuickPreviewModal asset={modal.asset} assets={results} onClose={closeModal} onDownload={(a) => setModal({ type: 'download', asset: a })} onSaveToBoard={() => setModal({ type: 'auth', defaultTab: 'login' })} onAuthRequired={() => setModal({ type: 'auth' })} />}
+      {modal.type === 'preview' && <QuickPreviewModal asset={modal.asset} assets={results} onClose={closeModal} onDownload={(a) => setModal({ type: 'download', asset: a })} onSaveToBoard={(a) => isLoggedIn ? setModal({ type: 'board', asset: a }) : setModal({ type: 'auth', defaultTab: 'login' })} onAuthRequired={() => setModal({ type: 'auth' })} />}
       {modal.type === 'download' && <DownloadModal asset={modal.asset} onClose={closeModal} onConfirm={closeModal} />}
       {modal.type === 'board' && <SaveToBoardModal asset={modal.asset} onClose={closeModal} />}
       {modal.type === 'auth' && <AuthModal onClose={closeModal} defaultTab={modal.defaultTab} />}

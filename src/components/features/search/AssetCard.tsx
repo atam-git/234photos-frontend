@@ -79,13 +79,13 @@ export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }:
       )}
 
       {/* Hover overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 
       {/* Hover: contributor avatar + name → profile link */}
       <a
         href={`/profile/${username}`}
         onClick={(e) => e.stopPropagation()}
-        className="absolute bottom-2 left-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        className="absolute bottom-2 left-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto z-30"
       >
         <div className="w-5 h-5 rounded-full overflow-hidden bg-[#EE2B24] shrink-0 ring-1 ring-white/50">
           {avatar ? (
@@ -105,7 +105,7 @@ export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }:
       </a>
 
       {/* Hover: action buttons */}
-      <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto z-30">
         <button onClick={handleLike}
           className="w-7 h-7 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow transition-colors"
           aria-label="Save to favourites">
