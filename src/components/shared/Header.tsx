@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronDown, Menu, X, Grid2X2 } from 'lucide-react'
+import { ChevronDown, Menu, X, Grid2X2, LayoutDashboard } from 'lucide-react'
 import { useState, useEffect, useRef, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -163,6 +163,13 @@ export function Header({ variant = 'default', initialQuery = '', onAuthClick }: 
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
           >
             Contribute →
+          </Link>
+          <Link
+            href="/dashboard"
+            className="w-9 h-9 rounded-full border border-[#E0E0E0] flex items-center justify-center hover:border-[#999] transition-colors"
+            title="Dashboard"
+          >
+            <LayoutDashboard className="w-4 h-4 text-[#444]" />
           </Link>
           <button
             onClick={() => onAuthClick?.('login')}
