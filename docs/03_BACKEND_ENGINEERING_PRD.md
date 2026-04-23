@@ -2,7 +2,7 @@
 
 ### TL;DR
 
-This document provides the complete backend engineering specification for 234photos—Africa’s next-generation stock media marketplace. It covers all aspects of backend design and delivery: Node.js/Next.js API layer, tRPC routes, microservice architecture (worker jobs), PostgreSQL database with Prisma ORM, asynchronous jobs with BullMQ, payment integrations, AI/ML pipelines, real-time systems, security, CDN, and cloud infrastructure. All details are consolidated from the Series A-ready master PRD with complete gap closure and best-in-class operational, quality, and compliance strategies.
+This document provides the complete backend engineering specification for 234photos—Africa’s next-generation stock media marketplace. It covers all aspects of backend design and delivery: NestJS REST API layer with Swagger documentation, microservice architecture (worker jobs), PostgreSQL database with Prisma ORM, asynchronous jobs with BullMQ, payment integrations, AI/ML pipelines, real-time systems, security, CDN, and cloud infrastructure. All details are consolidated from the Series A-ready master PRD with complete gap closure and best-in-class operational, quality, and compliance strategies.
 
 ---
 
@@ -132,11 +132,13 @@ This document provides the complete backend engineering specification for 234pho
 
 ### Authentication & Session Management (Priority: P0)
 
-* NextAuth.js v5 JWT RS256 with refresh token rotation
+* Passport.js with JWT strategy (RS256) and refresh token rotation
 
-* Redis-backed token revocation
+* Redis-backed token revocation and session management
 
-* Google OAuth, API keys (Bcrypt), CSRF protection
+* Google OAuth 2.0, API keys (Bcrypt hashed), CSRF protection
+
+* NestJS Guards for route protection and role-based access control
 
 ### Asset Upload & Processing Pipeline (P0)
 
@@ -675,13 +677,13 @@ Moments later, Adaeze in London runs a “Lagos cityscape” search: the ranked 
 
 ### Technical Needs
 
-* Node.js 20+ runtime; Next.js 15 for API/tRPC router endpoints.
+* Node.js 20+ runtime; NestJS 10+ for REST API endpoints with Swagger documentation.
 
 * Standalone worker microservice (Dockerized, Railway) for CPU/gpu jobs (Sharp.js, FFmpeg, CLIP, pHash).
 
 * BullMQ orchestration for jobs (uploads, AI, PDFs, payout, discovery).
 
-* NextAuth.js v5 with advanced session, CSRF, Google OAuth, API key auth.
+* Passport.js with JWT strategy for authentication, Google OAuth 2.0, API key auth.
 
 * PostgreSQL with Prisma ORM for all relational data (assets, downloads, users, contributors, notifications, enterprise_teams, boards, reviews, search_logs, moderation_logs, etc.)
 
@@ -691,21 +693,27 @@ Moments later, Adaeze in London runs a “Lagos cityscape” search: the ranked 
 
 * PDFKit, Resend, and S3 with CRR and Glacier for robust storage & delivery.
 
+* class-validator + class-transformer for DTO validation and transformation.
+
+* helmet for security headers, compression for response optimization.
+
 ### Integration Points
 
-* Stripe/Stripe Connect/Stripe Tax
+* Stripe/Stripe Connect (international payments)
 
-* Flutterwave
+* Flutterwave (African payments + payouts)
 
-* SAML/OIDC/SCIM (passport-saml, openid-client)
+* SAML/OIDC/SCIM (passport-saml, openid-client) - Phase 3
 
-* Pinecone, Meilisearch, OpenAI API
+* Pinecone (vector search), Meilisearch (full-text search), OpenAI API (AI features)
 
-* Cloudflare WAF (bot/abuse layer), Turnstile
+* Cloudflare WAF (bot/abuse layer), Turnstile (CAPTCHA)
 
-* Sentry (errors), Axiom (logs), PostHog (analytics)
+* Sentry (error tracking), Axiom (log aggregation), PostHog (product analytics)
 
-* Resend (email)
+* Resend (transactional email)
+
+* AWS S3 (object storage), AWS CloudFront (optional CDN)
 
 ### Data Storage & Privacy
 
@@ -765,7 +773,7 @@ Moments later, Adaeze in London runs a “Lagos cityscape” search: the ranked 
 
 * PostgreSQL schema + Prisma migrations (all tables with indexes)
 
-* NextAuth.js v5/JWT/refresh+revocation, Google OAuth, tRPC scaffold, API key auth, CSRF
+* Passport.js JWT auth with refresh token rotation, Google OAuth 2.0, REST API scaffold with Swagger, API key auth, CSRF protection
 
 * GitHub Actions pipeline with lint, typecheck, unit tests; staging env
 
@@ -1936,7 +1944,7 @@ app.get('/health', async (req, res) => {
 
 **Week 1-2: Foundation**
 * PostgreSQL schema + Prisma migrations (ALL indexes specified above)
-* NextAuth.js JWT auth
+* Passport.js JWT auth with NestJS guards
 * Resumable multipart upload with S3
 * Basic BullMQ worker setup
 
@@ -1989,14 +1997,15 @@ app.get('/health', async (req, res) => {
 
 ### Core
 * **Runtime:** Node.js 20+
-* **Framework:** Next.js 15 (API routes + tRPC)
+* **Framework:** NestJS 10+ (modular architecture with REST APIs)
 * **Language:** TypeScript 5+
+* **API Documentation:** Swagger/OpenAPI (auto-generated)
 
 ### Database & Cache
 * **Primary DB:** PostgreSQL 15+ (Neon, Railway, or managed PostgreSQL)
 * **ORM:** Prisma (type-safe database access)
 * **Cache:** Redis/Upstash (sessions, rate limiting, job queue)
-* **Search:** Meilisearch (full-text search)
+* **Search:** Meilisearch (full-text search, can migrate to Typesense if needed)
 * **Vectors:** Pinecone (Phase 2 - semantic search)
 
 ### Storage & CDN
@@ -2013,14 +2022,16 @@ app.get('/health', async (req, res) => {
 * **Secondary:** Stripe (international + fallback)
 
 ### Auth & Security
-* **Auth:** NextAuth.js v5 (JWT RS256)
-* **Security:** Cloudflare WAF, rate limiting, CSRF protection
+* **Auth:** Passport.js with JWT strategy (RS256)
+* **Validation:** class-validator + class-transformer
+* **Security:** helmet (security headers), Cloudflare WAF, @nestjs/throttler (rate limiting), CSRF protection
+* **Compression:** compression middleware
 
 ### Monitoring & Observability
 * **Errors:** Sentry
 * **Logs:** Axiom
 * **Analytics:** PostHog
-* **APM:** Built-in Next.js instrumentation
+* **APM:** NestJS built-in instrumentation + custom metrics
 
 ### Email & Notifications
 * **Email:** Resend
@@ -2030,6 +2041,11 @@ app.get('/health', async (req, res) => {
 * **Hosting:** Railway (API + workers)
 * **CI/CD:** GitHub Actions
 * **Environments:** Development, Staging, Production
+
+### Additional Tools
+* **Testing:** Jest (unit), Supertest (e2e)
+* **Code Quality:** ESLint, Prettier
+* **Git Hooks:** Husky + lint-staged
 
 ---
 
@@ -3216,7 +3232,7 @@ k6 run --vus 500 --duration 120s tests/db-stress.js
 
 ### Phase 1: Core Platform (Weeks 1-8)
 1. PostgreSQL schema + Prisma migrations
-2. User authentication (NextAuth.js)
+2. User authentication (Passport.js + JWT)
 3. Asset upload pipeline
 4. Search implementation
 5. Download system
