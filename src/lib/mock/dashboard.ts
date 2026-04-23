@@ -24,9 +24,9 @@ export const DASHBOARD_BADGES = [
   { emoji: '⭐', label: '5000 downloads', earned: false, progress: 58 },
 ]
 
-// Earnings data (in Naira, thousands)
+// Earnings data (in kobo - 1 Naira = 100 kobo)
 export const EARNINGS_MONTHS = ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr']
-export const EARNINGS_DATA = [512000, 768000, 624000, 992000, 1424000, 1984000]
+export const EARNINGS_DATA = [51200000, 76800000, 62400000, 99200000, 142400000, 198400000] // In kobo
 
 // Support FAQ
 export const SUPPORT_FAQ_ITEMS = [

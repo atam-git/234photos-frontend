@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Download, LayoutGrid, Heart, BarChart2,
   ImageIcon, Upload, Banknote, Settings,
-  ChevronRight, X, Compass, LogOut, HelpCircle, CreditCard, User
+  ChevronRight, X, Compass, LogOut, HelpCircle, CreditCard, User as UserIcon
 } from 'lucide-react'
 import type { User } from '@/types'
 import { useAuthStore } from '@/stores/authStore'
@@ -104,7 +104,7 @@ export function DashboardSidebar({ user, mobileOpen, onMobileClose, onOpenContri
                     e.currentTarget.style.display = 'none'
                     const parent = e.currentTarget.parentElement
                     if (parent) {
-                      parent.innerHTML = `<span class="w-full h-full flex items-center justify-center text-white text-[13px] font-bold" style="font-family: var(--font-jakarta), Plus Jakarta Sans, sans-serif">${user.name.split(' ').map(n => n[0]).join('')}</span>`
+                      parent.innerHTML = `<span class="w-full h-full flex items-center justify-center text-white text-[13px] font-bold" style="font-family: var(--font-jakarta), Plus Jakarta Sans, sans-serif">${user.name.split(' ').map((n: string) => n[0]).join('')}</span>`
                     }
                   }}
                 />
@@ -113,7 +113,7 @@ export function DashboardSidebar({ user, mobileOpen, onMobileClose, onOpenContri
                   className="w-full h-full flex items-center justify-center text-white text-[13px] font-bold"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                 >
-                  {user.name.split(' ').map(n => n[0]).join('')}
+                  {user.name.split(' ').map((n: string) => n[0]).join('')}
                 </span>
               )}
             </div>
@@ -148,7 +148,7 @@ export function DashboardSidebar({ user, mobileOpen, onMobileClose, onOpenContri
                   className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                 >
-                  <User className="w-[17px] h-[17px] shrink-0 text-[#888]" />
+                  <UserIcon className="w-[17px] h-[17px] shrink-0 text-[#888]" />
                   View Profile
                 </Link>
               )}

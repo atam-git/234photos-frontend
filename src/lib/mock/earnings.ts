@@ -2,12 +2,13 @@ import type { Withdrawal } from '@/types'
 import { MOCK_ASSETS } from './searchAssets'
 
 // Earnings stats for the contributor
+// All amounts in kobo (1 Naira = 100 kobo)
 export const EARNINGS_STATS = {
-  availableBalance: 1980000, // Available to withdraw now
-  pendingBalance: 720000, // Pending (available in 30 days)
-  totalAllTime: 19840000, // Total lifetime earnings
-  thisMonth: 1980000,
-  lastMonth: 1680000,
+  availableBalance: 198000000, // ₦1,980,000 in kobo
+  pendingBalance: 72000000, // ₦720,000 in kobo
+  totalAllTime: 1984000000, // ₦19,840,000 in kobo
+  thisMonth: 198000000, // ₦1,980,000 in kobo
+  lastMonth: 168000000, // ₦1,680,000 in kobo
   currency: 'NGN' as const,
 }
 
@@ -15,7 +16,7 @@ export const EARNINGS_WITHDRAWALS: Withdrawal[] = [
   { 
     id: '1', 
     contributorId: 'contributor-1',
-    amount: 4000000, 
+    amount: 400000000, // ₦4,000,000 in kobo
     currency: 'NGN',
     method: 'bank', 
     status: 'completed', 
@@ -25,7 +26,7 @@ export const EARNINGS_WITHDRAWALS: Withdrawal[] = [
   { 
     id: '2', 
     contributorId: 'contributor-1',
-    amount: 2880000, 
+    amount: 288000000, // ₦2,880,000 in kobo
     currency: 'NGN',
     method: 'paypal', 
     status: 'completed', 
@@ -35,7 +36,7 @@ export const EARNINGS_WITHDRAWALS: Withdrawal[] = [
   { 
     id: '3', 
     contributorId: 'contributor-1',
-    amount: 1520000, 
+    amount: 152000000, // ₦1,520,000 in kobo
     currency: 'NGN',
     method: 'mobile_money', 
     status: 'processing', 
@@ -44,7 +45,7 @@ export const EARNINGS_WITHDRAWALS: Withdrawal[] = [
   { 
     id: '4', 
     contributorId: 'contributor-1',
-    amount: 1920000, 
+    amount: 192000000, // ₦1,920,000 in kobo
     currency: 'NGN',
     method: 'bank', 
     status: 'failed', 
@@ -60,9 +61,9 @@ export const EARNINGS_TRANSACTIONS = MOCK_ASSETS.slice(0, 8).map((asset, i) => (
   uploadedAt: ['Apr 18, 2026', 'Apr 15, 2026', 'Apr 10, 2026', 'Mar 28, 2026'][i % 4],
   downloads: Math.floor(Math.random() * 300),
   views: Math.floor(Math.random() * 3000 + 500),
-  earnings: (Math.random() * 240000).toFixed(0),
+  earnings: (Math.random() * 24000000).toFixed(0), // In kobo (₦0 - ₦240,000)
   type: (i % 3 === 0 ? 'enhanced' : 'standard') as 'enhanced' | 'standard',
-  amount: Math.floor(Math.random() * 24000 + 3200),
+  amount: Math.floor(Math.random() * 2400000 + 320000), // In kobo (₦3,200 - ₦27,200)
   date: ['Apr 18', 'Apr 17', 'Apr 15', 'Apr 14', 'Apr 12', 'Apr 10', 'Apr 8', 'Apr 5'][i],
   customer: 'Anonymous customer',
   earningStatus: (i % 3 === 0 ? 'pending' : i % 5 === 0 ? 'paid' : 'available') as 'pending' | 'available' | 'paid',

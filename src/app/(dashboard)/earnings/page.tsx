@@ -9,6 +9,7 @@ import { WithdrawEarningsModal } from '@/components/shared/Modals/WithdrawEarnin
 import { AssetStatsModal } from '@/components/shared/Modals/AssetStatsModal'
 import { WithdrawalDetailsModal } from '@/components/shared/Modals/WithdrawalDetailsModal'
 import { NairaIcon } from '@/components/icons/NairaIcon'
+import { formatNaira, formatNairaCompact } from '@/lib/currency'
 
 const MAX = Math.max(...EARNINGS_DATA)
 
@@ -90,7 +91,7 @@ export default function EarningsPage() {
           </div>
           <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            ₦{availableBalance.toLocaleString('en-NG')}
+            {formatNaira(availableBalance)}
           </p>
           <p className="text-[12px] text-[#888]"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -110,7 +111,7 @@ export default function EarningsPage() {
           </div>
           <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            ₦{pendingBalance.toLocaleString('en-NG')}
+            {formatNaira(pendingBalance)}
           </p>
           <p className="text-[12px] text-[#888]"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -130,7 +131,7 @@ export default function EarningsPage() {
           </div>
           <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            ₦{totalAllTime.toLocaleString('en-NG')}
+            {formatNaira(totalAllTime)}
           </p>
           <p className="text-[12px] text-[#888]"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -150,7 +151,7 @@ export default function EarningsPage() {
             <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
               <span className="text-[11px] font-semibold text-[#888]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                ₦{(val / 1000).toFixed(0)}K
+                {formatNairaCompact(val)}
               </span>
               <div
                 className="w-full rounded-t-lg bg-[#EE2B24] transition-all duration-500"
@@ -267,7 +268,7 @@ export default function EarningsPage() {
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-[13px] font-semibold text-[#111]"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    ₦{withdrawal.amount.toLocaleString('en-NG')}
+                    {formatNaira(withdrawal.amount)}
                   </p>
                   <span className={`text-[10px] font-bold uppercase tracking-[0.5px] px-2 py-0.5 rounded-full ${
                     withdrawal.status === 'completed' ? 'bg-green-50 text-green-700' :
@@ -335,7 +336,7 @@ export default function EarningsPage() {
               </div>
               <span className="text-[14px] font-bold text-green-600 shrink-0"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                +₦{tx.amount.toLocaleString('en-NG')}
+                +{formatNaira(tx.amount)}
               </span>
             </button>
           ))}

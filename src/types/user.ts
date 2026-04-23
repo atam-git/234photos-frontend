@@ -102,3 +102,25 @@ export interface Contributor {
   twitter?: string
   facebook?: string
 }
+
+export interface ContributorApplication {
+  id: string
+  userId: string
+  status: 'pending' | 'approved' | 'rejected'
+  
+  // Application data
+  bio: string
+  specialties: string[]
+  portfolioUrl?: string
+  instagram?: string
+  sampleWorkUrls?: string[] // 3-5 sample images
+  
+  // Metadata
+  submittedAt: string
+  reviewedAt?: string
+  reviewedBy?: string // admin user ID
+  rejectionReason?: string
+  
+  // Auto-approval flag (for demo/testing)
+  autoApproved?: boolean
+}
