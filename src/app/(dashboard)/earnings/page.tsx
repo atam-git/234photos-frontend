@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { DollarSign, TrendingUp, Download, ArrowUpRight } from 'lucide-react'
-import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { TrendingUp } from 'lucide-react'
 import { EARNINGS_MONTHS, EARNINGS_DATA, EARNINGS_WITHDRAWALS, EARNINGS_TRANSACTIONS, EARNINGS_STATS } from '@/lib/mock'
 import { useAuthStore } from '@/stores/authStore'
 import { WithdrawEarningsModal } from '@/components/shared/Modals/WithdrawEarningsModal'
 import { AssetStatsModal } from '@/components/shared/Modals/AssetStatsModal'
 import { WithdrawalDetailsModal } from '@/components/shared/Modals/WithdrawalDetailsModal'
-import type { LicenseType } from '@/types'
+import { NairaIcon } from '@/components/icons/NairaIcon'
 
 const MAX = Math.max(...EARNINGS_DATA)
 
@@ -48,7 +47,6 @@ export default function EarningsPage() {
     )
   }
 
-  const total = EARNINGS_DATA.reduce((a, b) => a + b, 0)
   const { availableBalance, pendingBalance, totalAllTime } = EARNINGS_STATS
 
   const handlePayoutSave = () => {
@@ -83,7 +81,7 @@ export default function EarningsPage() {
         <div className="bg-white rounded-2xl border border-[#F0F0F0] p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="w-8 h-8 rounded-lg bg-[#E8F5E9] flex items-center justify-center">
-              <DollarSign className="w-4 h-4 text-green-600" />
+              <NairaIcon className="w-4 h-4 text-green-600" />
             </div>
             <span className="text-[11px] font-bold uppercase tracking-[0.5px] px-2.5 py-1 rounded-full bg-green-50 text-green-700"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>

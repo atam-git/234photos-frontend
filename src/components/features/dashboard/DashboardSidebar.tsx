@@ -5,11 +5,12 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   Download, LayoutGrid, Heart, BarChart2,
-  ImageIcon, Upload, DollarSign, Settings,
-  ChevronRight, X, Compass, LogOut, HelpCircle, CreditCard
+  ImageIcon, Upload, Banknote, Settings,
+  ChevronRight, X, Compass, LogOut, HelpCircle, CreditCard, User
 } from 'lucide-react'
 import type { User } from '@/types'
 import { useAuthStore } from '@/stores/authStore'
+import { NairaIcon } from '@/components/icons/NairaIcon'
 
 interface NavItem {
   label: string
@@ -27,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   // Contributor (unlocked)
   { label: 'Dashboard', href: '/dashboard', icon: BarChart2, contributorOnly: true },
   { label: 'My Assets', href: '/my-assets', icon: ImageIcon, contributorOnly: true },
-  { label: 'Earnings', href: '/earnings', icon: DollarSign, contributorOnly: true },
+  { label: 'Earnings', href: '/earnings', icon: NairaIcon, contributorOnly: true },
   // Shared
   { label: 'Billing', href: '/billing', icon: CreditCard },
   { label: 'Support', href: '/support', icon: HelpCircle },
@@ -147,7 +148,7 @@ export function DashboardSidebar({ user, mobileOpen, onMobileClose, onOpenContri
                   className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                 >
-                  <Settings className="w-[17px] h-[17px] shrink-0 text-[#888]" />
+                  <User className="w-[17px] h-[17px] shrink-0 text-[#888]" />
                   View Profile
                 </Link>
               )}

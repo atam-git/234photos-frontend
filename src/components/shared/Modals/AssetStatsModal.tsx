@@ -1,8 +1,9 @@
 'use client'
 
-import { X, Download, Eye, Heart, DollarSign, TrendingUp, Calendar } from 'lucide-react'
+import { X, Download, Eye, Heart, Banknote, TrendingUp, Calendar } from 'lucide-react'
 import { ModalBackdrop } from './ModalBackdrop'
 import type { AssetStats } from '@/types'
+import { NairaIcon } from '@/components/icons/NairaIcon'
 
 interface AssetStatsModalProps {
   asset: {
@@ -101,7 +102,7 @@ export function AssetStatsModal({ asset, onClose }: AssetStatsModalProps) {
             <div className="bg-gradient-to-br from-[#EE2B24] to-[#d42520] rounded-2xl p-5 text-white">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <DollarSign className="w-4 h-4" />
+                  <NairaIcon className="w-4 h-4" />
                 </div>
                 <span
                   className="text-[12px] font-semibold text-white/80"

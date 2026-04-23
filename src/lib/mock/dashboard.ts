@@ -1,11 +1,12 @@
-import { TrendingUp, Download, Eye, DollarSign } from 'lucide-react'
+import { TrendingUp, Download, Eye, Trophy } from 'lucide-react'
+import { NairaIcon } from '@/components/icons/NairaIcon'
 
 // Dashboard stats
 export const DASHBOARD_STATS = [
-  { label: 'Earnings this month', value: '₦1,980,000', change: '+18%', up: true, icon: TrendingUp },
+  { label: 'Earnings this month', value: '₦1,980,000', change: '+18%', up: true, icon: NairaIcon },
   { label: 'Downloads this month', value: '847', change: '+12%', up: true, icon: Download },
   { label: 'Total views', value: '12.4K', change: '+8%', up: true, icon: Eye },
-  { label: 'Leaderboard rank', value: '#42', change: '+5', up: true, icon: DollarSign },
+  { label: 'Leaderboard rank', value: '#42', change: '+5', up: true, icon: Trophy },
 ]
 
 export const DASHBOARD_ACTIVITY = [
