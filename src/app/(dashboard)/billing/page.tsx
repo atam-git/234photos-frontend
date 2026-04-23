@@ -156,7 +156,7 @@ export default function BillingPage() {
                     </p>
                     <p className="text-[24px] font-bold text-[#111] mb-1"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      ${pkg.price}
+                      ₦{pkg.price.toLocaleString('en-NG')}
                     </p>
                     {pkg.save && (
                       <p className="text-[12px] font-semibold text-green-600 mb-4"
@@ -343,7 +343,7 @@ export default function BillingPage() {
                       'text-[#111]'
                     }`}
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {txn.type === 'credit_purchase' ? `-$${txn.amount}` : txn.type === 'refund' ? `+$${txn.amount}` : `${txn.amount} credit`}
+                      {txn.type === 'credit_purchase' ? `-₦${txn.amount?.toLocaleString('en-NG') || 0}` : txn.type === 'refund' ? `+₦${txn.amount?.toLocaleString('en-NG') || 0}` : `${txn.amount || 0} credit`}
                     </p>
                     {txn.credits && (
                       <p className="text-[11px] text-[#888]"
@@ -417,7 +417,7 @@ export default function BillingPage() {
                 </div>
                 <p className="text-[32px] font-extrabold text-[#111] mb-1"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  $49<span className="text-[16px] text-[#888] font-normal">/month</span>
+                  ₦75,000<span className="text-[16px] text-[#888] font-normal">/month</span>
                 </p>
                 <p className="text-[13px] text-[#666] mb-4"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -459,7 +459,7 @@ export default function BillingPage() {
                 </div>
                 <p className="text-[32px] font-extrabold text-[#111] mb-1"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  $199<span className="text-[16px] text-[#888] font-normal">/month</span>
+                  ₦300,000<span className="text-[16px] text-[#888] font-normal">/month</span>
                 </p>
                 <p className="text-[13px] text-[#666] mb-4"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>

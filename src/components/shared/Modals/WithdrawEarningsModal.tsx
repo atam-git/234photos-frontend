@@ -18,8 +18,8 @@ export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEar
     e.preventDefault()
     const withdrawAmount = parseFloat(amount)
     
-    if (withdrawAmount < 50) {
-      alert('Minimum withdrawal amount is $50')
+    if (withdrawAmount < 80000) {
+      alert('Minimum withdrawal amount is ₦80,000')
       return
     }
     
@@ -88,7 +88,7 @@ export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEar
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#888] text-[14px] font-semibold">
-                $
+                ₦
               </span>
               <input
                 type="number"
@@ -115,7 +115,7 @@ export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEar
               className="text-[11px] text-[#888] mt-1"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             >
-              Minimum withdrawal: $50
+              Minimum withdrawal: ₦80,000
             </p>
           </div>
 

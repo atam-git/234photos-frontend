@@ -33,7 +33,7 @@ export const MOCK_COLLECTION_DETAIL = {
     uploadedAt: ['Apr 18, 2026', 'Apr 15, 2026', 'Apr 10, 2026', 'Mar 28, 2026'][i % 4],
     downloads: Math.floor(Math.random() * 300),
     views: Math.floor(Math.random() * 3000 + 500),
-    earnings: (Math.random() * 150).toFixed(0),
+    earnings: (Math.random() * 240000).toFixed(0),
   })),
 }
 

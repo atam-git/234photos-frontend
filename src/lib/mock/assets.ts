@@ -6,9 +6,9 @@ import { Asset, AssetStats, AssetPrices } from '@/types'
  */
 
 const defaultPrices: AssetPrices = {
-  standard: 10,
-  enhanced: 25,
-  editorial: 15,
+  standard: 15000,
+  enhanced: 75000,
+  editorial: 30000,
 }
 
 const freePrices: AssetPrices = {

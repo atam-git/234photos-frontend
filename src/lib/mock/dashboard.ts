@@ -2,17 +2,17 @@ import { TrendingUp, Download, Eye, DollarSign } from 'lucide-react'
 
 // Dashboard stats
 export const DASHBOARD_STATS = [
-  { label: 'Earnings this month', value: '$1,240', change: '+18%', up: true, icon: TrendingUp },
+  { label: 'Earnings this month', value: '₦1,980,000', change: '+18%', up: true, icon: TrendingUp },
   { label: 'Downloads this month', value: '847', change: '+12%', up: true, icon: Download },
   { label: 'Total views', value: '12.4K', change: '+8%', up: true, icon: Eye },
   { label: 'Leaderboard rank', value: '#42', change: '+5', up: true, icon: DollarSign },
 ]
 
 export const DASHBOARD_ACTIVITY = [
-  { icon: '⬇️', text: '5 downloads of "Lagos Skyline" today', sub: 'Earned $12.50 · 2 hours ago' },
+  { icon: '⬇️', text: '5 downloads of "Lagos Skyline" today', sub: 'Earned ₦20,000 · 2 hours ago' },
   { icon: '✅', text: '12 assets approved and now live', sub: '4 hours ago' },
   { icon: '🎉', text: 'You reached 10K total downloads!', sub: 'Yesterday' },
-  { icon: '💰', text: 'Withdrawal of $500 processed', sub: '2 days ago' },
+  { icon: '💰', text: 'Withdrawal of ₦800,000 processed', sub: '2 days ago' },
 ]
 
 export const DASHBOARD_BADGES = [
@@ -23,9 +23,9 @@ export const DASHBOARD_BADGES = [
   { emoji: '⭐', label: '5000 downloads', earned: false, progress: 58 },
 ]
 
-// Earnings data
+// Earnings data (in Naira, thousands)
 export const EARNINGS_MONTHS = ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr']
-export const EARNINGS_DATA = [320, 480, 390, 620, 890, 1240]
+export const EARNINGS_DATA = [512000, 768000, 624000, 992000, 1424000, 1984000]
 
 // Support FAQ
 export const SUPPORT_FAQ_ITEMS = [
@@ -89,7 +89,7 @@ export const SUPPORT_FAQ_ITEMS = [
       },
       {
         q: 'How much do contributors earn?',
-        a: 'Contributors earn 50% of each sale. Standard downloads pay $1.50, Enhanced downloads pay $7.50. Payments are made monthly via bank transfer or PayPal.',
+        a: 'Contributors earn 50% of each sale. Standard downloads pay ₦7,500, Enhanced downloads pay ₦37,500. Payments are made monthly via bank transfer or mobile money.',
       },
       {
         q: 'What are the photo requirements?',

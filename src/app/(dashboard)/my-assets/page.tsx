@@ -210,7 +210,7 @@ export default function MyAssetsPage() {
                         <p className="text-[10px] text-[#888]">downloads</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-[13px] font-bold text-[#111]">${asset.earnings}</p>
+                        <p className="text-[13px] font-bold text-[#111]">₦{Number(asset.earnings).toLocaleString('en-NG')}</p>
                         <p className="text-[10px] text-[#888]">earned</p>
                       </div>
                     </div>

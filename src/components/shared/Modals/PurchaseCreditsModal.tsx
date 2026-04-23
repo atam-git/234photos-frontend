@@ -152,7 +152,7 @@ export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, on
               </span>
               <span className="text-[13px] font-semibold text-[#111]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                ${pkg.price}
+                ₦{pkg.price.toLocaleString('en-NG')}
               </span>
             </div>
             {promoApplied && (

@@ -529,7 +529,7 @@ Authenticated feature for managing liked assets.
 **Withdraw Modal:**
 - Method selection (Bank Transfer, PayPal, Mobile Money)
 - Amount input with MAX button
-- Minimum withdrawal: $50
+- Minimum withdrawal: ₦80,000
 - Processing time info (3-5 business days)
 - Confirm button
 

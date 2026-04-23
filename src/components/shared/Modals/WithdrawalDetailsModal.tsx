@@ -117,7 +117,7 @@ export function WithdrawalDetailsModal({ withdrawal, onClose, onRetry }: Withdra
             </p>
             <p className="text-[36px] font-extrabold text-[#111]"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              ${withdrawal.amount.toLocaleString()}
+              ₦{withdrawal.amount.toLocaleString('en-NG')}
             </p>
           </div>
 

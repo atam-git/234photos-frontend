@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DollarSign, TrendingUp, Download, ArrowUpRight } from 'lucide-react'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
-import { EARNINGS_MONTHS, EARNINGS_DATA, EARNINGS_WITHDRAWALS, EARNINGS_TRANSACTIONS } from '@/lib/mock'
+import { EARNINGS_MONTHS, EARNINGS_DATA, EARNINGS_WITHDRAWALS, EARNINGS_TRANSACTIONS, EARNINGS_STATS } from '@/lib/mock'
 import { useAuthStore } from '@/stores/authStore'
 import { WithdrawEarningsModal } from '@/components/shared/Modals/WithdrawEarningsModal'
 import { AssetStatsModal } from '@/components/shared/Modals/AssetStatsModal'
@@ -49,7 +49,7 @@ export default function EarningsPage() {
   }
 
   const total = EARNINGS_DATA.reduce((a, b) => a + b, 0)
-  const availableBalance = 1240 // This month's earnings
+  const { availableBalance, pendingBalance, totalAllTime } = EARNINGS_STATS
 
   const handlePayoutSave = () => {
     console.log('Saving payout method:', payoutMethod)
@@ -92,7 +92,7 @@ export default function EarningsPage() {
           </div>
           <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            ${availableBalance.toLocaleString()}
+            ₦{availableBalance.toLocaleString('en-NG')}
           </p>
           <p className="text-[12px] text-[#888]"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -112,7 +112,7 @@ export default function EarningsPage() {
           </div>
           <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            $450
+            ₦{pendingBalance.toLocaleString('en-NG')}
           </p>
           <p className="text-[12px] text-[#888]"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -132,7 +132,7 @@ export default function EarningsPage() {
           </div>
           <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            ${total.toLocaleString()}
+            ₦{totalAllTime.toLocaleString('en-NG')}
           </p>
           <p className="text-[12px] text-[#888]"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -152,7 +152,7 @@ export default function EarningsPage() {
             <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
               <span className="text-[11px] font-semibold text-[#888]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                ${val}
+                ₦{(val / 1000).toFixed(0)}K
               </span>
               <div
                 className="w-full rounded-t-lg bg-[#EE2B24] transition-all duration-500"
@@ -269,7 +269,7 @@ export default function EarningsPage() {
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-[13px] font-semibold text-[#111]"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    ${withdrawal.amount.toLocaleString()}
+                    ₦{withdrawal.amount.toLocaleString('en-NG')}
                   </p>
                   <span className={`text-[10px] font-bold uppercase tracking-[0.5px] px-2 py-0.5 rounded-full ${
                     withdrawal.status === 'completed' ? 'bg-green-50 text-green-700' :
@@ -337,7 +337,7 @@ export default function EarningsPage() {
               </div>
               <span className="text-[14px] font-bold text-green-600 shrink-0"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                +${tx.amount}
+                +₦{tx.amount.toLocaleString('en-NG')}
               </span>
             </button>
           ))}

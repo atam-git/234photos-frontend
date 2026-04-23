@@ -127,9 +127,9 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
                 'text-[#111]'
               }`}
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {transaction.type === 'credit_purchase' ? `-$${transaction.amount}` :
-                 transaction.type === 'refund' ? `+$${transaction.amount}` :
-                 `${transaction.amount} credit`}
+                {transaction.type === 'credit_purchase' ? `-₦${(transaction.amount || 0).toLocaleString('en-NG')}` :
+                 transaction.type === 'refund' ? `+₦${(transaction.amount || 0).toLocaleString('en-NG')}` :
+                 `${transaction.amount || 0} credit`}
               </span>
             </div>
 

@@ -1,9 +1,9 @@
 import type { CreditPackage, Transaction } from '@/types'
 
 export const CREDIT_PACKAGES: CreditPackage[] = [
-  { id: 'pkg_001', name: 'Starter', credits: 10, price: 29, currency: 'USD', popular: false },
-  { id: 'pkg_002', name: 'Popular', credits: 50, price: 99, currency: 'USD', popular: true, save: '32%' },
-  { id: 'pkg_003', name: 'Pro', credits: 100, price: 149, currency: 'USD', popular: false, save: '49%' },
+  { id: 'pkg_001', name: 'Starter', credits: 10, price: 45000, currency: 'NGN', popular: false },
+  { id: 'pkg_002', name: 'Popular', credits: 50, price: 150000, currency: 'NGN', popular: true, save: '32%' },
+  { id: 'pkg_003', name: 'Pro', credits: 100, price: 230000, currency: 'NGN', popular: false, save: '49%' },
 ]
 
 export const BILLING_TRANSACTIONS: Partial<Transaction>[] = [

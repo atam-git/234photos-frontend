@@ -110,7 +110,7 @@ export function LeaderboardModal({ currentUserRank, onClose }: LeaderboardModalP
                   </p>
                   <p className="text-[15px] font-extrabold text-[#EE2B24] mb-1"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    ${actualUser.earnings.toLocaleString()}
+                    ₦{actualUser.earnings.toLocaleString('en-NG')}
                   </p>
                   <p className="text-[11px] text-[#888]"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -165,7 +165,7 @@ export function LeaderboardModal({ currentUserRank, onClose }: LeaderboardModalP
                     )}
                     <span className="text-[14px] font-bold text-[#111] min-w-[80px] text-right"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      ${user.earnings.toLocaleString()}
+                      ₦{user.earnings.toLocaleString('en-NG')}
                     </span>
                   </div>
                 </div>

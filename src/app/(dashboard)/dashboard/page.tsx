@@ -283,7 +283,7 @@ export default function DashboardPage() {
                 </div>
                 <span className="text-[13px] font-bold text-[#111] shrink-0"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  ${Math.floor(Math.random() * 200 + 50)}
+                  ₦{(Math.floor(Math.random() * 320000 + 80000)).toLocaleString('en-NG')}
                 </span>
               </button>
             ))}

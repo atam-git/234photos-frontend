@@ -15,7 +15,7 @@ export const PRICING_PLANS = [
     id: 'standard',
     name: 'Standard',
     desc: 'For creators, marketers and small businesses.',
-    monthlyPrice: 29,
+    monthlyPrice: 45000,
     badge: 'Most popular',
     cta: 'Start free trial',
     ctaVariant: 'red' as const,
@@ -25,7 +25,7 @@ export const PRICING_PLANS = [
     id: 'business',
     name: 'Business',
     desc: 'For agencies, teams and high-volume brands.',
-    monthlyPrice: 79,
+    monthlyPrice: 120000,
     badge: null,
     cta: 'Contact sales',
     ctaVariant: 'dark' as const,
@@ -80,23 +80,25 @@ export const BUYER_STEPS = [
 ]
 
 export const CONTRIBUTOR_STEPS = [
-  { n: '01', title: 'Upload', desc: 'Drag and drop up to 100 files at once. Resumable uploads mean large batches never fail.' },
-  { n: '02', title: 'Tag & describe', desc: 'AI suggests tags automatically. Add a title, description and category, then submit for review.' },
-  { n: '03', title: 'Earn', desc: 'Get paid 30–50% royalty every time someone downloads your work. Withdraw anytime via bank, PayPal or mobile money.' },
+  { n: '01', title: 'Create your account', desc: 'Sign up free in under 2 minutes. No approval needed to get started.' },
+  { n: '02', title: 'Upload your work', desc: 'Drag and drop up to 100 files at once. We support JPG, PNG, SVG, MP4 and MOV.' },
+  { n: '03', title: 'Add metadata', desc: 'Our AI suggests tags automatically. Review, edit and submit for review.' },
+  { n: '04', title: 'Get approved & earn', desc: 'Assets go live within 24–48 hours. Earn royalties every time your work is downloaded.' },
 ]
 
 export const CONTRIBUTOR_STATS = [
   { value: '100K+', label: 'Active contributors' },
   { value: '54', label: 'African countries' },
-  { value: '$12M+', label: 'Paid to contributors' },
+  { value: '₦3.2B+', label: 'Paid to contributors' },
+  { value: '50M+', label: 'Assets in library' },
 ]
 
 export const CONTRIBUTOR_FAQS = [
   { q: 'How much do I earn per download?', a: 'Contributors earn 30–50% royalty per download depending on your contributor tier and the license type purchased.' },
   { q: 'What content can I upload?', a: 'Photos, vectors, illustrations, footage and music with African subjects or created by African creators. Content must be original and you must own the rights.' },
-  { q: 'How long does review take?', a: 'Most submissions are reviewed within 24–48 hours. You\'ll receive an email notification once your content is approved or if changes are needed.' },
-  { q: 'When do I get paid?', a: 'Earnings are available for withdrawal 30 days after a sale. Minimum withdrawal is $50. Payments are processed within 3–5 business days.' },
-  { q: 'Do I need to be a professional photographer?', a: 'No! We welcome creators of all skill levels. As long as your content meets our quality standards and represents authentic African stories, you\'re welcome to contribute.' },
+  { q: 'How long does review take?', a: 'Most submissions are reviewed within 24–48 hours. You\'ll receive a notification when your assets go live or if any are rejected with feedback.' },
+  { q: 'Do I need a model release?', a: 'Yes, for any identifiable people in your images. We provide a model release template you can use.' },
+  { q: 'When and how do I get paid?', a: 'Earnings are paid monthly via bank transfer, PayPal or mobile money once you reach the ₦5,000 minimum threshold.' },
 ]
 
 export const CONTACT_TOPICS = ['General enquiry', 'Licensing question', 'Contributor support', 'Enterprise / sales', 'Press & media', 'Report an issue']
@@ -104,7 +106,7 @@ export const CONTACT_TOPICS = ['General enquiry', 'Licensing question', 'Contrib
 export const LICENSES = [
   {
     name: 'Standard Licence',
-    price: '$9.99',
+    price: '₦15,000',
     desc: 'Perfect for most projects',
     features: [
       'Use in web, social media, blogs',
@@ -116,7 +118,7 @@ export const LICENSES = [
   },
   {
     name: 'Enhanced Licence',
-    price: '$49.99',
+    price: '₦75,000',
     desc: 'For larger campaigns and products',
     features: [
       'Everything in Standard',
@@ -128,7 +130,7 @@ export const LICENSES = [
   },
   {
     name: 'Editorial Licence',
-    price: '$19.99',
+    price: '₦30,000',
     desc: 'For news, education and commentary',
     features: [
       'News articles and journalism',

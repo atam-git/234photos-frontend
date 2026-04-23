@@ -7,6 +7,7 @@ import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { Check, Minus, ChevronDown } from 'lucide-react'
 import type { BillingPeriod } from '@/types'
 import { PRICING_PLANS, PRICING_FEATURES, PRICING_FAQS } from '@/lib/mock/marketing'
+import { formatCurrency } from '@/lib/utils'
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -148,7 +149,7 @@ export default function PricingPage() {
                           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>₦</span>
                         <span className="text-[48px] font-extrabold text-[#111] tracking-[-1.5px]"
                           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                          {p}
+                          {formatCurrency(p)}
                         </span>
                         <span className="text-[14px] text-[#888]"
                           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>/mo</span>
@@ -269,6 +270,7 @@ export default function PricingPage() {
         </section>
       </main>
 
+      <Footer />
     </div>
   )
 }

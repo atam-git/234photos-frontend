@@ -114,7 +114,7 @@ export function AssetStatsModal({ asset, onClose }: AssetStatsModalProps) {
                 className="text-[32px] font-extrabold"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
               >
-                ${typeof asset.earnings === 'number' ? asset.earnings.toFixed(2) : asset.earnings}
+                ₦{typeof asset.earnings === 'number' ? asset.earnings.toLocaleString('en-NG', { maximumFractionDigits: 2 }) : asset.earnings}
               </p>
             </div>
 
@@ -218,7 +218,7 @@ export function AssetStatsModal({ asset, onClose }: AssetStatsModalProps) {
                     className="text-[13px] font-semibold text-[#111]"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                   >
-                    Avg. Earnings per Download: ${((typeof asset.earnings === 'number' ? asset.earnings : parseFloat(asset.earnings.toString())) / asset.downloads).toFixed(2)}
+                    Avg. Earnings per Download: ₦{((typeof asset.earnings === 'number' ? asset.earnings : parseFloat(asset.earnings.toString())) / asset.downloads).toLocaleString('en-NG', { maximumFractionDigits: 2 })}
                   </p>
                   <p
                     className="text-[12px] text-[#666]"

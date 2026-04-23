@@ -1,12 +1,22 @@
 import type { Withdrawal } from '@/types'
 import { MOCK_ASSETS } from './searchAssets'
 
+// Earnings stats for the contributor
+export const EARNINGS_STATS = {
+  availableBalance: 1980000, // Available to withdraw now
+  pendingBalance: 720000, // Pending (available in 30 days)
+  totalAllTime: 19840000, // Total lifetime earnings
+  thisMonth: 1980000,
+  lastMonth: 1680000,
+  currency: 'NGN' as const,
+}
+
 export const EARNINGS_WITHDRAWALS: Withdrawal[] = [
   { 
     id: '1', 
     contributorId: 'contributor-1',
-    amount: 2500, 
-    currency: 'USD',
+    amount: 4000000, 
+    currency: 'NGN',
     method: 'bank', 
     status: 'completed', 
     requestedAt: '2026-03-15T10:00:00Z', 
@@ -15,8 +25,8 @@ export const EARNINGS_WITHDRAWALS: Withdrawal[] = [
   { 
     id: '2', 
     contributorId: 'contributor-1',
-    amount: 1800, 
-    currency: 'USD',
+    amount: 2880000, 
+    currency: 'NGN',
     method: 'paypal', 
     status: 'completed', 
     requestedAt: '2026-02-10T09:00:00Z', 
@@ -25,8 +35,8 @@ export const EARNINGS_WITHDRAWALS: Withdrawal[] = [
   { 
     id: '3', 
     contributorId: 'contributor-1',
-    amount: 950, 
-    currency: 'USD',
+    amount: 1520000, 
+    currency: 'NGN',
     method: 'mobile_money', 
     status: 'processing', 
     requestedAt: '2026-04-20T15:30:00Z' 
@@ -34,8 +44,8 @@ export const EARNINGS_WITHDRAWALS: Withdrawal[] = [
   { 
     id: '4', 
     contributorId: 'contributor-1',
-    amount: 1200, 
-    currency: 'USD',
+    amount: 1920000, 
+    currency: 'NGN',
     method: 'bank', 
     status: 'failed', 
     requestedAt: '2026-01-05T11:00:00Z', 
@@ -50,9 +60,9 @@ export const EARNINGS_TRANSACTIONS = MOCK_ASSETS.slice(0, 8).map((asset, i) => (
   uploadedAt: ['Apr 18, 2026', 'Apr 15, 2026', 'Apr 10, 2026', 'Mar 28, 2026'][i % 4],
   downloads: Math.floor(Math.random() * 300),
   views: Math.floor(Math.random() * 3000 + 500),
-  earnings: (Math.random() * 150).toFixed(0),
+  earnings: (Math.random() * 240000).toFixed(0),
   type: (i % 3 === 0 ? 'enhanced' : 'standard') as 'enhanced' | 'standard',
-  amount: (Math.random() * 15 + 2).toFixed(2),
+  amount: Math.floor(Math.random() * 24000 + 3200),
   date: ['Apr 18', 'Apr 17', 'Apr 15', 'Apr 14', 'Apr 12', 'Apr 10', 'Apr 8', 'Apr 5'][i],
   customer: 'Anonymous customer',
   earningStatus: (i % 3 === 0 ? 'pending' : i % 5 === 0 ? 'paid' : 'available') as 'pending' | 'available' | 'paid',

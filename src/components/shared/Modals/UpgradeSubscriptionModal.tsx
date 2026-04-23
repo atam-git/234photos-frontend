@@ -59,7 +59,7 @@ export function UpgradeSubscriptionModal({
             </div>
             <p className="text-[32px] font-extrabold mb-1"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              ${billingCycle === 'monthly' ? planPrice : (annualPrice / 12).toFixed(0)}
+              ₦{(billingCycle === 'monthly' ? planPrice : (annualPrice / 12)).toLocaleString('en-NG', { maximumFractionDigits: 0 })}
               <span className="text-[16px] font-normal opacity-80">/month</span>
             </p>
             <p className="text-[13px] opacity-80"
@@ -89,7 +89,7 @@ export function UpgradeSubscriptionModal({
                 </p>
                 <p className="text-[13px] text-[#888]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  ${planPrice}/month
+                  ₦{planPrice.toLocaleString('en-NG')}/month
                 </p>
               </button>
               <button

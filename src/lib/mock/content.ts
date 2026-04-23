@@ -106,7 +106,7 @@ The continent's biggest fashion event drew global buyers and press, cementing La
 
 - 60+ designers showcased collections
 - 15,000+ attendees from 40 countries
-- $2.5M in orders placed during the event
+- ₦4 billion in orders placed during the event
 - 500+ international press and buyers
 
 ## Standout Collections
@@ -133,24 +133,24 @@ Major fashion houses and retailers are now actively seeking partnerships with Af
   {
     id: 'art_004',
     slug: 'africa-tech-funding-2025',
-    title: "Africa's Tech Startups Raised $4.3 Billion in 2025 — The Continent's Biggest Year Yet",
+    title: "Africa's Tech Startups Raised ₦6.9 Trillion in 2025 — The Continent's Biggest Year Yet",
     excerpt: 'Fintech, healthtech and agritech led the charge as African startups attracted record investment from global VCs and development finance institutions.',
     content: `
-# Africa's Tech Boom: $4.3 Billion Raised in 2025
+# Africa's Tech Boom: ₦6.9 Trillion Raised in 2025
 
 Fintech, healthtech and agritech led the charge as African startups attracted record investment from global VCs and development finance institutions.
 
 ## Investment Breakdown
 
-- Fintech: $1.8B (42%)
-- Healthtech: $980M (23%)
-- Agritech: $720M (17%)
-- E-commerce: $540M (13%)
-- Other: $260M (5%)
+- Fintech: ₦2.9T (42%)
+- Healthtech: ₦1.6T (23%)
+- Agritech: ₦1.2T (17%)
+- E-commerce: ₦860B (13%)
+- Other: ₦420B (5%)
 
 ## Key Deals
 
-Several African startups achieved unicorn status, with valuations exceeding $1 billion.
+Several African startups achieved unicorn status, with valuations exceeding ₦1.6 trillion.
 
 ## Future Outlook
 
