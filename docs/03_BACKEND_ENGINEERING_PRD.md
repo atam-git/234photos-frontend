@@ -76,11 +76,39 @@ This document provides the complete backend engineering specification for 234pho
 
 ### Admin
 
-* As an admin, I want access to a liquidity dashboard tracking coverage, trends, and campaigns.
+**Content Moderation:**
+* As an admin, I want to review pending assets in a moderation queue with AI quality scores and NSFW detection.
+* As an admin, I want to approve/reject assets with predefined rejection reasons.
+* As an admin, I want to perform bulk moderation actions to process multiple assets efficiently.
+* As an admin, I want to edit asset metadata (title, description, tags, category) during review.
+* As an admin, I want to flag assets for senior review when uncertain.
 
-* As an admin, I need to review moderation and audit logs.
+**Contributor Management:**
+* As an admin, I want to review contributor applications with portfolio and bio assessment.
+* As an admin, I want to approve/reject applications with feedback for improvement.
+* As an admin, I want to manage contributor tiers (Bronze/Silver/Gold/Platinum) and suspend accounts.
+* As an admin, I want to view contributor performance metrics (approval rate, quality score, earnings).
+* As an admin, I want to send targeted messages to contributors.
 
-* As an admin, I want to push campaigns/notifications to contributors to direct supply where needed.
+**Financial Controls:**
+* As an admin, I want to set and adjust pricing for credit packages and license types.
+* As an admin, I want to review and approve/reject payout requests.
+* As an admin, I want to set contributor royalty percentages and minimum payout thresholds.
+* As an admin, I want to process refunds and view transaction history.
+* As an admin, I want to create promotional pricing and discount campaigns.
+
+**Platform Management:**
+* As an admin, I want access to a comprehensive analytics dashboard (revenue, users, content, search).
+* As an admin, I want to manage platform settings (categories, tags, upload limits, rate limits).
+* As an admin, I want to create and manage editorial articles and featured collections.
+* As an admin, I want to create supply gap campaigns with bonus payouts.
+* As an admin, I want to review moderation and audit logs for all admin actions.
+
+**Support & Monitoring:**
+* As an admin, I want to manage support tickets with assignment and priority controls.
+* As an admin, I want to monitor system health (API, database, storage, queue status).
+* As an admin, I want to view error logs and background job status.
+* As an admin, I want to manage FAQ content and help articles.
 
 ### Enterprise/B2B
 
@@ -137,7 +165,7 @@ This document provides the complete backend engineering specification for 234pho
 
 * **Processing Pipeline (BullMQ):**
   * **Priority 1 (blocking):** EXIF removal (5s), watermark (3s), thumbnail generation (5s)
-  * **Priority 2 (async):** Color extraction (2s), quality scoring (10s), NSFW detection (5s)
+  * **Priority 2 (async):** Color extraction (2s - extracts 5 dominant colors for color-based search), quality scoring (10s - AI assessment 0-100 for moderation prioritization), NSFW detection (5s)
   * **Priority 3 (batch):** Duplicate detection via pHash (weekly job)
   * All jobs run in parallel where possible
   * Failed jobs retry 3 times with exponential backoff
@@ -385,7 +413,7 @@ await redis.setex(cacheKey, 3600, { data: results, timestamp: Date.now() })
 
 ### Payout Processing (P1)
 
-* **Weekly batch earnings computation** (every Monday) with minimum threshold (₦80,000)
+* **Weekly batch earnings computation** (every Monday) with configurable minimum threshold (default: ₦80,000, admin-adjustable)
 
 * Flutterwave transfers (bank transfer, mobile money) with state machine (pending/processing/completed/failed)
 
@@ -417,9 +445,107 @@ await redis.setex(cacheKey, 3600, { data: results, timestamp: Date.now() })
 
 * Cloudflare WAF, anomaly & bot detection, refund/credential sharing abuse
 
+### Admin Dashboard & Controls (P0)
+
+**Admin Authentication:**
+* Separate admin login endpoint with 2FA requirement
+* Admin-specific JWT tokens with shorter expiry (2 hours)
+* Role-based access control (Super Admin, Content Admin, Support Admin, Finance Admin)
+* IP whitelist support for sensitive actions
+* Audit logging for all admin actions
+
+**Content Moderation API:**
+* `GET /api/admin/moderation/queue` - Paginated moderation queue with filters
+* `GET /api/admin/moderation/assets/:id` - Detailed asset review with AI scores
+* `POST /api/admin/moderation/assets/:id/approve` - Approve asset
+* `POST /api/admin/moderation/assets/:id/reject` - Reject with reason
+* `POST /api/admin/moderation/bulk-approve` - Bulk approve assets
+* `PATCH /api/admin/moderation/assets/:id` - Edit asset metadata
+
+**Contributor Management API:**
+* `GET /api/admin/contributors/applications` - Pending applications queue
+* `POST /api/admin/contributors/applications/:id/approve` - Approve application
+* `POST /api/admin/contributors/applications/:id/reject` - Reject with feedback
+* `GET /api/admin/contributors/:id/performance` - Performance metrics
+* `POST /api/admin/contributors/:id/suspend` - Suspend contributor
+* `PATCH /api/admin/contributors/:id/tier` - Update contributor tier
+
+**Financial Management API:**
+* `GET /api/admin/finance/pricing` - Get current pricing
+* `PATCH /api/admin/finance/pricing` - Update pricing (packages, licenses, royalties)
+* `GET /api/admin/finance/payouts` - Payout queue with filters
+* `POST /api/admin/finance/payouts/:id/approve` - Approve payout
+* `POST /api/admin/finance/payouts/:id/reject` - Reject payout
+* `POST /api/admin/finance/transactions/:id/refund` - Process refund
+* `GET /api/admin/finance/revenue` - Revenue analytics
+
+**User Management API:**
+* `GET /api/admin/users` - User list with filters
+* `GET /api/admin/users/:id` - User detail with full activity
+* `PATCH /api/admin/users/:id` - Update user info
+* `POST /api/admin/users/:id/adjust-credits` - Adjust user credits
+* `POST /api/admin/users/:id/suspend` - Suspend user
+* `DELETE /api/admin/users/:id` - Delete user account
+* `GET /api/admin/users/:id/activity` - Activity logs
+
+**Editorial Management API:**
+* `GET /api/admin/editorial/articles` - Articles list
+* `POST /api/admin/editorial/articles` - Create article
+* `PATCH /api/admin/editorial/articles/:id` - Update article
+* `POST /api/admin/editorial/articles/:id/publish` - Publish article
+* `GET /api/admin/editorial/collections` - Featured collections
+* `POST /api/admin/editorial/collections` - Create collection
+
+**Campaign Management API:**
+* `GET /api/admin/campaigns` - Campaigns list
+* `POST /api/admin/campaigns` - Create campaign (supply gap, bonus, promotion)
+* `PATCH /api/admin/campaigns/:id` - Update campaign
+* `POST /api/admin/campaigns/:id/pause` - Pause campaign
+* `GET /api/admin/campaigns/:id/performance` - Campaign metrics
+
+**Support Management API:**
+* `GET /api/admin/support/tickets` - Tickets queue with filters
+* `GET /api/admin/support/tickets/:id` - Ticket detail with thread
+* `POST /api/admin/support/tickets/:id/reply` - Reply to ticket
+* `PATCH /api/admin/support/tickets/:id/assign` - Assign ticket
+* `POST /api/admin/support/tickets/:id/close` - Close ticket
+* `GET /api/admin/support/faq` - FAQ management
+* `POST /api/admin/support/faq` - Create FAQ
+
+**Analytics API:**
+* `GET /api/admin/analytics/overview` - Dashboard overview stats
+* `GET /api/admin/analytics/revenue` - Revenue analytics with charts
+* `GET /api/admin/analytics/users` - User analytics (growth, retention, activity)
+* `GET /api/admin/analytics/content` - Content analytics (uploads, approvals, quality)
+* `GET /api/admin/analytics/search` - Search analytics (queries, zero results, gaps)
+* `POST /api/admin/analytics/export` - Export reports (CSV/Excel/PDF)
+
+**Settings Management API:**
+* `GET /api/admin/settings` - Platform settings
+* `PATCH /api/admin/settings` - Update settings
+* `GET /api/admin/settings/categories` - Category management
+* `POST /api/admin/settings/categories` - Create category
+* `GET /api/admin/settings/tags` - Tag management
+* `POST /api/admin/settings/tags/merge` - Merge tags
+* `PATCH /api/admin/settings/limits` - Update upload/rate limits
+
+**System Monitoring API:**
+* `GET /api/admin/system/health` - System health status
+* `GET /api/admin/system/logs` - Error logs with filters
+* `GET /api/admin/system/jobs` - Background jobs status
+* `POST /api/admin/system/jobs/:id/retry` - Retry failed job
+* `GET /api/admin/system/cache` - Cache statistics
+* `POST /api/admin/system/cache/clear` - Clear cache
+
+**Admin Permissions:**
+* Granular permission system (view, edit, delete, approve per resource)
+* Permission checks on all admin endpoints
+* Audit trail for all admin actions (who, what, when, IP, old/new values)
+* 90-day audit log retention in hot storage, 2-year in cold storage
+
 ### Data Model (Cross-Priority)
 
-* All primary collections (assets, downloads, contributors, users, payout_jobs, moderation_logs, search_logs, notifications, enterprise_teams, boards, reviews, API keys, etc.)
+* All primary collections (assets, downloads, contributors, users, payout_jobs, moderation_logs, search_logs, notifications, enterprise_teams, boards, reviews, API keys, admin_users, admin_audit_logs, campaigns, support_tickets, etc.)
 
 * S3 versioning/backup, EXIF/GPS compliance, legal jurisdiction flag per asset/user
 
@@ -1176,6 +1302,204 @@ model LeaderboardCache {
   
   @@unique([period, region, category])
   @@index([period, category])
+}
+
+// ============================================
+// ADMIN MODELS
+// ============================================
+
+// Admin Users
+model AdminUser {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  name              String
+  avatar            String?
+  role              AdminRole @default(CONTENT_ADMIN)
+  permissions       String[] // Array of permission strings
+  twoFactorEnabled  Boolean  @default(false)
+  twoFactorSecret   String?
+  
+  lastLogin         DateTime?
+  lastLoginIp       String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  auditLogs         AdminAuditLog[]
+  assignedTickets   SupportTicket[] @relation("AssignedAdmin")
+  
+  @@index([email])
+  @@index([role])
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  CONTENT_ADMIN
+  SUPPORT_ADMIN
+  FINANCE_ADMIN
+}
+
+// Admin Audit Logs
+model AdminAuditLog {
+  id          String   @id @default(uuid())
+  adminId     String
+  admin       AdminUser @relation(fields: [adminId], references: [id])
+  
+  action      String   // 'approve_asset', 'reject_application', 'update_pricing', etc
+  resource    String   // 'asset', 'contributor', 'pricing', etc
+  resourceId  String?
+  
+  oldValues   Json?    // Previous state
+  newValues   Json?    // New state
+  
+  ipAddress   String
+  userAgent   String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([adminId, createdAt(sort: Desc)])
+  @@index([resource, resourceId])
+  @@index([createdAt(sort: Desc)])
+}
+
+// Campaigns
+model Campaign {
+  id              String   @id @default(uuid())
+  name            String
+  type            CampaignType
+  description     String
+  
+  status          CampaignStatus @default(DRAFT)
+  startDate       DateTime
+  endDate         DateTime
+  
+  budget          Int      // In kobo
+  spent           Int      @default(0) // In kobo
+  
+  targetAudience  Json     // {tiers: [], countries: [], minQuality: 80}
+  rules           Json     // Campaign-specific rules
+  
+  participants    Int      @default(0)
+  assetsSubmitted Int      @default(0)
+  
+  createdBy       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([status, startDate])
+  @@index([type, status])
+}
+
+enum CampaignType {
+  SUPPLY_GAP
+  BONUS
+  PROMOTION
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+// Support Tickets (updated with admin assignment)
+model SupportTicket {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  subject     String
+  message     String
+  category    String   // 'technical', 'billing', 'content', 'account', 'other'
+  status      TicketStatus @default(OPEN)
+  priority    String   @default("normal") // 'low', 'normal', 'high', 'urgent'
+  
+  assignedTo  String?
+  assignedAdmin AdminUser? @relation("AssignedAdmin", fields: [assignedTo], references: [id])
+  
+  thread      Json     // [{from, message, timestamp, isInternal}]
+  metadata    Json?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  resolvedAt  DateTime?
+  closedAt    DateTime?
+  
+  @@index([userId, status, createdAt(sort: Desc)])
+  @@index([status, priority])
+  @@index([assignedTo, status])
+}
+
+// Platform Settings
+model PlatformSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  
+  updatedBy String
+  updatedAt DateTime @updatedAt
+  
+  @@index([key])
+}
+
+// FAQ Items
+model FAQ {
+  id          String   @id @default(uuid())
+  question    String
+  answer      String
+  category    String
+  tags        String[]
+  
+  displayOrder Int     @default(0)
+  status      String   @default("published") // 'published', 'draft'
+  
+  views       Int      @default(0)
+  helpfulVotes Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category, displayOrder])
+  @@index([status])
+}
+
+// Editorial Articles
+model Article {
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  excerpt       String
+  content       String   // Rich text/markdown
+  coverImage    String
+  
+  category      String
+  tags          String[]
+  
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+  
+  status        ArticleStatus @default(DRAFT)
+  featured      Boolean  @default(false)
+  
+  views         Int      @default(0)
+  readTime      Int      // In minutes
+  
+  publishedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([slug])
+  @@index([authorId])
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
 }
 ```
 
@@ -2017,7 +2341,7 @@ POST   /api/billing/purchase
 
 **Data Requirements:**
 - CreditPackage type: id, name, credits, price (NGN), currency, discount, popular, save
-- Packages: 10, 25, 50, 100, 250 credits
+- Packages: Admin-configurable (default: 10, 25, 50, 100, 250 credits)
 - Flutterwave integration (primary)
 - Stripe integration (secondary/international)
 
@@ -2070,7 +2394,7 @@ GET    /api/earnings/withdrawals/:id
 
 **Data Requirements:**
 - Withdrawal type: id, contributorId, amount, currency (NGN), method (bank/paypal/mobile_money), status (pending/processing/completed/failed), requestedAt, processedAt, failureReason
-- Minimum withdrawal: ₦80,000
+- Minimum withdrawal: Admin-configurable (default ₦80,000)
 - Weekly payout processing (every Monday)
 - Payout methods: Bank transfer, PayPal, Mobile money (M-Pesa, MTN, Airtel)
 - 30-day hold on new earnings
@@ -2297,35 +2621,64 @@ GET    /api/users/me/badges
 
 Based on frontend implementation, these tables are required:
 
+**User & Auth Tables:**
 1. **users** - User accounts with role, credits, profile fields
-2. **assets** - Assets with full metadata, stats, status, rejection reasons
-3. **collections** - Contributor collections with visibility
-4. **boards** - Customer boards with collaborators
-5. **downloads** - Download history with license info
-6. **transactions** - All financial transactions
-7. **earnings** - Contributor earnings with status tracking
-8. **withdrawals** - Withdrawal requests with status
-9. **notifications** - User notifications with read status
-10. **notification_preferences** - Per-user notification settings
-11. **support_tickets** - Support requests
-12. **follows** - Contributor follows
-13. **likes** - Asset likes
-14. **search_logs** - Search queries for analytics
-15. **upload_sessions** - Upload progress tracking
-16. **share_links** - Board share links
-17. **badges** - User badges and progress
-18. **leaderboard_cache** - Cached leaderboard data
+2. **admin_users** - Admin accounts with roles and permissions
+3. **admin_audit_logs** - Audit trail for all admin actions
+
+**Content Tables:**
+4. **assets** - Assets with full metadata, stats, status, rejection reasons
+5. **collections** - Contributor collections with visibility
+6. **boards** - Customer boards with collaborators
+7. **articles** - Editorial articles with rich content
+8. **faq** - FAQ items with categories
+
+**Transaction Tables:**
+9. **downloads** - Download history with license info
+10. **transactions** - All financial transactions
+11. **earnings** - Contributor earnings with status tracking
+12. **withdrawals** - Withdrawal requests with status
+
+**Engagement Tables:**
+13. **notifications** - User notifications with read status
+14. **notification_preferences** - Per-user notification settings
+15. **support_tickets** - Support requests with admin assignment
+16. **follows** - Contributor follows
+17. **likes** - Asset likes
+
+**System Tables:**
+18. **search_logs** - Search queries for analytics
+19. **upload_sessions** - Upload progress tracking
+20. **share_links** - Board share links
+21. **badges** - User badges and progress
+22. **leaderboard_cache** - Cached leaderboard data
+23. **campaigns** - Marketing and supply gap campaigns
+24. **platform_settings** - Platform configuration
 
 ### Redis Keys
 
+**User Data:**
 1. **sessions:{userId}** - User sessions
-2. **credits:{userId}** - User credit balance (atomic operations)
-3. **search:cache:{query}** - Search result cache (5min TTL)
-4. **asset:cache:{id}** - Asset detail cache (15min TTL)
-5. **trending:assets** - Trending assets list (1hr TTL)
-6. **leaderboard:{period}** - Leaderboard cache (1hr TTL)
-7. **rate_limit:{ip}:{endpoint}** - Rate limiting
-8. **upload:progress:{sessionId}** - Upload progress tracking
+2. **admin:sessions:{adminId}** - Admin sessions (2hr TTL)
+3. **credits:{userId}** - User credit balance (atomic operations)
+
+**Cache:**
+4. **search:cache:{query}** - Search result cache (1hr TTL)
+5. **asset:cache:{id}** - Asset detail cache (15min TTL)
+6. **trending:assets** - Trending assets list (1hr TTL)
+7. **leaderboard:{period}** - Leaderboard cache (1hr TTL)
+8. **analytics:cache:{key}** - Analytics data cache (1hr TTL)
+
+**Rate Limiting:**
+9. **rate_limit:{ip}:{endpoint}** - Rate limiting
+10. **admin:rate_limit:{adminId}:{action}** - Admin action rate limiting
+
+**Upload:**
+11. **upload:progress:{sessionId}** - Upload progress tracking
+
+**Admin:**
+12. **admin:moderation:queue** - Cached moderation queue
+13. **admin:pending:count** - Pending actions count
 
 ---
 
@@ -2333,20 +2686,35 @@ Based on frontend implementation, these tables are required:
 
 ### Must-Have for Launch (P0)
 
+**User Frontend:**
 1. **Direct-to-S3 Uploads** - Pre-signed POST URLs, no server bottleneck
 2. **Atomic Quota Management** - Redis DECR for concurrent downloads
-3. **Signed Download URLs** - 15-minute expiry, S3 signed URLs
+3. **Signed Download URLs** - 1-hour expiry, S3 signed URLs
 4. **EXIF Removal** - Strip all metadata before serving
 5. **Watermark Generation** - For preview images
 6. **Thumbnail Generation** - Multiple sizes (small, medium, large)
 7. **Color Extraction** - 5-color palette with hex codes
 8. **Search with Filters** - Meilisearch with custom ranking
-9. **License PDF Generation** - Async job, stored in S3
+9. **License PDF Generation** - Synchronous (<500ms)
 10. **Email Notifications** - 7 core templates (Resend)
 11. **Flutterwave Integration** - Payments and payouts
 12. **Weekly Payouts** - Automated batch processing
 13. **Application Status Tracking** - Pending/approved/rejected with reasons
 14. **Asset Status Tracking** - Pending/approved/rejected with reasons
+
+**Admin Frontend:**
+15. **Admin Authentication** - Separate login with 2FA, role-based access
+16. **Moderation Queue API** - Paginated queue with filters and AI scores
+17. **Bulk Moderation** - Approve/reject multiple assets
+18. **Contributor Application Review** - Approve/reject with feedback
+19. **Payout Management** - Review and approve/reject payouts
+20. **Pricing Controls** - Update credit packages, licenses, royalties
+21. **User Management** - View, edit, suspend, adjust credits
+22. **Analytics Dashboard** - Revenue, users, content, search analytics
+23. **Campaign Management** - Create supply gap and bonus campaigns
+24. **Support Ticket System** - Assign, reply, close tickets
+25. **System Monitoring** - Health checks, error logs, job queue status
+26. **Audit Logging** - Track all admin actions with IP and timestamps
 
 ### Nice-to-Have for Launch (P1)
 
@@ -2357,6 +2725,9 @@ Based on frontend implementation, these tables are required:
 5. **Activity Feed** - Recent uploads from followed contributors
 6. **Duplicate Detection** - pHash (weekly batch job)
 7. **Quality Scoring** - Basic sharpness/noise detection
+8. **Editorial Management** - Create/publish articles
+9. **FAQ Management** - Admin-editable FAQ
+10. **Platform Settings** - Category/tag management
 
 ### Post-Launch (P2)
 
@@ -2367,6 +2738,9 @@ Based on frontend implementation, these tables are required:
 5. **Enterprise SSO** - SAML/OIDC
 6. **Developer API** - Public REST endpoints
 7. **Webhooks** - Event notifications
+8. **Advanced Analytics** - Predictive analytics, ML insights
+9. **Workflow Automation** - Auto-moderation rules
+10. **Multi-Admin Collaboration** - Real-time collaboration
 
 ---
 
@@ -2653,3 +3027,253 @@ k6 run --vus 500 --duration 120s tests/db-stress.js
 **Document Status:** Optimized for African market performance
 **Last Updated:** April 23, 2026
 **Next Review:** After Phase 1 launch (Week 8)
+
+
+---
+
+## Admin Backend Integration Summary
+
+### Admin API Endpoints (80+ endpoints)
+
+**Authentication & Access:**
+- Admin login with 2FA
+- Role-based permissions (4 roles)
+- Session management (2-hour timeout)
+- Audit logging for all actions
+
+**Content Moderation (10 endpoints):**
+- Moderation queue with filters
+- Asset review with AI scores
+- Approve/reject with reasons
+- Bulk moderation actions
+- Asset metadata editing
+
+**Contributor Management (8 endpoints):**
+- Application review queue
+- Approve/reject applications
+- Performance metrics
+- Tier management
+- Suspend/unsuspend
+
+**Financial Management (12 endpoints):**
+- Pricing controls (packages, licenses, royalties)
+- Payout queue and approval
+- Transaction management
+- Refund processing
+- Revenue analytics
+
+**User Management (8 endpoints):**
+- User list with filters
+- User detail and activity
+- Credit adjustment
+- Suspend/delete users
+- Activity logs
+
+**Editorial Management (8 endpoints):**
+- Article CRUD
+- Publish/unpublish
+- Collection management
+- Featured content
+
+**Campaign Management (6 endpoints):**
+- Create campaigns (supply gap, bonus, promotion)
+- Campaign performance
+- Pause/resume/end campaigns
+
+**Support Management (8 endpoints):**
+- Ticket queue with filters
+- Assign and reply
+- Close tickets
+- FAQ management
+
+**Analytics (6 endpoints):**
+- Revenue analytics
+- User analytics
+- Content analytics
+- Search analytics
+- Export reports
+
+**Settings Management (8 endpoints):**
+- Platform settings
+- Category management
+- Tag management
+- Upload/rate limits
+
+**System Monitoring (6 endpoints):**
+- System health
+- Error logs
+- Background jobs
+- Cache management
+
+### Admin Database Models
+
+**New Tables:**
+1. **admin_users** - Admin accounts with roles
+2. **admin_audit_logs** - Complete audit trail
+3. **campaigns** - Marketing campaigns
+4. **platform_settings** - Configuration
+5. **faq** - FAQ management
+6. **articles** - Editorial content
+
+**Updated Tables:**
+7. **support_tickets** - Added admin assignment
+8. **assets** - Enhanced moderation fields
+9. **users** - Added admin-manageable fields
+
+### Admin Security Features
+
+1. **Authentication:**
+   - Separate admin login endpoint
+   - 2FA optional (can be enabled per admin)
+   - Shorter session timeout (2 hours)
+   - IP whitelist support
+
+2. **Authorization:**
+   - Role-based access control (RBAC)
+   - Granular permissions per resource
+   - Action-level permissions (view, edit, delete, approve)
+
+3. **Audit Trail:**
+   - All admin actions logged
+   - IP address and user agent tracking
+   - Old/new value tracking
+   - 90-day hot storage, 2-year cold storage
+
+4. **Rate Limiting:**
+   - Admin-specific rate limits
+   - Stricter limits on sensitive actions
+   - Abuse detection and alerts
+
+### Admin Performance Considerations
+
+1. **Caching:**
+   - Moderation queue cached (1-minute TTL)
+   - Analytics data cached (1-hour TTL)
+   - Pending counts cached (30-second TTL)
+
+2. **Pagination:**
+   - All list endpoints paginated
+   - Default 50 items per page
+   - Cursor-based for large datasets
+
+3. **Background Jobs:**
+   - Analytics computation (hourly)
+   - Report generation (async)
+   - Bulk operations (queued)
+
+4. **Database Optimization:**
+   - Indexes on all filter fields
+   - Composite indexes for common queries
+   - Read replicas for analytics
+
+### Integration Points
+
+**User Frontend ↔ Backend:**
+- Asset upload and moderation status
+- Contributor application status
+- Payout requests and status
+- Support tickets
+
+**Admin Frontend ↔ Backend:**
+- Real-time moderation queue
+- Analytics dashboards
+- System monitoring
+- Audit logs
+
+**Backend ↔ External Services:**
+- Flutterwave (payouts)
+- Resend (email notifications)
+- S3 (asset storage)
+- Meilisearch (search indexing)
+
+---
+
+## Complete Feature Matrix
+
+| Feature | User Frontend | Admin Frontend | Backend API | Database | Status |
+|---------|--------------|----------------|-------------|----------|--------|
+| **Authentication** | ✅ | ✅ | ✅ | ✅ | Specified |
+| **Asset Upload** | ✅ | - | ✅ | ✅ | Specified |
+| **Content Moderation** | - | ✅ | ✅ | ✅ | Specified |
+| **Search & Browse** | ✅ | - | ✅ | ✅ | Specified |
+| **Downloads** | ✅ | - | ✅ | ✅ | Specified |
+| **Contributor Applications** | ✅ | ✅ | ✅ | ✅ | Specified |
+| **Earnings & Payouts** | ✅ | ✅ | ✅ | ✅ | Specified |
+| **Pricing Controls** | - | ✅ | ✅ | ✅ | Specified |
+| **User Management** | ✅ | ✅ | ✅ | ✅ | Specified |
+| **Boards & Collections** | ✅ | ✅ | ✅ | ✅ | Specified |
+| **Editorial Content** | ✅ | ✅ | ✅ | ✅ | Specified |
+| **Campaigns** | - | ✅ | ✅ | ✅ | Specified |
+| **Support Tickets** | ✅ | ✅ | ✅ | ✅ | Specified |
+| **Analytics** | - | ✅ | ✅ | ✅ | Specified |
+| **System Monitoring** | - | ✅ | ✅ | ✅ | Specified |
+| **Notifications** | ✅ | ✅ | ✅ | ✅ | Specified |
+| **Audit Logs** | - | ✅ | ✅ | ✅ | Specified |
+
+---
+
+## Development Priorities
+
+### Phase 1: Core Platform (Weeks 1-8)
+1. PostgreSQL schema + Prisma migrations
+2. User authentication (NextAuth.js)
+3. Asset upload pipeline
+4. Search implementation
+5. Download system
+6. Payment integration (Flutterwave)
+
+### Phase 2: Admin Foundation (Weeks 9-10)
+1. Admin authentication with 2FA
+2. Content moderation API
+3. Contributor application review
+4. Basic analytics dashboard
+5. Audit logging
+
+### Phase 3: Admin Features (Weeks 11-12)
+1. Financial management (pricing, payouts)
+2. User management
+3. Campaign management
+4. Support ticket system
+5. System monitoring
+
+### Phase 4: Polish & Launch (Weeks 13-14)
+1. Editorial management
+2. Advanced analytics
+3. Performance optimization
+4. Security audit
+5. Load testing
+6. Production deployment
+
+---
+
+## Conclusion
+
+This Backend Engineering PRD now provides complete specifications for:
+
+✅ **User-Facing Features** - Upload, search, download, earnings, boards, notifications  
+✅ **Admin Dashboard** - Moderation, contributor management, financial controls, analytics  
+✅ **Database Schema** - 24 PostgreSQL tables with Prisma ORM  
+✅ **API Endpoints** - 150+ REST endpoints (user + admin)  
+✅ **Security** - Authentication, authorization, audit logging, rate limiting  
+✅ **Performance** - Caching, indexing, background jobs, monitoring  
+✅ **Integration** - Flutterwave, S3, Meilisearch, Resend  
+
+**Total Scope:**
+- 24 database tables
+- 150+ API endpoints
+- 4 admin roles with granular permissions
+- 80+ admin-specific endpoints
+- Complete audit trail
+- Real-time analytics
+- System monitoring
+
+**Ready for implementation with full alignment between:**
+- User Frontend PRD
+- Admin Frontend PRD
+- Backend Engineering PRD
+
+---
+
+**Document Version:** 2.0 (Admin Integration Complete)  
+**Last Updated:** April 23, 2026  
+**Maintained By:** Engineering Team
