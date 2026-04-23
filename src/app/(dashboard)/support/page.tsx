@@ -1,108 +1,33 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, Mail, Book, HelpCircle, ChevronDown, ChevronUp, Send } from 'lucide-react'
+import { MessageCircle, Mail, Book, HelpCircle, ChevronDown, ChevronUp, Send, Check } from 'lucide-react'
 import Link from 'next/link'
-
-const FAQ_ITEMS = [
-  {
-    category: 'Getting Started',
-    questions: [
-      {
-        q: 'How do I download an asset?',
-        a: 'Browse or search for assets, click on the asset you want, then click the "Download" button. You\'ll need credits to download. Each standard download costs 1 credit.',
-      },
-      {
-        q: 'What are credits and how do they work?',
-        a: 'Credits are our currency for downloading assets. 1 credit = 1 standard download. You can purchase credit packages or subscribe to a monthly plan. Credits never expire.',
-      },
-      {
-        q: 'Can I use downloaded assets commercially?',
-        a: 'Yes! All assets come with a royalty-free license that allows commercial use. Check the specific license details on each asset page.',
-      },
-    ],
-  },
-  {
-    category: 'Licensing',
-    questions: [
-      {
-        q: 'What\'s the difference between Standard and Enhanced licenses?',
-        a: 'Standard license allows up to 500,000 impressions and is perfect for most projects. Enhanced license offers unlimited impressions and additional usage rights for larger campaigns.',
-      },
-      {
-        q: 'Can I use assets in client projects?',
-        a: 'Yes, you can use assets in projects for your clients. The license transfers to the end product.',
-      },
-      {
-        q: 'Do I need to credit the photographer?',
-        a: 'Attribution is appreciated but not required for most assets. Editorial assets may require attribution - check the asset details.',
-      },
-    ],
-  },
-  {
-    category: 'Account & Billing',
-    questions: [
-      {
-        q: 'How do I cancel my subscription?',
-        a: 'Go to Billing > Subscription tab and click "Cancel Subscription". You\'ll retain access until the end of your billing period.',
-      },
-      {
-        q: 'Can I get a refund?',
-        a: 'Credit purchases are non-refundable, but we\'re happy to help if you have issues. Contact support within 14 days of purchase.',
-      },
-      {
-        q: 'Do unused credits expire?',
-        a: 'No! Credits never expire. They remain in your account until you use them.',
-      },
-    ],
-  },
-  {
-    category: 'Contributors',
-    questions: [
-      {
-        q: 'How do I become a contributor?',
-        a: 'Click "Become a Contributor" in your dashboard sidebar, fill out the application form, and submit your portfolio. We\'ll review within 2-3 business days.',
-      },
-      {
-        q: 'How much do contributors earn?',
-        a: 'Contributors earn 50% of each sale. Standard downloads pay $1.50, Enhanced downloads pay $7.50. Payments are made monthly via bank transfer or PayPal.',
-      },
-      {
-        q: 'What are the photo requirements?',
-        a: 'Photos must be at least 4MP (2000x2000px), high quality, properly exposed, and in focus. We accept JPG and PNG formats.',
-      },
-    ],
-  },
-]
-
-const CONTACT_OPTIONS = [
-  {
-    icon: MessageCircle,
-    title: 'Live Chat',
-    description: 'Chat with our support team',
-    action: 'Start chat',
-    available: 'Mon-Fri, 9am-6pm WAT',
-  },
-  {
-    icon: Mail,
-    title: 'Email Support',
-    description: 'support@234photos.com',
-    action: 'Send email',
-    available: 'Response within 24 hours',
-  },
-  {
-    icon: Book,
-    title: 'Help Center',
-    description: 'Browse our documentation',
-    action: 'Visit help center',
-    available: 'Available 24/7',
-  },
-]
+import { LiveChatModal } from '@/components/shared/Modals/LiveChatModal'
+import { SUPPORT_FAQ_ITEMS, SUPPORT_CONTACT_OPTIONS } from '@/lib/mock/dashboard'
 
 export default function SupportPage() {
   const [openFaq, setOpenFaq] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [subject, setSubject] = useState('')
+  const [showLiveChat, setShowLiveChat] = useState(false)
+  const [emailCopied, setEmailCopied] = useState(false)
+
+  const handleContactAction = (type: string) => {
+    switch (type) {
+      case 'chat':
+        setShowLiveChat(true)
+        break
+      case 'email':
+        navigator.clipboard.writeText('support@234photos.com')
+        setEmailCopied(true)
+        setTimeout(() => setEmailCopied(false), 2000)
+        break
+      case 'help':
+        window.open('/how-it-works', '_blank')
+        break
+    }
+  }
 
   const toggleFaq = (id: string) => {
     setOpenFaq(openFaq === id ? null : id)
@@ -133,8 +58,11 @@ export default function SupportPage() {
 
       {/* Quick Contact Options */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {CONTACT_OPTIONS.map((option) => {
-          const Icon = option.icon
+        {SUPPORT_CONTACT_OPTIONS.map((option, index) => {
+          const Icon = option.icon === 'MessageCircle' ? MessageCircle : option.icon === 'Mail' ? Mail : Book
+          const actionType = index === 0 ? 'chat' : index === 1 ? 'email' : 'help'
+          const isEmailCopied = actionType === 'email' && emailCopied
+          
           return (
             <div key={option.title} className="bg-white rounded-2xl border border-[#F0F0F0] p-6 hover:border-[#EE2B24] hover:shadow-md transition-all">
               <div className="w-12 h-12 rounded-xl bg-[#FFF0F0] flex items-center justify-center mb-4">
@@ -152,9 +80,22 @@ export default function SupportPage() {
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                 {option.available}
               </p>
-              <button className="w-full py-2 bg-[#F5F5F5] text-[#111] text-[13px] font-semibold rounded-full hover:bg-[#EBEBEB] transition-colors"
+              <button
+                onClick={() => handleContactAction(actionType)}
+                className={`w-full py-2 text-[13px] font-semibold rounded-full transition-colors flex items-center justify-center gap-2 ${
+                  isEmailCopied
+                    ? 'bg-green-50 text-green-700'
+                    : 'bg-[#F5F5F5] text-[#111] hover:bg-[#EBEBEB]'
+                }`}
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {option.action}
+                {isEmailCopied ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Email copied!
+                  </>
+                ) : (
+                  option.action
+                )}
               </button>
             </div>
           )
@@ -172,7 +113,7 @@ export default function SupportPage() {
         </div>
 
         <div className="space-y-6">
-          {FAQ_ITEMS.map((category, catIdx) => (
+          {SUPPORT_FAQ_ITEMS.map((category, catIdx) => (
             <div key={catIdx}>
               <h3 className="text-[14px] font-bold text-[#888] uppercase tracking-wide mb-3"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -307,6 +248,9 @@ export default function SupportPage() {
           </Link>
         </div>
       </div>
+
+      {/* Live Chat Modal */}
+      {showLiveChat && <LiveChatModal onClose={() => setShowLiveChat(false)} />}
     </div>
   )
 }

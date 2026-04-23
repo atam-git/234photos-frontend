@@ -1,19 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { X, DollarSign, CreditCard, Building2, AlertCircle } from 'lucide-react'
+import { X, CreditCard, Building2, AlertCircle } from 'lucide-react'
 import { ModalBackdrop } from './ModalBackdrop'
+import type { PaymentMethod as PaymentMethodType, PaymentMethodOption } from '@/types'
 
 interface WithdrawEarningsModalProps {
   availableBalance: number
   onClose: () => void
 }
 
-type PaymentMethod = 'bank' | 'paypal'
-
 export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEarningsModalProps) {
   const [amount, setAmount] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodOption>('bank')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

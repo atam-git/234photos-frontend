@@ -4,75 +4,21 @@ import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { UserCheck, Clock, TrendingUp, Sparkles, Search, Zap, Star, Flame } from 'lucide-react'
 import Link from 'next/link'
-import { AssetCard, Asset } from '@/components/features/search/AssetCard'
+import { AssetCard } from '@/components/features/search/AssetCard'
+import type { Asset, FeedFilter, ModalState, DiscoverCategory } from '@/types'
 import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { useAuthStore } from '@/stores/authStore'
 import { getContributorUsername } from '@/lib/mock/contributors'
+import { FOLLOWED_CONTRIBUTORS, MOCK_FEED } from '@/lib/mock'
 
-type ModalState =
-  | { type: 'none' }
-  | { type: 'preview'; asset: Asset }
-  | { type: 'download'; asset: Asset }
-  | { type: 'board'; asset: Asset }
-  | { type: 'auth'; defaultTab?: 'login' | 'signup' }
-
-// Mock feed data - latest uploads from followed contributors
-const MOCK_FEED: Array<{
-  contributor: string
-  contributorAvatar: string
-  uploadDate: string
-  assets: Asset[]
-}> = [
-  {
-    contributor: 'Sarah Johnson',
-    contributorAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80',
-    uploadDate: '2 hours ago',
-    assets: [
-      { id: '101', src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4', alt: 'Mountain landscape', contributor: 'Sarah Johnson', resolution: '6000×4000', aspectRatio: 1.5 },
-      { id: '102', src: 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6', alt: 'Forest path', contributor: 'Sarah Johnson', resolution: '5472×3648', aspectRatio: 1.5 },
-      { id: '103', src: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e', alt: 'Lake view', contributor: 'Sarah Johnson', resolution: '6000×4000', isAI: true, aspectRatio: 1.5 },
-    ],
-  },
-  {
-    contributor: 'Michael Chen',
-    contributorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
-    uploadDate: '5 hours ago',
-    assets: [
-      { id: '201', src: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000', alt: 'City skyline', contributor: 'Michael Chen', resolution: '5184×3456', aspectRatio: 1.5 },
-      { id: '202', src: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b', alt: 'Urban street', contributor: 'Michael Chen', resolution: '6000×4000', isFree: true, aspectRatio: 1.5 },
-    ],
-  },
-  {
-    contributor: 'Emma Rodriguez',
-    contributorAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
-    uploadDate: '1 day ago',
-    assets: [
-      { id: '301', src: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29', alt: 'Beach sunset', contributor: 'Emma Rodriguez', resolution: '5472×3648', aspectRatio: 1.5 },
-      { id: '302', src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', alt: 'Ocean waves', contributor: 'Emma Rodriguez', resolution: '6000×4000', aspectRatio: 1.5 },
-      { id: '303', src: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0', alt: 'Tropical beach', contributor: 'Emma Rodriguez', resolution: '5184×3456', isEditorial: true, aspectRatio: 1.5 },
-      { id: '304', src: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a', alt: 'Coastal rocks', contributor: 'Emma Rodriguez', resolution: '6000×4000', aspectRatio: 1.5 },
-    ],
-  },
-]
-
-const FOLLOWED_CONTRIBUTORS = [
-  { name: 'Sarah Johnson', username: 'sarah-johnson', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80' },
-  { name: 'Michael Chen', username: 'michael-chen', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80' },
-  { name: 'Emma Rodriguez', username: 'emma-rodriguez', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80' },
-  { name: 'David Kim', username: 'david-kim', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80' },
-]
-
-type FeedFilter = 'latest' | 'popular' | 'featured' | 'foryou'
-type Category = 'all' | 'nature' | 'urban' | 'people' | 'business' | 'food' | 'tech' | 'fashion'
-
-export default function FollowingPage() {
+export default function DiscoverPage() {
   const router = useRouter()
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
   const [filter, setFilter] = useState<FeedFilter>('latest')
-  const [category, setCategory] = useState<Category>('all')
+  const [category, setCategory] = useState<DiscoverCategory>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [visibleItems, setVisibleItems] = useState(3)
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
@@ -106,7 +52,7 @@ export default function FollowingPage() {
     
     // Simple category filtering based on asset alt text
     return allAssets.filter(asset => {
-      const alt = asset.alt.toLowerCase()
+      const alt = asset.alt?.toLowerCase() || ''
       switch (category) {
         case 'nature': return alt.includes('mountain') || alt.includes('forest') || alt.includes('lake')
         case 'urban': return alt.includes('city') || alt.includes('urban') || alt.includes('street')
@@ -151,7 +97,7 @@ export default function FollowingPage() {
     setModal({ type: 'board', asset })
   }
 
-  const handleLike = (asset: Asset) => {
+  const handleLike = () => {
     if (!isLoggedIn) {
       setModal({ type: 'auth', defaultTab: 'login' })
     }
@@ -354,14 +300,14 @@ export default function FollowingPage() {
                 {/* Contributor header */}
                 <div className="flex items-center justify-between mb-4">
                   <Link
-                    href={`/profile/${getContributorUsername(item.contributor)}`}
+                    href={`/profile/${getContributorUsername(item.contributor.name)}`}
                     className="flex items-center gap-3 group"
                   >
                     <div className="w-10 h-10 rounded-full bg-[#EE2B24] flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm">
                       {item.contributorAvatar ? (
                         <img
                           src={item.contributorAvatar}
-                          alt={item.contributor}
+                          alt={item.contributor.name}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -369,7 +315,7 @@ export default function FollowingPage() {
                           className="text-white text-[13px] font-bold"
                           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                         >
-                          {item.contributor.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                          {item.contributor.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
                         </span>
                       )}
                     </div>
@@ -378,7 +324,7 @@ export default function FollowingPage() {
                         className="text-[14px] font-bold text-[#111] group-hover:text-[#EE2B24] transition-colors"
                         style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                       >
-                        {item.contributor}
+                        {item.contributor.name}
                       </p>
                       <p
                         className="text-[12px] text-[#888]"
@@ -390,7 +336,7 @@ export default function FollowingPage() {
                   </Link>
 
                   <Link
-                    href={`/profile/${getContributorUsername(item.contributor)}`}
+                    href={`/profile/${getContributorUsername(item.contributor.name)}`}
                     className="text-[12.5px] font-semibold text-[#EE2B24] hover:underline"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                   >
@@ -403,7 +349,7 @@ export default function FollowingPage() {
                   {item.assets.map((asset) => (
                     <AssetCard
                       key={asset.id}
-                      asset={asset}
+                      asset={asset as Asset}
                       onClick={handleAssetClick}
                       onDownload={handleDownload}
                       onSaveToBoard={handleSaveToBoard}
@@ -444,14 +390,14 @@ export default function FollowingPage() {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
               {[
-                { name: 'All', emoji: '✨', key: 'all' as Category },
-                { name: 'Nature', emoji: '🌿', key: 'nature' as Category },
-                { name: 'Urban', emoji: '🏙️', key: 'urban' as Category },
-                { name: 'People', emoji: '👥', key: 'people' as Category },
-                { name: 'Business', emoji: '💼', key: 'business' as Category },
-                { name: 'Food', emoji: '🍽️', key: 'food' as Category },
-                { name: 'Tech', emoji: '💻', key: 'tech' as Category },
-                { name: 'Fashion', emoji: '👗', key: 'fashion' as Category },
+                { name: 'All', emoji: '✨', key: 'all' as DiscoverCategory },
+                { name: 'Nature', emoji: '🌿', key: 'nature' as DiscoverCategory },
+                { name: 'Urban', emoji: '🏙️', key: 'urban' as DiscoverCategory },
+                { name: 'People', emoji: '👥', key: 'people' as DiscoverCategory },
+                { name: 'Business', emoji: '💼', key: 'business' as DiscoverCategory },
+                { name: 'Food', emoji: '🍽️', key: 'food' as DiscoverCategory },
+                { name: 'Tech', emoji: '💻', key: 'tech' as DiscoverCategory },
+                { name: 'Fashion', emoji: '👗', key: 'fashion' as DiscoverCategory },
               ].map((cat) => (
                 <button
                   key={cat.key}
@@ -498,7 +444,7 @@ export default function FollowingPage() {
             {getCategoryAssets().map((asset) => (
               <AssetCard
                 key={asset.id}
-                asset={asset}
+                asset={asset as Asset}
                 onClick={handleAssetClick}
                 onDownload={handleDownload}
                 onSaveToBoard={handleSaveToBoard}
@@ -537,7 +483,7 @@ export default function FollowingPage() {
       {modal.type === 'preview' && (
         <QuickPreviewModal
           asset={modal.asset}
-          assets={filter === 'foryou' ? getCategoryAssets() : getFilteredFeed().flatMap(item => item.assets)}
+          assets={(filter === 'foryou' ? getCategoryAssets() : getFilteredFeed().flatMap(item => item.assets)) as Asset[]}
           onClose={closeModal}
           onDownload={handleDownload}
           onSaveToBoard={handleSaveToBoard}

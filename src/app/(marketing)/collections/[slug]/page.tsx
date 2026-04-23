@@ -9,34 +9,24 @@ import { Breadcrumb } from '@/components/shared/Breadcrumb'
 import { MasonryGrid } from '@/components/features/search/MasonryGrid'
 import { FilterSidebar } from '@/components/features/search/FilterSidebar'
 import { FilterBottomSheet } from '@/components/features/search/FilterBottomSheet'
-import { ActiveFilterChips, ActiveFilters } from '@/components/features/search/ActiveFilterChips'
+import { ActiveFilterChips } from '@/components/features/search/ActiveFilterChips'
 import { SortDropdown } from '@/components/features/search/SortDropdown'
 import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
-import { Asset } from '@/components/features/search/AssetCard'
+import type { Asset, ModalState, ActiveFilters } from '@/types'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { COLLECTION_META } from '@/lib/mock'
 import { useAuthStore } from '@/stores/authStore'
-
-const COLLECTION_META: Record<string, { title: string; desc: string; cover: string }> = {
-  'african-entrepreneurs': { title: 'African Entrepreneurs', desc: 'Business leaders, founders and innovators across the continent.', cover: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1400&q=80' },
-  'pan-african-festivals': { title: 'Pan-African Festivals', desc: 'Celebrations, carnivals and cultural events from Lagos to Cape Town.', cover: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=1400&q=80' },
-  'modern-african-cities': { title: 'Modern African Cities', desc: 'Skylines, streets and architecture of Africa\'s fastest-growing cities.', cover: 'https://images.unsplash.com/photo-1611348586804-61bf6c080437?w=1400&q=80' },
-  'african-street-style': { title: 'African Street Style', desc: 'Fashion-forward looks from Accra, Nairobi, Lagos and beyond.', cover: 'https://images.unsplash.com/photo-1590735213920-68192a487bc2?w=1400&q=80' },
-  'heritage-culture': { title: 'Heritage & Culture', desc: 'Traditional ceremonies, art, crafts and cultural heritage across Africa.', cover: 'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=1400&q=80' },
-}
-
-type ModalState =
-  | { type: 'none' }
-  | { type: 'preview'; asset: Asset }
-  | { type: 'download'; asset: Asset }
-  | { type: 'board'; asset: Asset }
-  | { type: 'auth'; defaultTab?: 'login' | 'signup' }
 
 export default function CollectionPage() {
   const { slug } = useParams<{ slug: string }>()
-  const meta = COLLECTION_META[slug] ?? { title: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), desc: 'Curated African content.', cover: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=1400&q=80' }
+  const meta = COLLECTION_META[slug] ?? { 
+    title: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), 
+    desc: 'Curated African content.', 
+    cover: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=1400&q=80' 
+  }
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   const [filters, setFilters] = useState<ActiveFilters>({})
@@ -60,7 +50,7 @@ export default function CollectionPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <Header onAuthClick={(tab) => setModal({ type: 'auth', defaultTab: tab })} />
+      <Header />
 
       {/* Collection hero banner */}
       <div className="relative h-[220px] md:h-[280px] overflow-hidden">

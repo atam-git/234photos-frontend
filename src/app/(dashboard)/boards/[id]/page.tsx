@@ -4,24 +4,13 @@ import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Share2, MoreHorizontal, Download, Heart, Trash2, Edit2 } from 'lucide-react'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { MOCK_BOARDS } from '@/lib/mock'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { ShareBoardModal } from '@/components/shared/Modals/ShareBoardModal'
-import { Asset } from '@/components/features/search/AssetCard'
+import { ManageCollaboratorsModal } from '@/components/shared/Modals/ManageCollaboratorsModal'
+import type { Asset, ModalState } from '@/types'
 import Link from 'next/link'
-
-type ModalState =
-  | { type: 'none' }
-  | { type: 'preview'; asset: Asset }
-  | { type: 'download'; asset: Asset }
-  | { type: 'share' }
-
-const BOARDS = [
-  { id: '1', name: 'Campaign Q3 2024', count: 24, type: 'shared' as const },
-  { id: '2', name: 'Brand Assets', count: 12, type: 'private' as const },
-  { id: '3', name: 'Inspiration', count: 47, type: 'private' as const },
-  { id: '4', name: 'Team Collection', count: 8, type: 'team' as const },
-]
 
 export default function BoardDetailPage() {
   const params = useParams()
@@ -31,7 +20,7 @@ export default function BoardDetailPage() {
   const [showMenu, setShowMenu] = useState(false)
   const [likedAssets, setLikedAssets] = useState<Set<string>>(new Set())
   
-  const board = BOARDS.find(b => b.id === boardId)
+  const board = MOCK_BOARDS.find(b => b.id === boardId)
   
   if (!board) {
     return (
@@ -89,25 +78,45 @@ export default function BoardDetailPage() {
         </button>
 
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="flex-1">
             <h1 className="text-[22px] font-extrabold text-[#111]"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               {board.name}
             </h1>
-            <p className="text-[13px] text-[#888] mt-0.5"
-              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              {board.count} assets
-            </p>
+            {board.description && (
+              <p className="text-[14px] text-[#666] mt-1 mb-2"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                {board.description}
+              </p>
+            )}
+            <div className="flex items-center gap-3 text-[13px] text-[#888] mt-2">
+              <span style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                {board.count} assets
+              </span>
+              {board.collaborators && (
+                <>
+                  <span>•</span>
+                  <button
+                    onClick={() => setModal({ type: 'collaborators' })}
+                    className="hover:text-[#EE2B24] transition-colors"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    {board.collaborators} collaborator{board.collaborators > 1 ? 's' : ''}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2 relative">
-            <button 
-              onClick={() => setModal({ type: 'share' })}
-              className="flex items-center gap-2 px-4 py-2 border border-[#D0D0D0] text-[#111] text-[13px] font-medium rounded-full hover:bg-[#F5F5F7] transition-colors"
-              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              <Share2 className="w-4 h-4" />
-              Share
-            </button>
+            {(board.type === 'shared' || board.type === 'team') && (
+              <button 
+                onClick={() => setModal({ type: 'share' })}
+                className="flex items-center gap-2 px-4 py-2 border border-[#D0D0D0] text-[#111] text-[13px] font-medium rounded-full hover:bg-[#F5F5F7] transition-colors"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                <Share2 className="w-4 h-4" />
+                Share
+              </button>
+            )}
             <button 
               onClick={() => setShowMenu(!showMenu)}
               className="w-9 h-9 rounded-full border border-[#D0D0D0] hover:bg-[#F5F5F7] flex items-center justify-center transition-colors">
@@ -235,6 +244,14 @@ export default function BoardDetailPage() {
       {modal.type === 'share' && (
         <ShareBoardModal
           boardName={board.name}
+          shareLink={board.shareLink}
+          onClose={() => setModal({ type: 'none' })}
+        />
+      )}
+      {modal.type === 'collaborators' && (
+        <ManageCollaboratorsModal
+          boardName={board.name}
+          collaborators={[]}
           onClose={() => setModal({ type: 'none' })}
         />
       )}

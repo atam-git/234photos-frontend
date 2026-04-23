@@ -3,18 +3,10 @@
 import { useState } from 'react'
 import { Heart, Download, Plus } from 'lucide-react'
 import { getContributorAvatar, getContributorUsername } from '@/lib/mock/contributors'
+import type { Asset } from '@/types'
 
-export interface Asset {
-  id: string
-  src: string
-  alt: string
-  contributor: string
-  resolution?: string
-  isAI?: boolean
-  isEditorial?: boolean
-  isFree?: boolean
-  aspectRatio?: number
-}
+// Re-export for backward compatibility
+export type { Asset }
 
 interface AssetCardProps {
   asset: Asset
@@ -71,6 +63,16 @@ export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }:
         )}
       </div>
 
+      {/* Bottom-left: Video duration */}
+      {asset.fileType === 'video' && asset.duration && (
+        <span className="absolute bottom-2 left-2 bg-black/80 text-white text-[11px] font-semibold px-2 py-1 rounded flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+          </svg>
+          {Math.floor(asset.duration / 60)}:{(asset.duration % 60).toString().padStart(2, '0')}
+        </span>
+      )}
+
       {/* Resolution badge */}
       {asset.resolution && (
         <span className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
@@ -85,7 +87,9 @@ export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }:
       <a
         href={`/profile/${username}`}
         onClick={(e) => e.stopPropagation()}
-        className="absolute bottom-2 left-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto z-30"
+        className={`absolute left-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto z-30 ${
+          asset.fileType === 'video' && asset.duration ? 'bottom-11' : 'bottom-2'
+        }`}
       >
         <div className="w-5 h-5 rounded-full overflow-hidden bg-[#EE2B24] shrink-0 ring-1 ring-white/50">
           {avatar ? (

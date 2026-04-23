@@ -1,20 +1,7 @@
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import Link from 'next/link'
-
-const TEAM = [
-  { name: 'Adaeze Okafor', role: 'CEO & Co-founder', country: '🇳🇬 Nigeria', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=300&q=80' },
-  { name: 'Kwame Asante', role: 'CTO & Co-founder', country: '🇬🇭 Ghana', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80' },
-  { name: 'Zanele Dlamini', role: 'Head of Design', country: '🇿🇦 South Africa', img: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=300&q=80' },
-  { name: 'Fatima Diallo', role: 'Head of Contributors', country: '🇸🇳 Senegal', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80' },
-]
-
-const VALUES = [
-  { title: 'Authenticity', desc: 'We believe Africa deserves to be represented on its own terms — not through a foreign lens.' },
-  { title: 'Creator-first', desc: 'Contributors are the heart of 234photos. We build every feature with their success in mind.' },
-  { title: 'Pan-African', desc: 'We serve all 54 African nations equally. No country, culture or language is an afterthought.' },
-  { title: 'Quality', desc: 'Every asset is reviewed by humans. We\'d rather have fewer, better images than millions of mediocre ones.' },
-]
+import { TEAM_MEMBERS, COMPANY_VALUES } from '@/lib/mock/marketing'
 
 export default function AboutPage() {
   return (
@@ -66,7 +53,7 @@ export default function AboutPage() {
               What we stand for
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {VALUES.map((v) => (
+              {COMPANY_VALUES.map((v) => (
                 <div key={v.title} className="bg-white rounded-2xl p-6 border border-[#E8E8E8]">
                   <h3 className="text-[16px] font-bold text-[#111] mb-2"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{v.title}</h3>
@@ -86,7 +73,7 @@ export default function AboutPage() {
               The team
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {TEAM.map((member) => (
+              {TEAM_MEMBERS.map((member) => (
                 <div key={member.name} className="flex flex-col items-center text-center gap-3">
                   <div className="w-20 h-20 rounded-full overflow-hidden bg-[#E8E8E8]">
                     <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
@@ -114,7 +101,7 @@ export default function AboutPage() {
             </h2>
             <p className="text-white/70 text-[14px] mb-8"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              Whether you're a buyer, contributor or just curious — you're welcome here.
+              Whether You&apos;re a customer, contributor or just curious — You&apos;re welcome here.
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <Link href="/signup"

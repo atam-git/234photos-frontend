@@ -1,26 +1,6 @@
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
-
-const LICENSES = [
-  {
-    name: 'Standard Licence',
-    price: '1 credit',
-    uses: ['Website and app use', 'Social media posts', 'Blog and editorial content', 'Print up to 500,000 copies', 'Presentations and internal documents', 'Advertising (digital and print)'],
-    notAllowed: ['Resale or redistribution of the asset itself', 'Use in merchandise for resale', 'Broadcast or film use', 'Print runs exceeding 500,000 copies'],
-  },
-  {
-    name: 'Enhanced Licence',
-    price: '3 credits',
-    uses: ['Everything in Standard', 'Unlimited print runs', 'Merchandise and products for resale', 'Broadcast and film use', 'Out-of-home advertising', 'Template products for resale'],
-    notAllowed: ['Resale of the original asset file', 'Use in a way that implies endorsement by the contributor'],
-  },
-  {
-    name: 'Editorial Licence',
-    price: '1 credit',
-    uses: ['News articles and journalism', 'Documentary content', 'Educational materials', 'Blog posts about real events'],
-    notAllowed: ['Commercial advertising', 'Product promotion', 'Any commercial use'],
-  },
-]
+import { LICENSES } from '@/lib/mock/marketing'
 
 export default function LicencePage() {
   return (
@@ -53,35 +33,19 @@ export default function LicencePage() {
                   {lic.price}
                 </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-                <div>
-                  <p className="text-[12px] font-bold text-[#111] uppercase tracking-[0.5px] mb-3"
-                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    ✅ Permitted uses
-                  </p>
-                  <ul className="flex flex-col gap-1.5">
-                    {lic.uses.map((u) => (
-                      <li key={u} className="text-[13.5px] text-[#444] flex items-start gap-2"
-                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        <span className="text-[#EE2B24] mt-0.5">•</span> {u}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-[12px] font-bold text-[#111] uppercase tracking-[0.5px] mb-3"
-                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    ❌ Not permitted
-                  </p>
-                  <ul className="flex flex-col gap-1.5">
-                    {lic.notAllowed.map((u) => (
-                      <li key={u} className="text-[13.5px] text-[#444] flex items-start gap-2"
-                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        <span className="text-[#888] mt-0.5">•</span> {u}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              <div className="p-6">
+                <p className="text-[13px] text-[#666] mb-4"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  {lic.desc}
+                </p>
+                <ul className="flex flex-col gap-1.5">
+                  {lic.features.map((feature) => (
+                    <li key={feature} className="text-[13.5px] text-[#444] flex items-start gap-2"
+                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                      <span className="text-[#EE2B24] mt-0.5">•</span> {feature}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           ))}

@@ -19,7 +19,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Hero image */}
         <div className="relative h-[320px] md:h-[440px] bg-[#111] overflow-hidden">
-          <img src={article.image} alt={article.title} className="w-full h-full object-cover opacity-80" />
+          <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         </div>
 
@@ -104,7 +104,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 {related.map((a) => (
                   <Link key={a.slug} href={`/editorial/${a.slug}`} className="group bg-white rounded-xl overflow-hidden border border-[#E8E8E8] hover:shadow-md transition-shadow">
                     <div className="h-[160px] overflow-hidden">
-                      <img src={a.image} alt={a.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <img src={a.coverImage} alt={a.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     </div>
                     <div className="p-4">
                       <p className="text-[11px] text-[#888] mb-1.5"

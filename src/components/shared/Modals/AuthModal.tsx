@@ -155,7 +155,7 @@ export function AuthModal({ onClose, defaultTab = 'login' }: AuthModalProps) {
             className="text-center text-[13px] text-[#666] mt-4"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
           >
-            {tab === 'login' ? "Don't have an account? " : 'Already have an account? '}
+            {tab === 'login' ? "Don&apos;t have an account? " : 'Already have an account? '}
             <button
               onClick={() => setTab(tab === 'login' ? 'signup' : 'login')}
               className="text-[#EE2B24] font-semibold hover:underline"

@@ -3,18 +3,12 @@
 import { X, Download } from 'lucide-react'
 import { useState } from 'react'
 import { ModalBackdrop } from './ModalBackdrop'
-import { Asset } from '@/components/features/search/AssetCard'
+import type { Asset, AssetDetail, LicenseType, DownloadOptions } from '@/types'
 
 interface DownloadModalProps {
-  asset: Asset
+  asset: Asset | AssetDetail | Partial<AssetDetail>
   onClose: () => void
   onConfirm: (options: DownloadOptions) => void
-}
-
-export interface DownloadOptions {
-  license: 'standard' | 'enhanced'
-  format: 'jpg' | 'png' | 'webp'
-  size: 'small' | 'medium' | 'original'
 }
 
 const LICENSES = [
@@ -31,7 +25,7 @@ const SIZES = [
 ] as const
 
 export function DownloadModal({ asset, onClose, onConfirm }: DownloadModalProps) {
-  const [license, setLicense] = useState<'standard' | 'enhanced'>('standard')
+  const [license, setLicense] = useState<LicenseType>('standard')
   const [format, setFormat] = useState<'jpg' | 'png' | 'webp'>('jpg')
   const [size, setSize] = useState<'small' | 'medium' | 'original'>('medium')
 
@@ -61,13 +55,13 @@ export function DownloadModal({ asset, onClose, onConfirm }: DownloadModalProps)
 
           {/* Asset preview row */}
           <div className="flex items-center gap-3">
-            <img src={asset.src} alt={asset.alt} className="w-14 h-14 rounded-lg object-cover" />
+            <img src={asset.src || '/placeholder.jpg'} alt={asset.alt || 'Asset'} className="w-14 h-14 rounded-lg object-cover" />
             <div>
               <p className="text-[13px] font-semibold text-[#111] line-clamp-1" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {asset.alt}
+                {asset.alt || 'Untitled Asset'}
               </p>
               <p className="text-[12px] text-[#666]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                by {asset.contributor}
+                by {asset.contributor || 'Unknown'}
               </p>
             </div>
           </div>

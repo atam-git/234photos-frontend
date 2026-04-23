@@ -3,9 +3,8 @@
 import { useState } from 'react'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
+import { CONTACT_TOPICS } from '@/lib/mock/marketing'
 import { Mail, MapPin, MessageSquare } from 'lucide-react'
-
-const TOPICS = ['General enquiry', 'Licensing question', 'Contributor support', 'Enterprise / sales', 'Press & media', 'Report an issue']
 
 export default function ContactPage() {
   const [topic, setTopic] = useState('')
@@ -91,7 +90,7 @@ export default function ContactPage() {
                       className="w-full h-[44px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white appearance-none"
                     >
                       <option value="">Select a topic…</option>
-                      {TOPICS.map((t) => <option key={t} value={t}>{t}</option>)}
+                      {CONTACT_TOPICS.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
 

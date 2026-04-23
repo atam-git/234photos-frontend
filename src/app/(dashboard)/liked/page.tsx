@@ -3,26 +3,19 @@
 import { useState } from 'react'
 import { Heart, Download, Plus, Search } from 'lucide-react'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { MY_LIKED_ASSETS } from '@/lib/mock'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
-import { Asset } from '@/components/features/search/AssetCard'
+import type { Asset, ModalState } from '@/types'
 import Link from 'next/link'
-
-type ModalState =
-  | { type: 'none' }
-  | { type: 'preview'; asset: Asset }
-  | { type: 'download'; asset: Asset }
-  | { type: 'board'; asset: Asset }
-
-const LIKED = MOCK_ASSETS.slice(0, 8)
 
 export default function LikedPage() {
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
-  const [likedAssets, setLikedAssets] = useState<Set<string>>(new Set(LIKED.map(a => a.id)))
+  const [likedAssets, setLikedAssets] = useState<Set<string>>(new Set(MY_LIKED_ASSETS.map(a => a.id)))
   const [searchQuery, setSearchQuery] = useState('')
 
-  const filtered = LIKED.filter(asset => 
+  const filtered = MY_LIKED_ASSETS.filter(asset => 
     likedAssets.has(asset.id) && 
     asset.alt.toLowerCase().includes(searchQuery.toLowerCase())
   )

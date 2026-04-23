@@ -5,18 +5,12 @@ import { useRouter } from 'next/navigation'
 import { X, Loader2, Check } from 'lucide-react'
 import { ModalBackdrop } from './ModalBackdrop'
 import { useAuthStore } from '@/stores/authStore'
+import type { ApplicationStep } from '@/types'
+import { SPECIALTIES } from '@/lib/mock/marketing'
 
 interface ContributorApplicationModalProps {
   onClose: () => void
 }
-
-type ApplicationStep = 'form' | 'uploading' | 'success'
-
-const SPECIALTIES = [
-  'Business', 'Fashion', 'Food & Cuisine', 'Nature', 'Sports', 
-  'Technology', 'Culture', 'Architecture', 'Lifestyle', 'Music',
-  'Portrait', 'Street', 'Documentary', 'Editorial'
-]
 
 export function ContributorApplicationModal({ onClose }: ContributorApplicationModalProps) {
   const router = useRouter()
@@ -78,7 +72,7 @@ export function ContributorApplicationModal({ onClose }: ContributorApplicationM
             className="text-[14px] text-[#666] mb-6"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
           >
-            You're now a contributor! Start uploading your photos and earning royalties.
+            You&apos;re now a contributor! Start uploading your photos and earning royalties.
           </p>
 
           <button

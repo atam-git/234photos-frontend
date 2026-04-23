@@ -2,8 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-
-const MEDIA_TABS = ['Photos', 'Videos', 'Footage', 'Vectors', 'Illustrations', 'Music', 'Templates', '3D']
+import { SEARCH_MEDIA_TABS } from '@/lib/mock'
 
 interface SearchBarProps {
   initialQuery?: string
@@ -87,7 +86,7 @@ export function SearchBar({ initialQuery = '', initialType = 'Photos' }: SearchB
 
         {/* Media type tabs */}
         <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
-          {MEDIA_TABS.map((tab) => (
+          {SEARCH_MEDIA_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabChange(tab)}

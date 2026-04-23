@@ -4,68 +4,22 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, FolderOpen } from 'lucide-react'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { ASSET_STATUSES as STATUS_OPTIONS, ASSET_STATUS_STYLES, MOCK_COLLECTIONS, MY_ASSETS_WITH_STATS } from '@/lib/mock'
 import { useAuthStore } from '@/stores/authStore'
 import { CreateCollectionModal } from '@/components/shared/Modals/CreateCollectionModal'
 import { AssetStatsModal } from '@/components/shared/Modals/AssetStatsModal'
+import type { Asset, StatusFilter, MyAssetsTab } from '@/types'
 import Link from 'next/link'
-
-type Tab = 'assets' | 'collections'
-type StatusFilter = 'all' | 'live' | 'pending' | 'rejected'
-
-const STATUSES = ['all', 'live', 'pending', 'rejected'] as const
-
-const ASSET_STATUSES = MOCK_ASSETS.map((asset, i) => ({
-  ...asset,
-  status: (i % 5 === 0 ? 'pending' : i % 7 === 0 ? 'rejected' : 'live') as 'live' | 'pending' | 'rejected',
-  uploadedAt: ['Apr 18, 2026', 'Apr 15, 2026', 'Apr 10, 2026', 'Mar 28, 2026'][i % 4],
-  downloads: Math.floor(Math.random() * 300),
-  views: Math.floor(Math.random() * 3000 + 500),
-  earnings: (Math.random() * 150).toFixed(0),
-}))
-
-const STATUS_STYLES = {
-  live: 'bg-green-50 text-green-700',
-  pending: 'bg-yellow-50 text-yellow-700',
-  rejected: 'bg-red-50 text-red-600',
-}
-
-// Mock collections
-const MOCK_COLLECTIONS = [
-  { 
-    id: '1', 
-    name: 'Lagos Street Photography', 
-    assetCount: 24, 
-    isPublic: true, 
-    thumbnails: [MOCK_ASSETS[0].src, MOCK_ASSETS[1].src, MOCK_ASSETS[2].src, MOCK_ASSETS[3].src], 
-    createdAt: 'Mar 15, 2026' 
-  },
-  { 
-    id: '2', 
-    name: 'Best of 2026', 
-    assetCount: 18, 
-    isPublic: true, 
-    thumbnails: [MOCK_ASSETS[4].src, MOCK_ASSETS[5].src, MOCK_ASSETS[6].src, MOCK_ASSETS[7].src], 
-    createdAt: 'Jan 10, 2026' 
-  },
-  { 
-    id: '3', 
-    name: 'Work in Progress', 
-    assetCount: 7, 
-    isPublic: false, 
-    thumbnails: [MOCK_ASSETS[8].src, MOCK_ASSETS[9].src, MOCK_ASSETS[10].src, MOCK_ASSETS[11].src], 
-    createdAt: 'Apr 20, 2026' 
-  },
-]
 
 export default function MyAssetsPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
-  const [tab, setTab] = useState<Tab>('assets')
+  const [tab, setTab] = useState<MyAssetsTab>('assets')
   const [filter, setFilter] = useState<StatusFilter>('all')
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedAssets, setSelectedAssets] = useState<string[]>([])
   const [showCreateCollection, setShowCreateCollection] = useState(false)
-  const [selectedAssetForStats, setSelectedAssetForStats] = useState<typeof ASSET_STATUSES[0] | null>(null)
+  const [selectedAssetForStats, setSelectedAssetForStats] = useState<typeof MY_ASSETS_WITH_STATS[0] | null>(null)
   const isContributor = user?.role === 'contributor' && user?.isContributorApproved
 
   useEffect(() => {
@@ -93,7 +47,7 @@ export default function MyAssetsPage() {
     )
   }
 
-  const filtered = filter === 'all' ? ASSET_STATUSES : ASSET_STATUSES.filter(a => a.status === filter)
+  const filtered = filter === 'all' ? MY_ASSETS_WITH_STATS : MY_ASSETS_WITH_STATS.filter(a => a.status === filter)
 
   const toggleAssetSelection = (assetId: string) => {
     setSelectedAssets(prev =>
@@ -119,7 +73,7 @@ export default function MyAssetsPage() {
           </h1>
           <p className="text-[13px] text-[#888] mt-0.5"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            {ASSET_STATUSES.length} assets · {MOCK_COLLECTIONS.length} collections
+            {MY_ASSETS_WITH_STATS.length} assets · {MOCK_COLLECTIONS.length} collections
           </p>
         </div>
         <Link href="/my-assets/upload"
@@ -159,13 +113,13 @@ export default function MyAssetsPage() {
           {/* Filter tabs + Selection mode */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex gap-1.5 flex-wrap">
-              {STATUSES.map((s) => (
+              {STATUS_OPTIONS.map((s) => (
                 <button key={s} onClick={() => setFilter(s)}
                   className={`px-4 py-1.5 rounded-full text-[13px] font-medium border transition-colors capitalize ${
                     filter === s ? 'bg-[#111] border-[#111] text-white font-semibold' : 'border-[#E0E0E0] text-[#555] hover:border-[#999]'
                   }`}
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  {s} {s !== 'all' && `(${ASSET_STATUSES.filter(a => a.status === s).length})`}
+                  {s} {s !== 'all' && `(${MY_ASSETS_WITH_STATS.filter(a => a.status === s).length})`}
                 </button>
               ))}
             </div>
@@ -217,52 +171,75 @@ export default function MyAssetsPage() {
           <div className="bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden">
             <div className="divide-y divide-[#F8F8F8]">
               {filtered.map((asset) => (
-                <div key={asset.id} className="flex items-center gap-4 px-5 py-3.5 group">
-                  {selectionMode && (
-                    <input
-                      type="checkbox"
-                      checked={selectedAssets.includes(asset.id)}
-                      onChange={() => toggleAssetSelection(asset.id)}
-                      className="w-4 h-4 rounded border-[#D0D0D0] text-[#EE2B24] focus:ring-[#EE2B24]"
-                    />
-                  )}
-                  <button
-                    onClick={() => setSelectedAssetForStats(asset)}
-                    className="w-12 h-12 rounded-xl overflow-hidden bg-[#E8E8E8] shrink-0 hover:ring-2 hover:ring-[#EE2B24] transition-all"
-                  >
-                    <img src={asset.src} alt={asset.alt} className="w-full h-full object-cover" />
-                  </button>
-                  <button
-                    onClick={() => setSelectedAssetForStats(asset)}
-                    className="flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
-                  >
-                    <p className="text-[13.5px] font-semibold text-[#111] truncate group-hover:text-[#EE2B24] transition-colors"
+                <div key={asset.id}>
+                  <div className="flex items-center gap-4 px-5 py-3.5 group">
+                    {selectionMode && (
+                      <input
+                        type="checkbox"
+                        checked={selectedAssets.includes(asset.id)}
+                        onChange={() => toggleAssetSelection(asset.id)}
+                        className="w-4 h-4 rounded border-[#D0D0D0] text-[#EE2B24] focus:ring-[#EE2B24]"
+                      />
+                    )}
+                    <button
+                      onClick={() => setSelectedAssetForStats(asset)}
+                      className="w-12 h-12 rounded-xl overflow-hidden bg-[#E8E8E8] shrink-0 hover:ring-2 hover:ring-[#EE2B24] transition-all"
+                    >
+                      <img src={asset.src} alt={asset.alt} className="w-full h-full object-cover" />
+                    </button>
+                    <button
+                      onClick={() => setSelectedAssetForStats(asset)}
+                      className="flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
+                    >
+                      <p className="text-[13.5px] font-semibold text-[#111] truncate group-hover:text-[#EE2B24] transition-colors"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        {asset.alt}
+                      </p>
+                      <p className="text-[11.5px] text-[#888]"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        Uploaded {asset.uploadedAt}
+                      </p>
+                    </button>
+                    <div className="hidden sm:flex items-center gap-6 shrink-0">
+                      <div className="text-center">
+                        <p className="text-[13px] font-bold text-[#111]">{asset.views?.toLocaleString() || '—'}</p>
+                        <p className="text-[10px] text-[#888]">views</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-[13px] font-bold text-[#111]">{asset.downloads}</p>
+                        <p className="text-[10px] text-[#888]">downloads</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-[13px] font-bold text-[#111]">${asset.earnings}</p>
+                        <p className="text-[10px] text-[#888]">earned</p>
+                      </div>
+                    </div>
+                    <span className={`shrink-0 text-[11px] font-bold uppercase tracking-[0.5px] px-2.5 py-1 rounded-full ${ASSET_STATUS_STYLES[asset.status]}`}
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {asset.alt}
-                    </p>
-                    <p className="text-[11.5px] text-[#888]"
-                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      Uploaded {asset.uploadedAt}
-                    </p>
-                  </button>
-                  <div className="hidden sm:flex items-center gap-6 shrink-0">
-                    <div className="text-center">
-                      <p className="text-[13px] font-bold text-[#111]">{asset.views?.toLocaleString() || '—'}</p>
-                      <p className="text-[10px] text-[#888]">views</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[13px] font-bold text-[#111]">{asset.downloads}</p>
-                      <p className="text-[10px] text-[#888]">downloads</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[13px] font-bold text-[#111]">${asset.earnings}</p>
-                      <p className="text-[10px] text-[#888]">earned</p>
-                    </div>
+                      {asset.status}
+                    </span>
                   </div>
-                  <span className={`shrink-0 text-[11px] font-bold uppercase tracking-[0.5px] px-2.5 py-1 rounded-full ${STATUS_STYLES[asset.status]}`}
-                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    {asset.status}
-                  </span>
+                  
+                  {/* Rejection reason */}
+                  {asset.status === 'rejected' && (asset as any).rejectionReason && (
+                    <div className="px-5 pb-3.5 pl-[76px]">
+                      <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-lg">
+                        <svg className="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-bold text-red-900 uppercase tracking-[0.5px] mb-0.5"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                            Rejection Reason
+                          </p>
+                          <p className="text-[12px] text-red-800 leading-relaxed"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                            {(asset as any).rejectionReason}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

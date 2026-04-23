@@ -2,42 +2,17 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, X, Check, Tag, ChevronRight, FileImage } from 'lucide-react'
+import { Upload, X, Check, Tag, ChevronRight } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
+import { UPLOAD_CATEGORIES, AI_TAGS } from '@/lib/mock/marketing'
 import Link from 'next/link'
-
-type Step = 'drop' | 'uploading' | 'tagging' | 'done'
-
-interface UploadFile {
-  id: string
-  name: string
-  src: string
-  progress: number
-  status: 'uploading' | 'complete' | 'error'
-  tags: string[]
-  title: string
-  description: string
-  category: string
-  resolution: 'HD' | '4K'
-  isAI: boolean
-  isEditorial: boolean
-  // Auto-detected
-  dimensions: string
-  fileSize: string
-  fileType: string
-}
-
-const CATEGORIES = ['Business', 'Fashion', 'Food & Cuisine', 'Nature', 'Sports', 'Technology', 'Culture', 'Architecture', 'Lifestyle', 'Music']
-
-const AI_TAGS: Record<string, string[]> = {
-  default: ['africa', 'authentic', 'photography', 'stock', 'creative'],
-}
+import type { UploadStep, UploadFile } from '@/types'
 
 export default function UploadPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const isContributor = user?.role === 'contributor' && user?.isContributorApproved
-  const [step, setStep] = useState<Step>('drop')
+  const [step, setStep] = useState<UploadStep>('drop')
   const [files, setFiles] = useState<UploadFile[]>([])
   const [dragging, setDragging] = useState(false)
   const [activeFile, setActiveFile] = useState<string | null>(null)
@@ -51,21 +26,25 @@ export default function UploadPage() {
       
       return {
         id: Math.random().toString(36).slice(2),
-        name: f.name,
-        src: URL.createObjectURL(f),
+        file: f,
+        fileName: f.name,
+        fileSize: f.size,
+        mimeType: f.type,
+        status: 'uploading' as const,
         progress: 0,
-        status: 'uploading',
+        preview: URL.createObjectURL(f),
+        thumbnailUrl: URL.createObjectURL(f),
         tags: [...AI_TAGS.default],
         title: f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
         description: '',
         category: 'Business',
-        resolution: 'HD',
         isAI: false,
         isEditorial: false,
+        modelRelease: false,
+        propertyRelease: false,
         // Auto-detected
-        dimensions: '3840 × 2560px', // Would be detected from actual image
-        fileSize: `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
-        fileType: f.type.split('/')[1].toUpperCase(),
+        dimensions: { width: 3840, height: 2560 }, // Would be detected from actual image
+        aspectRatio: 1.5,
       }
     })
     setFiles(prev => [...prev, ...newFiles])
@@ -80,7 +59,7 @@ export default function UploadPage() {
         if (progress >= 100) {
           progress = 100
           clearInterval(interval)
-          setFiles(prev => prev.map(f => f.id === file.id ? { ...f, progress: 100, status: 'complete' } : f))
+          setFiles(prev => prev.map(f => f.id === file.id ? { ...f, progress: 100, status: 'complete' as const } : f))
           setStep('tagging')
         } else {
           setFiles(prev => prev.map(f => f.id === file.id ? { ...f, progress } : f))
@@ -151,9 +130,10 @@ export default function UploadPage() {
     const sharedMetadata = {
       description: activeFileData.description,
       category: activeFileData.category,
-      resolution: activeFileData.resolution,
       isAI: activeFileData.isAI,
       isEditorial: activeFileData.isEditorial,
+      modelRelease: activeFileData.modelRelease,
+      propertyRelease: activeFileData.propertyRelease,
       tags: activeFileData.tags,
     }
     
@@ -174,7 +154,7 @@ export default function UploadPage() {
         </Link>
         <div className="ml-auto flex items-center gap-2">
           {/* Step indicator */}
-          {(['drop', 'uploading', 'tagging', 'done'] as Step[]).map((s, i) => (
+          {(['drop', 'uploading', 'tagging', 'done'] as UploadStep[]).map((s, i) => (
             <div key={s} className="flex items-center gap-1.5">
               {i > 0 && <ChevronRight className="w-3 h-3 text-[#CCCCCC]" />}
               <span className={`text-[12px] font-semibold capitalize ${step === s ? 'text-[#EE2B24]' : 'text-[#BBBBBB]'}`}
@@ -234,12 +214,12 @@ export default function UploadPage() {
               {files.map((file) => (
                 <div key={file.id} className="flex items-center gap-4 px-6 py-4">
                   <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#E8E8E8] shrink-0">
-                    <img src={file.src} alt={file.name} className="w-full h-full object-cover" />
+                    <img src={file.preview} alt={file.fileName} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-[#111] truncate mb-1.5"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {file.name}
+                      {file.fileName}
                     </p>
                     <div className="h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
                       <div className="h-full bg-[#EE2B24] rounded-full transition-all duration-300"
@@ -277,11 +257,11 @@ export default function UploadPage() {
                         activeFile === file.id ? 'bg-[#FFF0F0]' : 'hover:bg-[#F8F8F8]'
                       }`}>
                       <div className="w-8 h-8 rounded-lg overflow-hidden bg-[#E8E8E8] shrink-0">
-                        <img src={file.src} alt={file.name} className="w-full h-full object-cover" />
+                        <img src={file.preview} alt={file.fileName} className="w-full h-full object-cover" />
                       </div>
                       <p className="text-[12px] font-medium text-[#111] truncate"
                         style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        {file.name}
+                        {file.fileName}
                       </p>
                     </button>
                   ))}
@@ -294,7 +274,7 @@ export default function UploadPage() {
               <div className="flex-1 bg-white rounded-2xl border border-[#F0F0F0] p-6 flex flex-col gap-5">
                 <div className="flex items-start gap-4">
                   <div className="w-24 h-24 rounded-xl overflow-hidden bg-[#E8E8E8] shrink-0">
-                    <img src={activeFileData.src} alt={activeFileData.name} className="w-full h-full object-cover" />
+                    <img src={activeFileData.preview} alt={activeFileData.fileName} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1">
                     <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
@@ -328,20 +308,20 @@ export default function UploadPage() {
                     <select value={activeFileData.category}
                       onChange={(e) => updateFile(activeFileData.id, { category: e.target.value })}
                       className="w-full h-[40px] px-3 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white">
-                      {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                      {UPLOAD_CATEGORIES.map(c => <option key={c}>{c}</option>)}
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      Resolution
+                      Model Release
                     </label>
-                    <select value={activeFileData.resolution}
-                      onChange={(e) => updateFile(activeFileData.id, { resolution: e.target.value as 'HD' | '4K' })}
+                    <select value={activeFileData.modelRelease ? 'yes' : 'no'}
+                      onChange={(e) => updateFile(activeFileData.id, { modelRelease: e.target.value === 'yes' })}
                       className="w-full h-[40px] px-3 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white">
-                      <option value="HD">HD</option>
-                      <option value="4K">4K</option>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
                     </select>
                   </div>
                 </div>
@@ -355,7 +335,7 @@ export default function UploadPage() {
                     </p>
                     <p className="text-[12px] font-semibold text-[#111]"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {activeFileData.dimensions}
+                      {activeFileData.dimensions ? `${activeFileData.dimensions.width} × ${activeFileData.dimensions.height}px` : 'N/A'}
                     </p>
                   </div>
                   <div>
@@ -365,7 +345,7 @@ export default function UploadPage() {
                     </p>
                     <p className="text-[12px] font-semibold text-[#111]"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {activeFileData.fileSize}
+                      {(activeFileData.fileSize / (1024 * 1024)).toFixed(1)} MB
                     </p>
                   </div>
                   <div>
@@ -375,7 +355,7 @@ export default function UploadPage() {
                     </p>
                     <p className="text-[12px] font-semibold text-[#111]"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {activeFileData.fileType}
+                      {activeFileData.mimeType.split('/')[1].toUpperCase()}
                     </p>
                   </div>
                 </div>

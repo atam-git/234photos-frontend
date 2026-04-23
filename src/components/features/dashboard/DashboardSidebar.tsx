@@ -8,7 +8,7 @@ import {
   ImageIcon, Upload, DollarSign, Settings,
   ChevronRight, X, Compass, LogOut, HelpCircle, CreditCard
 } from 'lucide-react'
-import { MockUser } from '@/lib/mock/user'
+import type { User } from '@/types'
 import { useAuthStore } from '@/stores/authStore'
 
 interface NavItem {
@@ -19,7 +19,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  // Buyer
+  // Customer
   { label: 'Downloads', href: '/downloads', icon: Download },
   { label: 'Boards', href: '/boards', icon: LayoutGrid },
   { label: 'Liked', href: '/liked', icon: Heart },
@@ -34,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 interface DashboardSidebarProps {
-  user: MockUser
+  user: User
   mobileOpen?: boolean
   onMobileClose?: () => void
   onOpenContributorModal?: () => void
@@ -126,7 +126,7 @@ export function DashboardSidebar({ user, mobileOpen, onMobileClose, onOpenContri
                   isContributor ? 'bg-[#FFF0F0] text-[#EE2B24]' : 'bg-[#F0F0F0] text-[#666]'
                 }`}
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  {isContributor ? 'Contributor' : 'Buyer'}
+                  {isContributor ? 'Contributor' : 'Customer'}
                 </span>
                 <span className="text-[11.5px] text-[#888] pl-[2px]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -178,7 +178,7 @@ export function DashboardSidebar({ user, mobileOpen, onMobileClose, onOpenContri
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-3 px-3">
 
-          {/* Buyer section */}
+          {/* Customer section */}
           <div className="mb-1">
             <p className="text-[10.5px] font-bold text-[#BBBBBB] uppercase tracking-[0.8px] px-2 mb-1.5"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>

@@ -4,37 +4,20 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Globe, Lock, MoreVertical, Trash2, Edit2, Plus } from 'lucide-react'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { MOCK_COLLECTION_DETAIL } from '@/lib/mock'
 import { useAuthStore } from '@/stores/authStore'
 import { AssetStatsModal } from '@/components/shared/Modals/AssetStatsModal'
 import { EditCollectionModal } from '@/components/shared/Modals/EditCollectionModal'
 import Link from 'next/link'
 
-// Mock collection data
-const MOCK_COLLECTION = {
-  id: '1',
-  name: 'Lagos Street Photography',
-  description: 'Authentic street scenes capturing the vibrant energy of Lagos, Nigeria.',
-  assetCount: 24,
-  isPublic: true,
-  createdAt: 'Mar 15, 2026',
-  assets: MOCK_ASSETS.slice(0, 12).map((asset, i) => ({
-    ...asset,
-    status: 'live' as const,
-    uploadedAt: ['Apr 18, 2026', 'Apr 15, 2026', 'Apr 10, 2026', 'Mar 28, 2026'][i % 4],
-    downloads: Math.floor(Math.random() * 300),
-    views: Math.floor(Math.random() * 3000 + 500),
-    earnings: (Math.random() * 150).toFixed(0),
-  })),
-}
-
 export default function CollectionDetailPage() {
-  const { id } = useParams<{ id: string }>()
+  useParams<{ id: string }>() // Get id from URL params
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const [showMenu, setShowMenu] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [collection, setCollection] = useState(MOCK_COLLECTION)
-  const [selectedAsset, setSelectedAsset] = useState<typeof MOCK_COLLECTION.assets[0] | null>(null)
+  const [collection, setCollection] = useState(MOCK_COLLECTION_DETAIL)
+  const [selectedAsset, setSelectedAsset] = useState<typeof MOCK_COLLECTION_DETAIL.assets[0] | null>(null)
   const isContributor = user?.role === 'contributor' && user?.isContributorApproved
 
   useEffect(() => {

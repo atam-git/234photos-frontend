@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronDown, Menu, X, Grid2X2, LayoutDashboard, LogOut } from 'lucide-react'
+import { ChevronDown, Menu, X, Grid2X2, LayoutDashboard } from 'lucide-react'
 import { useState, useEffect, useRef, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/authStore'
@@ -16,17 +16,16 @@ const navItems = [
 interface HeaderProps {
   variant?: 'default' | 'search'
   initialQuery?: string
-  onAuthClick?: (tab?: 'login' | 'signup') => void
 }
 
-export function Header({ variant = 'default', initialQuery = '', onAuthClick }: HeaderProps) {
+export function Header({ variant = 'default', initialQuery = '' }: HeaderProps) {
   const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [browseOpen, setBrowseOpen] = useState(false)
   const [query, setQuery] = useState(initialQuery)
   const browseRef = useRef<HTMLDivElement>(null)
-  const { isLoggedIn, user, logout } = useAuthStore()
+  const { isLoggedIn, user } = useAuthStore()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10)

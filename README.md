@@ -1,15 +1,16 @@
 # 234photos - Frontend
 
-Africa's next-generation stock media marketplace built with Next.js 14.
+Africa's premier stock media marketplace connecting African creators with global buyers. Built with Next.js 15, TypeScript, and Tailwind CSS.
 
 ## Tech Stack
 
-- **Framework:** Next.js 14 (App Router)
+- **Framework:** Next.js 15.1.0 (App Router)
 - **Language:** TypeScript 5+
-- **Styling:** Tailwind CSS
-- **UI Components:** shadcn/ui + Radix UI
-- **State Management:** Zustand + TanStack Query
-- **Forms:** React Hook Form + Zod
+- **Styling:** Tailwind CSS + Custom CSS
+- **State Management:** Zustand
+- **Icons:** Lucide React
+- **Font:** Plus Jakarta Sans (Google Fonts)
+- **Deployment:** Vercel-ready
 
 ## Getting Started
 
@@ -59,15 +60,18 @@ vercel --prod
 ```
 src/
 ├── app/                 # Next.js App Router
+│   ├── (marketing)/    # Public marketing pages
+│   ├── (browse)/       # Public browsing (search, assets, profiles)
+│   └── (dashboard)/    # Authenticated dashboard
 ├── components/          # React components
-│   ├── ui/             # shadcn/ui components
-│   ├── shared/         # Shared components
-│   └── features/       # Feature-specific components
-├── lib/                # Utilities and helpers
-├── hooks/              # Custom React hooks
+│   ├── features/       # Feature-specific components
+│   └── shared/         # Shared components & modals
+├── lib/
+│   └── mock/           # Mock data (24 files)
+├── types/              # TypeScript types (20 files, 81+ types)
 ├── stores/             # Zustand stores
-├── types/              # TypeScript types
-└── styles/             # Global styles
+└── public/             # Static assets
+docs/                   # Documentation
 ```
 
 ## Development
@@ -87,4 +91,7 @@ NEXT_PUBLIC_API_URL=your_api_url
 
 ## Documentation
 
-See [234photos _ Frontend Engineering PRD.md](./234photos%20_%20Frontend%20Engineering%20PRD.md) for complete specifications.
+- **[Product Requirements](./docs/PRD.md)** - Complete feature specifications
+- **[Design System](./docs/DESIGN_SYSTEM.md)** - UI patterns and components
+- **[Type System](./docs/TYPE_SYSTEM.md)** - TypeScript type definitions
+- **[UI Plan](./docs/UI_PLAN.md)** - Build order and component breakdown

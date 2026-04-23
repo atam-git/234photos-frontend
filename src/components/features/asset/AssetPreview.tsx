@@ -4,13 +4,18 @@ import { useState } from 'react'
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react'
 
 interface AssetPreviewProps {
-  src: string
-  alt: string
+  src?: string
+  alt?: string
   isAI?: boolean
   isEditorial?: boolean
 }
 
-export function AssetPreview({ src, alt, isAI, isEditorial }: AssetPreviewProps) {
+export function AssetPreview({ 
+  src = '/placeholder-image.jpg', 
+  alt = 'Asset preview', 
+  isAI, 
+  isEditorial 
+}: AssetPreviewProps) {
   const [zoomed, setZoomed] = useState(false)
 
   return (

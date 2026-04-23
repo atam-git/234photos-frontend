@@ -3,13 +3,10 @@
 import { useState } from 'react'
 import { X, Globe, Lock } from 'lucide-react'
 import { ModalBackdrop } from './ModalBackdrop'
+import type { Collection } from '@/types'
 
 interface EditCollectionModalProps {
-  collection: {
-    name: string
-    description?: string
-    isPublic: boolean
-  }
+  collection: Pick<Collection, 'name' | 'description' | 'isPublic'>
   onClose: () => void
   onSave: (data: { name: string; description: string; isPublic: boolean }) => void
 }

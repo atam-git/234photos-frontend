@@ -10,7 +10,7 @@ function LoginPageInner() {
   const searchParams = useSearchParams()
   const isContributorIntent = searchParams.get('intent') === 'contributor'
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('buyer@example.com')
+  const [email, setEmail] = useState('customer@example.com')
   const [password, setPassword] = useState('password123')
   const router = useRouter()
   const login = useAuthStore((state) => state.login)
@@ -180,7 +180,7 @@ function LoginPageInner() {
 
           {/* Sign up link */}
           <p className="text-center text-[13px] text-[#666] mt-6">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link 
               href={isContributorIntent ? '/signup?intent=contributor' : '/signup'} 
               className="text-[#EE2B24] hover:text-[#d42520] font-semibold"

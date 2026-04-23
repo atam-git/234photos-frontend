@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { X, Lock, Users } from 'lucide-react'
+import type { Board } from '@/types'
 
 interface CreateBoardModalProps {
   onClose: () => void
@@ -9,12 +10,13 @@ interface CreateBoardModalProps {
 
 export function CreateBoardModal({ onClose }: CreateBoardModalProps) {
   const [name, setName] = useState('')
-  const [type, setType] = useState<'private' | 'shared'>('private')
+  const [description, setDescription] = useState('')
+  const [type, setType] = useState<Board['type']>('private')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // TODO: Create board
-    console.log('Create board:', { name, type })
+    console.log('Create board:', { name, description, type })
     onClose()
   }
 
@@ -47,6 +49,21 @@ export function CreateBoardModal({ onClose }: CreateBoardModalProps) {
               required
               autoFocus
               className="w-full h-[44px] px-4 border border-[#D0D0D0] rounded-xl text-[14px] text-[#111] outline-none focus:border-[#111] transition-colors"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Description (Optional)
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What's this board for?"
+              rows={2}
+              className="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl text-[14px] text-[#111] outline-none focus:border-[#111] transition-colors resize-none"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             />
           </div>

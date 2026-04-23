@@ -1,20 +1,7 @@
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import Link from 'next/link'
-
-const BUYER_STEPS = [
-  { n: '01', title: 'Search', desc: 'Type a keyword or upload an image to find visually similar assets. Filter by type, orientation, license and more.' },
-  { n: '02', title: 'Preview', desc: 'Click any asset to see a full watermarked preview. Check dimensions, license terms and contributor details.' },
-  { n: '03', title: 'License', desc: 'Choose Standard or Enhanced license depending on your use case. Subscription plans include unlimited downloads.' },
-  { n: '04', title: 'Download', desc: 'Download in your preferred format and resolution. Your license certificate is emailed automatically.' },
-]
-
-const CONTRIBUTOR_STEPS = [
-  { n: '01', title: 'Upload', desc: 'Drag and drop up to 100 files at once. Resumable uploads mean large batches never fail.' },
-  { n: '02', title: 'Tag & describe', desc: 'AI suggests tags automatically. Add a title, description and category, then submit for review.' },
-  { n: '03', title: 'Get approved', desc: 'Our team reviews submissions within 24–48 hours. You\'ll be notified when assets go live.' },
-  { n: '04', title: 'Earn royalties', desc: 'Earn 30–50% on every download. Track earnings in real-time on your contributor dashboard.' },
-]
+import { BUYER_STEPS, CONTRIBUTOR_STEPS } from '@/lib/mock/marketing'
 
 export default function HowItWorksPage() {
   return (

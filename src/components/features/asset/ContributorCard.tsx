@@ -5,22 +5,22 @@ import Link from 'next/link'
 import { getContributorUsername } from '@/lib/mock/contributors'
 
 interface ContributorCardProps {
-  name: string
+  name?: string
   avatar?: string
-  country: string
-  totalAssets: number
-  totalDownloads: string
+  country?: string
+  totalAssets?: number
+  totalDownloads?: string
   isLoggedIn?: boolean
   onFollow?: () => void
   onAuthRequired?: () => void
 }
 
 export function ContributorCard({
-  name,
+  name = 'Unknown Contributor',
   avatar,
-  country,
-  totalAssets,
-  totalDownloads,
+  country = 'Unknown',
+  totalAssets = 0,
+  totalDownloads = '0',
   isLoggedIn = false,
   onFollow,
   onAuthRequired,

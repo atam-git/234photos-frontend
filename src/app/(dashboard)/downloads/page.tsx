@@ -1,31 +1,21 @@
 'use client'
 
 import { useState } from 'react'
-import { Download, FileImage, ExternalLink, Search, Filter } from 'lucide-react'
+import { Download, FileImage, ExternalLink, Search } from 'lucide-react'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { MY_DOWNLOADS } from '@/lib/mock'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
-import { Asset } from '@/components/features/search/AssetCard'
+import type { Asset, LicenseType, LicenseFilter } from '@/types'
 import Link from 'next/link'
-
-type LicenseFilter = 'all' | 'standard' | 'enhanced'
-
-const DOWNLOADS = MOCK_ASSETS.slice(0, 10).map((asset, i) => ({
-  ...asset,
-  licensedOn: ['Apr 18, 2026', 'Apr 15, 2026', 'Apr 10, 2026', 'Mar 28, 2026', 'Mar 20, 2026',
-    'Mar 15, 2026', 'Mar 8, 2026', 'Feb 22, 2026', 'Feb 14, 2026', 'Feb 1, 2026'][i],
-  license: i % 3 === 0 ? 'Enhanced' : 'Standard',
-  format: 'JPG',
-  size: `${(Math.random() * 8 + 2).toFixed(1)} MB`,
-}))
 
 export default function DownloadsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [licenseFilter, setLicenseFilter] = useState<LicenseFilter>('all')
   const [downloadAsset, setDownloadAsset] = useState<Asset | null>(null)
 
-  const filtered = DOWNLOADS.filter(item => {
+  const filtered = MY_DOWNLOADS.filter(item => {
     const matchesSearch = item.alt.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesLicense = licenseFilter === 'all' || item.license.toLowerCase() === licenseFilter
+    const matchesLicense = licenseFilter === 'all' || item.license === licenseFilter
     return matchesSearch && matchesLicense
   })
 
@@ -45,7 +35,7 @@ export default function DownloadsPage() {
         </p>
       </div>
 
-      {DOWNLOADS.length === 0 ? (
+      {MY_DOWNLOADS.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#F0F0F0] flex flex-col items-center justify-center py-20 text-center">
           <FileImage className="w-10 h-10 text-[#DDDDDD] mb-4" />
           <p className="text-[15px] font-semibold text-[#111] mb-1"
@@ -147,7 +137,11 @@ export default function DownloadsPage() {
                       </p>
                       <p className="text-[12px] text-[#888]"
                         style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        {item.license} · {item.format} · {item.size} · Licensed {item.licensedOn}
+                        {item.license.charAt(0).toUpperCase() + item.license.slice(1)} · {item.format} · {item.size} · Licensed {item.licensedOn}
+                      </p>
+                      <p className="text-[11px] text-[#666] mt-0.5"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        Expires {item.expiresAt} · <a href={item.licenseUrl} target="_blank" rel="noopener noreferrer" className="text-[#EE2B24] hover:underline">View license</a>
                       </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">

@@ -3,25 +3,17 @@
 import { X, Plus, Check, Lock, Users } from 'lucide-react'
 import { useState } from 'react'
 import { ModalBackdrop } from './ModalBackdrop'
-import { Asset } from '@/components/features/search/AssetCard'
+import type { Asset, AssetDetail, Board } from '@/types'
 
-interface Board {
-  id: string
-  name: string
-  count: number
-  type: 'private' | 'shared' | 'team'
-  thumbnail?: string
-}
-
-const MOCK_BOARDS: Board[] = [
-  { id: '1', name: 'Campaign Q3 2024', count: 24, type: 'shared', thumbnail: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=80&q=80' },
-  { id: '2', name: 'Brand Assets', count: 12, type: 'private', thumbnail: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=80&q=80' },
-  { id: '3', name: 'Inspiration', count: 47, type: 'private', thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&q=80' },
-  { id: '4', name: 'Team Collection', count: 8, type: 'team', thumbnail: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=80&q=80' },
+const MOCK_BOARDS: Partial<Board>[] = [
+  { id: '1', name: 'Campaign Q3 2024', assetCount: 24, type: 'shared', thumbnails: ['https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=80&q=80'] },
+  { id: '2', name: 'Brand Assets', assetCount: 12, type: 'private', thumbnails: ['https://images.unsplash.com/photo-1531482615713-2afd69097998?w=80&q=80'] },
+  { id: '3', name: 'Inspiration', assetCount: 47, type: 'private', thumbnails: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&q=80'] },
+  { id: '4', name: 'Team Collection', assetCount: 8, type: 'team', thumbnails: ['https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=80&q=80'] },
 ]
 
 interface SaveToBoardModalProps {
-  asset: Asset
+  asset: Asset | AssetDetail | Partial<AssetDetail>
   onClose: () => void
 }
 
@@ -70,26 +62,26 @@ export function SaveToBoardModal({ asset, onClose }: SaveToBoardModalProps) {
 
         {/* Asset preview */}
         <div className="flex items-center gap-3 px-5 py-3 bg-[#FAFAFA] border-b border-[#F0F0F0]">
-          <img src={asset.src} alt={asset.alt} className="w-10 h-10 rounded-lg object-cover" />
+          <img src={asset.src || '/placeholder.jpg'} alt={asset.alt || 'Asset'} className="w-10 h-10 rounded-lg object-cover" />
           <p className="text-[12.5px] font-medium text-[#444] line-clamp-1" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            {asset.alt}
+            {asset.alt || 'Untitled Asset'}
           </p>
         </div>
 
         {/* Board list */}
         <div className="max-h-[280px] overflow-y-auto">
           {MOCK_BOARDS.map((board) => {
-            const isSaved = saved.includes(board.id)
+            const isSaved = board.id ? saved.includes(board.id) : false
             return (
               <button
                 key={board.id}
-                onClick={() => toggleBoard(board.id)}
+                onClick={() => board.id && toggleBoard(board.id)}
                 className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[#F5F5F7] transition-colors text-left"
               >
                 {/* Thumbnail */}
                 <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#E8E8E8] shrink-0">
-                  {board.thumbnail && (
-                    <img src={board.thumbnail} alt={board.name} className="w-full h-full object-cover" />
+                  {board.thumbnails?.[0] && (
+                    <img src={board.thumbnails[0]} alt={board.name} className="w-full h-full object-cover" />
                   )}
                 </div>
 
@@ -99,10 +91,10 @@ export function SaveToBoardModal({ asset, onClose }: SaveToBoardModalProps) {
                     <span className="text-[13px] font-semibold text-[#111] truncate" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                       {board.name}
                     </span>
-                    <BoardIcon type={board.type} />
+                    <BoardIcon type={board.type!} />
                   </div>
                   <span className="text-[11.5px] text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    {board.count} assets
+                    {board.assetCount} assets
                   </span>
                 </div>
 

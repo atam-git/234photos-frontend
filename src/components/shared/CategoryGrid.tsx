@@ -1,53 +1,5 @@
-const categories = [
-  {
-    name: 'Lagos & Nigeria',
-    src: 'https://api.builder.io/api/v1/image/assets/TEMP/20680602b893b12b8fd66eaaa4a2480861ca37aa?width=394',
-  },
-  {
-    name: 'African Fashion',
-    src: 'https://api.builder.io/api/v1/image/assets/TEMP/2e1977d90a651adf93ab2391aad9ba7e5fc82a2e?width=394',
-  },
-  {
-    name: 'Entrepreneurs',
-    src: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'Traditional Culture',
-    src: 'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'African Music',
-    src: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'Food & Cuisine',
-    src: 'https://images.unsplash.com/photo-1574484284002-952d92456975?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'Nature & Wildlife',
-    src: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'African Weddings',
-    src: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'Architecture',
-    src: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'Youth & Lifestyle',
-    src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'Sports',
-    src: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=394&q=80',
-  },
-  {
-    name: 'Technology',
-    src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=394&q=80',
-  },
-]
+import Link from 'next/link'
+import { CATEGORIES } from '@/lib/mock'
 
 export function CategoryGrid() {
   return (
@@ -72,7 +24,7 @@ export function CategoryGrid() {
 
         {/* Category Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[10px]">
-          {categories.map((category) => (
+          {CATEGORIES.map((category) => (
             <a
               key={category.name}
               href={`/search?q=${encodeURIComponent(category.name)}`}

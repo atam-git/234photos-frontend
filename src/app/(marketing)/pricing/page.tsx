@@ -5,87 +5,8 @@ import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { Check, Minus, ChevronDown } from 'lucide-react'
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type Tab = 'login' | 'signup'
-type ModalState = { open: false } | { open: true; tab: Tab }
-type BillingPeriod = 'monthly' | 'annual'
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const PLANS = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    desc: 'For individuals exploring African content.',
-    monthlyPrice: null,
-    badge: null,
-    cta: 'Get started free',
-    ctaVariant: 'outline' as const,
-    href: '/signup',
-  },
-  {
-    id: 'standard',
-    name: 'Standard',
-    desc: 'For creators, marketers and small businesses.',
-    monthlyPrice: 29,
-    badge: 'Most popular',
-    cta: 'Start free trial',
-    ctaVariant: 'red' as const,
-    href: '/signup?plan=standard',
-  },
-  {
-    id: 'business',
-    name: 'Business',
-    desc: 'For agencies, teams and high-volume brands.',
-    monthlyPrice: 79,
-    badge: null,
-    cta: 'Contact sales',
-    ctaVariant: 'dark' as const,
-    href: '/contact-sales',
-  },
-]
-
-const FEATURES = [
-  { category: 'Downloads', rows: [
-    { label: 'Assets per month', starter: '10 previews', standard: '750 assets', business: 'Unlimited' },
-    { label: 'Full HD photos & footage', starter: false, standard: true, business: true },
-    { label: '4K footage & RAW files', starter: false, standard: false, business: true },
-    { label: 'Bulk download', starter: false, standard: false, business: true },
-  ]},
-  { category: 'AI Tools', rows: [
-    { label: 'AI image generator credits', starter: '0', standard: '50 / mo', business: '500 / mo' },
-    { label: 'Background remover', starter: false, standard: true, business: true },
-    { label: 'Generative fill', starter: false, standard: false, business: true },
-  ]},
-  { category: 'Licensing', rows: [
-    { label: 'Standard commercial licence', starter: true, standard: true, business: true },
-    { label: 'Enhanced licence', starter: false, standard: false, business: true },
-    { label: 'Editorial licence', starter: false, standard: true, business: true },
-  ]},
-  { category: 'Team & Enterprise', rows: [
-    { label: 'Team seats', starter: '1', standard: '1', business: 'Up to 10' },
-    { label: 'Custom collections & folders', starter: false, standard: false, business: true },
-    { label: 'Usage reports', starter: false, standard: false, business: true },
-    { label: 'API access', starter: false, standard: false, business: true },
-    { label: 'SSO / SAML', starter: false, standard: false, business: true },
-  ]},
-  { category: 'Support', rows: [
-    { label: 'Email support', starter: true, standard: true, business: true },
-    { label: 'Priority support', starter: false, standard: true, business: true },
-    { label: 'Dedicated account manager', starter: false, standard: false, business: true },
-  ]},
-]
-
-const FAQS = [
-  { q: 'Can I cancel anytime?', a: 'Yes. You can cancel your subscription at any time from your account settings. You\'ll retain access until the end of your billing period.' },
-  { q: 'What payment methods do you accept?', a: 'We accept all major cards, bank transfers, and local payment methods including Flutterwave for NGN, GHS, KES and ZAR payments.' },
-  { q: 'Do unused downloads roll over?', a: 'No — downloads reset at the start of each billing cycle. We recommend choosing a plan that matches your typical monthly usage.' },
-  { q: 'What\'s the difference between Standard and Enhanced licence?', a: 'Standard covers web, social media, and print up to 500,000 copies. Enhanced covers unlimited print runs, resale products, and broadcast use.' },
-  { q: 'Can I upgrade or downgrade my plan?', a: 'Yes, you can change your plan at any time. Upgrades take effect immediately; downgrades apply at the next billing cycle.' },
-  { q: 'Is there a free trial?', a: 'The Standard plan includes a 7-day free trial. No credit card required to start.' },
-]
+import type { BillingPeriod } from '@/types'
+import { PRICING_PLANS, PRICING_FEATURES, PRICING_FAQS } from '@/lib/mock/marketing'
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -128,7 +49,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function PricingPage() {
   const [billing, setBilling] = useState<BillingPeriod>('monthly')
-  const [modal, setModal] = useState<ModalState>({ open: false })
 
   const price = (base: number | null) => {
     if (base === null) return null
@@ -137,7 +57,7 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <Header onAuthClick={(tab) => setModal({ open: true, tab: tab ?? 'login' })} />
+      <Header />
 
       <main className="flex-1">
 
@@ -187,7 +107,7 @@ export default function PricingPage() {
         {/* Pricing cards */}
         <section className="px-4 md:px-6 pb-16">
           <div className="max-w-[1100px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
-            {PLANS.map((plan) => {
+            {PRICING_PLANS.map((plan) => {
               const p = price(plan.monthlyPrice)
               return (
                 <div
@@ -267,7 +187,7 @@ export default function PricingPage() {
               {/* Table header */}
               <div className="grid grid-cols-4 border-b border-[#F0F0F0]">
                 <div className="p-4" />
-                {PLANS.map((plan) => (
+                {PRICING_PLANS.map((plan) => (
                   <div key={plan.id} className="p-4 text-center border-l border-[#F0F0F0]">
                     <p className="text-[14px] font-bold text-[#111]"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -277,7 +197,7 @@ export default function PricingPage() {
                 ))}
               </div>
 
-              {FEATURES.map((group) => (
+              {PRICING_FEATURES.map((group) => (
                 <div key={group.category}>
                   {/* Category header */}
                   <div className="bg-[#FAFAFA] px-4 py-2.5 border-b border-[#F0F0F0]">
@@ -315,7 +235,7 @@ export default function PricingPage() {
               Frequently asked questions
             </h2>
             <div>
-              {FAQS.map((faq) => (
+              {PRICING_FAQS.map((faq) => (
                 <FaqItem key={faq.q} q={faq.q} a={faq.a} />
               ))}
             </div>
@@ -349,11 +269,6 @@ export default function PricingPage() {
         </section>
       </main>
 
-      <Footer />
-
-      {modal.open && (
-        <AuthModal onClose={() => setModal({ open: false })} defaultTab={modal.tab} />
-      )}
     </div>
   )
 }

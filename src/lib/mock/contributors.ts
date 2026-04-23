@@ -1,16 +1,4 @@
-export interface Contributor {
-  username: string
-  name: string
-  avatar: string
-  country: string
-  countryFlag: string
-  bio: string
-  totalAssets: number
-  totalDownloads: string
-  totalEarnings: string
-  joinedYear: number
-  specialties: string[]
-}
+import type { Contributor } from '@/types'
 
 export const CONTRIBUTORS: Record<string, Contributor> = {
   'amara-osei': {
@@ -25,6 +13,8 @@ export const CONTRIBUTORS: Record<string, Contributor> = {
     totalEarnings: '$12,400',
     joinedYear: 2021,
     specialties: ['Business', 'Lifestyle', 'Corporate'],
+    website: 'https://amaraosei.com',
+    instagram: '@amaraosei',
   },
   'chidi-nwosu': {
     username: 'chidi-nwosu',
@@ -116,6 +106,8 @@ export const CONTRIBUTORS: Record<string, Contributor> = {
     totalEarnings: '$124,700',
     joinedYear: 2019,
     specialties: ['Nature', 'Landscape', 'Mountains'],
+    website: 'https://sarahjohnsonphoto.com',
+    instagram: '@sarahjohnsonphoto',
   },
   'michael-chen': {
     username: 'michael-chen',

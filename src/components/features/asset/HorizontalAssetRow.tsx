@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Asset } from '@/components/features/search/AssetCard'
+import type { Asset } from '@/types'
 
 interface HorizontalAssetRowProps {
   title: string

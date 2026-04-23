@@ -7,28 +7,7 @@ import { Footer } from '@/components/shared/Footer'
 import { ContributorApplicationModal } from '@/components/shared/Modals/ContributorApplicationModal'
 import Link from 'next/link'
 import { useAuthStore } from '@/stores/authStore'
-
-const STEPS = [
-  { n: '01', title: 'Create your account', desc: 'Sign up free in under 2 minutes. No approval needed to get started.' },
-  { n: '02', title: 'Upload your work', desc: 'Drag and drop up to 100 files at once. We support JPG, PNG, SVG, MP4 and MOV.' },
-  { n: '03', title: 'Add metadata', desc: 'Our AI suggests tags automatically. Review, edit and submit for review.' },
-  { n: '04', title: 'Get approved & earn', desc: 'Assets go live within 24–48 hours. Earn royalties every time your work is downloaded.' },
-]
-
-const STATS = [
-  { value: '100K+', label: 'Active contributors' },
-  { value: '54', label: 'African countries' },
-  { value: '$2M+', label: 'Paid to contributors' },
-  { value: '50M+', label: 'Assets in library' },
-]
-
-const FAQS = [
-  { q: 'How much do I earn per download?', a: 'Contributors earn 30–50% royalty per download depending on your contributor tier and the license type purchased.' },
-  { q: 'What content can I upload?', a: 'Photos, vectors, illustrations, footage and music with African subjects or created by African creators. Content must be original and you must own the rights.' },
-  { q: 'How long does review take?', a: 'Most submissions are reviewed within 24–48 hours. You\'ll receive a notification when your assets go live or if any are rejected with feedback.' },
-  { q: 'Do I need a model release?', a: 'Yes, for any identifiable people in your images. We provide a model release template you can use.' },
-  { q: 'When and how do I get paid?', a: 'Earnings are paid monthly via bank transfer, PayPal or mobile money once you reach the ₦5,000 minimum threshold.' },
-]
+import { CONTRIBUTOR_STEPS, CONTRIBUTOR_STATS, CONTRIBUTOR_FAQS } from '@/lib/mock/marketing'
 
 export default function ContributePage() {
   const router = useRouter()
@@ -45,7 +24,7 @@ export default function ContributePage() {
       // Already a contributor - redirect to dashboard
       router.push('/dashboard')
     } else {
-      // Logged in as buyer - show contributor application modal
+      // Logged in as customer - show contributor application modal
       setShowContributorModal(true)
     }
   }
@@ -89,7 +68,7 @@ export default function ContributePage() {
         {/* Stats */}
         <section className="bg-[#F5F5F7] px-4 md:px-6 py-12">
           <div className="max-w-[1000px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-            {STATS.map((s) => (
+            {CONTRIBUTOR_STATS.map((s) => (
               <div key={s.value} className="text-center">
                 <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{s.value}</p>
@@ -108,7 +87,7 @@ export default function ContributePage() {
               How it works
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {STEPS.map((step) => (
+              {CONTRIBUTOR_STEPS.map((step) => (
                 <div key={step.n} className="flex flex-col gap-3">
                   <span className="text-[#EE2B24] text-[32px] font-extrabold leading-none"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{step.n}</span>
@@ -130,7 +109,7 @@ export default function ContributePage() {
               Contributor FAQ
             </h2>
             <div className="flex flex-col gap-0">
-              {FAQS.map((faq) => (
+              {CONTRIBUTOR_FAQS.map((faq) => (
                 <div key={faq.q} className="border-b border-[#E8E8E8] py-4">
                   <p className="text-[14px] font-semibold text-[#111] mb-1.5"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{faq.q}</p>

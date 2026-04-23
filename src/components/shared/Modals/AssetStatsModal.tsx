@@ -2,35 +2,36 @@
 
 import { X, Download, Eye, Heart, DollarSign, TrendingUp, Calendar } from 'lucide-react'
 import { ModalBackdrop } from './ModalBackdrop'
-
-interface AssetStats {
-  id: string
-  src: string
-  alt: string
-  status: 'live' | 'pending' | 'rejected'
-  uploadedAt: string
-  downloads: number
-  earnings: string
-  views?: number
-  likes?: number
-  resolution?: string
-}
+import type { AssetStats } from '@/types'
 
 interface AssetStatsModalProps {
-  asset: AssetStats
+  asset: {
+    id: string
+    src?: string
+    alt?: string
+    uploadedAt: string
+    downloads: number
+    earnings: number | string
+    views?: number
+    likes?: number
+    resolution?: string
+    status?: 'approved' | 'pending' | 'rejected' | 'live'
+  }
   onClose: () => void
 }
 
 const STATUS_STYLES = {
+  approved: { bg: 'bg-green-50', text: 'text-green-700', label: 'Live' },
   live: { bg: 'bg-green-50', text: 'text-green-700', label: 'Live' },
   pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Pending Review' },
   rejected: { bg: 'bg-red-50', text: 'text-red-600', label: 'Rejected' },
-}
+} as const
 
 export function AssetStatsModal({ asset, onClose }: AssetStatsModalProps) {
-  const statusStyle = STATUS_STYLES[asset.status]
+  const statusStyle = STATUS_STYLES[asset.status || 'approved']
   const views = asset.views || Math.floor(asset.downloads * 12.5)
   const likes = asset.likes || Math.floor(asset.downloads * 0.3)
+  const resolution = asset.resolution || 'HD'
 
   return (
     <ModalBackdrop onClose={onClose}>
@@ -60,14 +61,14 @@ export function AssetStatsModal({ asset, onClose }: AssetStatsModalProps) {
           {/* Asset Preview */}
           <div className="flex gap-4 mb-6">
             <div className="w-32 h-32 rounded-2xl overflow-hidden bg-[#E8E8E8] shrink-0">
-              <img src={asset.src} alt={asset.alt} className="w-full h-full object-cover" />
+              {asset.src && <img src={asset.src} alt={asset.alt || 'Asset'} className="w-full h-full object-cover" />}
             </div>
             <div className="flex-1 min-w-0">
               <h3
                 className="text-[16px] font-bold text-[#111] mb-2"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
               >
-                {asset.alt}
+                {asset.alt || 'Asset'}
               </h3>
               <div className="flex items-center gap-2 mb-2">
                 <span
@@ -76,12 +77,12 @@ export function AssetStatsModal({ asset, onClose }: AssetStatsModalProps) {
                 >
                   {statusStyle.label}
                 </span>
-                {asset.resolution && (
+                {resolution && (
                   <span
                     className="text-[11px] font-semibold text-[#888] px-2.5 py-1 bg-[#F5F5F5] rounded-full"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                   >
-                    {asset.resolution}
+                    {resolution}
                   </span>
                 )}
               </div>
@@ -113,7 +114,7 @@ export function AssetStatsModal({ asset, onClose }: AssetStatsModalProps) {
                 className="text-[32px] font-extrabold"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
               >
-                ${asset.earnings}
+                ${typeof asset.earnings === 'number' ? asset.earnings.toFixed(2) : asset.earnings}
               </p>
             </div>
 
@@ -217,7 +218,7 @@ export function AssetStatsModal({ asset, onClose }: AssetStatsModalProps) {
                     className="text-[13px] font-semibold text-[#111]"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
                   >
-                    Avg. Earnings per Download: ${(parseFloat(asset.earnings) / asset.downloads).toFixed(2)}
+                    Avg. Earnings per Download: ${((typeof asset.earnings === 'number' ? asset.earnings : parseFloat(asset.earnings.toString())) / asset.downloads).toFixed(2)}
                   </p>
                   <p
                     className="text-[12px] text-[#666]"

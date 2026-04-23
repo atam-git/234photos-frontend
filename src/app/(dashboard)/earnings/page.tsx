@@ -4,33 +4,23 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DollarSign, TrendingUp, Download, ArrowUpRight } from 'lucide-react'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { EARNINGS_MONTHS, EARNINGS_DATA, EARNINGS_WITHDRAWALS, EARNINGS_TRANSACTIONS } from '@/lib/mock'
 import { useAuthStore } from '@/stores/authStore'
 import { WithdrawEarningsModal } from '@/components/shared/Modals/WithdrawEarningsModal'
 import { AssetStatsModal } from '@/components/shared/Modals/AssetStatsModal'
-import Link from 'next/link'
+import { WithdrawalDetailsModal } from '@/components/shared/Modals/WithdrawalDetailsModal'
+import type { LicenseType } from '@/types'
 
-const MONTHS = ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr']
-const EARNINGS_DATA = [320, 480, 390, 620, 890, 1240]
 const MAX = Math.max(...EARNINGS_DATA)
-
-const TRANSACTIONS = MOCK_ASSETS.slice(0, 8).map((asset, i) => ({
-  ...asset,
-  status: 'live' as const,
-  uploadedAt: ['Apr 18, 2026', 'Apr 15, 2026', 'Apr 10, 2026', 'Mar 28, 2026'][i % 4],
-  downloads: Math.floor(Math.random() * 300),
-  views: Math.floor(Math.random() * 3000 + 500),
-  earnings: (Math.random() * 150).toFixed(0),
-  type: i % 3 === 0 ? 'Enhanced' : 'Standard',
-  amount: (Math.random() * 15 + 2).toFixed(2),
-  date: ['Apr 18', 'Apr 17', 'Apr 15', 'Apr 14', 'Apr 12', 'Apr 10', 'Apr 8', 'Apr 5'][i],
-  buyer: 'Anonymous buyer',
-}))
 
 export default function EarningsPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
-  const [selectedAsset, setSelectedAsset] = useState<typeof TRANSACTIONS[0] | null>(null)
+  const [selectedAsset, setSelectedAsset] = useState<typeof EARNINGS_TRANSACTIONS[0] | null>(null)
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null)
+  const [payoutMethod, setPayoutMethod] = useState<'bank' | 'paypal' | 'mobile_money'>('bank')
+  const [payoutSaved, setPayoutSaved] = useState(false)
   const isContributor = user?.role === 'contributor' && user?.isContributorApproved
 
   useEffect(() => {
@@ -61,6 +51,12 @@ export default function EarningsPage() {
   const total = EARNINGS_DATA.reduce((a, b) => a + b, 0)
   const availableBalance = 1240 // This month's earnings
 
+  const handlePayoutSave = () => {
+    console.log('Saving payout method:', payoutMethod)
+    setPayoutSaved(true)
+    setTimeout(() => setPayoutSaved(false), 2000)
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -82,36 +78,67 @@ export default function EarningsPage() {
         </button>
       </div>
 
-      {/* Summary cards */}
+      {/* Balance and earnings cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: 'This month', value: '$1,240', change: '+18%', icon: DollarSign },
-          { label: 'Total earned', value: `$${total.toLocaleString()}`, change: 'All time', icon: TrendingUp },
-          { label: 'Total downloads', value: '2,847', change: '+12% this month', icon: Download },
-        ].map((card) => {
-          const Icon = card.icon
-          return (
-            <div key={card.label} className="bg-white rounded-2xl border border-[#F0F0F0] p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-8 h-8 rounded-lg bg-[#FFF0F0] flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-[#EE2B24]" />
-                </div>
-                <span className="flex items-center gap-0.5 text-[12px] font-semibold text-green-600"
-                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  <ArrowUpRight className="w-3.5 h-3.5" />{card.change}
-                </span>
-              </div>
-              <p className="text-[26px] font-extrabold text-[#111] leading-none mb-1"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {card.value}
-              </p>
-              <p className="text-[12px] text-[#888]"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {card.label}
-              </p>
+        <div className="bg-white rounded-2xl border border-[#F0F0F0] p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-8 h-8 rounded-lg bg-[#E8F5E9] flex items-center justify-center">
+              <DollarSign className="w-4 h-4 text-green-600" />
             </div>
-          )
-        })}
+            <span className="text-[11px] font-bold uppercase tracking-[0.5px] px-2.5 py-1 rounded-full bg-green-50 text-green-700"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Available
+            </span>
+          </div>
+          <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            ${availableBalance.toLocaleString()}
+          </p>
+          <p className="text-[12px] text-[#888]"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Ready to withdraw
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-[#F0F0F0] p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-8 h-8 rounded-lg bg-[#FFF9E6] flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-yellow-600" />
+            </div>
+            <span className="text-[11px] font-bold uppercase tracking-[0.5px] px-2.5 py-1 rounded-full bg-yellow-50 text-yellow-700"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Pending
+            </span>
+          </div>
+          <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            $450
+          </p>
+          <p className="text-[12px] text-[#888]"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Available in 30 days
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-[#F0F0F0] p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-8 h-8 rounded-lg bg-[#FFF0F0] flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-[#EE2B24]" />
+            </div>
+            <span className="text-[12px] font-medium text-[#888]"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              All time
+            </span>
+          </div>
+          <p className="text-[32px] font-extrabold text-[#111] leading-none mb-1"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            ${total.toLocaleString()}
+          </p>
+          <p className="text-[12px] text-[#888]"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Total earned
+          </p>
+        </div>
       </div>
 
       {/* Bar chart */}
@@ -133,9 +160,145 @@ export default function EarningsPage() {
               />
               <span className="text-[11px] text-[#888]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {MONTHS[i]}
+                {EARNINGS_MONTHS[i]}
               </span>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Payout Method */}
+      <div className="bg-white rounded-2xl border border-[#F0F0F0] p-6">
+        <h2 className="text-[15px] font-bold text-[#111] mb-4"
+          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+          Payout method
+        </h2>
+        <p className="text-[13px] text-[#666] mb-4"
+          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+          Choose how you want to receive your earnings when you withdraw
+        </p>
+        <div className="flex flex-col gap-3 mb-4">
+          <label className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-[#999]"
+            style={{ borderColor: payoutMethod === 'bank' ? '#EE2B24' : '#D0D0D0' }}>
+            <input 
+              type="radio" 
+              name="payout" 
+              value="bank" 
+              checked={payoutMethod === 'bank'}
+              onChange={(e) => setPayoutMethod(e.target.value as 'bank')}
+              className="w-4 h-4 text-[#EE2B24]" 
+            />
+            <div className="flex-1">
+              <p className="text-[13.5px] font-semibold text-[#111]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                Bank transfer
+              </p>
+              <p className="text-[12px] text-[#888]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                Direct deposit to your bank account (1-3 business days)
+              </p>
+            </div>
+          </label>
+          <label className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-[#999]"
+            style={{ borderColor: payoutMethod === 'paypal' ? '#EE2B24' : '#D0D0D0' }}>
+            <input 
+              type="radio" 
+              name="payout" 
+              value="paypal" 
+              checked={payoutMethod === 'paypal'}
+              onChange={(e) => setPayoutMethod(e.target.value as 'paypal')}
+              className="w-4 h-4 text-[#EE2B24]" 
+            />
+            <div className="flex-1">
+              <p className="text-[13.5px] font-semibold text-[#111]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                PayPal
+              </p>
+              <p className="text-[12px] text-[#888]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                Receive payments via PayPal (instant transfer)
+              </p>
+            </div>
+          </label>
+          <label className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-[#999]"
+            style={{ borderColor: payoutMethod === 'mobile_money' ? '#EE2B24' : '#D0D0D0' }}>
+            <input 
+              type="radio" 
+              name="payout" 
+              value="mobile_money" 
+              checked={payoutMethod === 'mobile_money'}
+              onChange={(e) => setPayoutMethod(e.target.value as 'mobile_money')}
+              className="w-4 h-4 text-[#EE2B24]" 
+            />
+            <div className="flex-1">
+              <p className="text-[13.5px] font-semibold text-[#111]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                Mobile money
+              </p>
+              <p className="text-[12px] text-[#888]"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                M-Pesa, MTN Mobile Money, Airtel Money (instant transfer)
+              </p>
+            </div>
+          </label>
+        </div>
+        <button 
+          onClick={handlePayoutSave}
+          className="px-6 py-2.5 bg-[#111] text-white text-[13.5px] font-semibold rounded-full hover:bg-[#333] transition-colors"
+          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+          {payoutSaved ? '✓ Saved' : 'Save payout method'}
+        </button>
+      </div>
+
+      {/* Withdrawal history */}
+      <div className="bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#F0F0F0]">
+          <h2 className="text-[14px] font-bold text-[#111]"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Withdrawal history
+          </h2>
+        </div>
+        <div className="divide-y divide-[#F8F8F8]">
+          {EARNINGS_WITHDRAWALS.map((withdrawal) => (
+            <button
+              key={withdrawal.id}
+              onClick={() => setSelectedWithdrawal(withdrawal)}
+              className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8F8F8] transition-colors text-left"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-[13px] font-semibold text-[#111]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    ${withdrawal.amount.toLocaleString()}
+                  </p>
+                  <span className={`text-[10px] font-bold uppercase tracking-[0.5px] px-2 py-0.5 rounded-full ${
+                    withdrawal.status === 'completed' ? 'bg-green-50 text-green-700' :
+                    withdrawal.status === 'processing' ? 'bg-blue-50 text-blue-700' :
+                    withdrawal.status === 'pending' ? 'bg-yellow-50 text-yellow-700' :
+                    'bg-red-50 text-red-700'
+                  }`}
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    {withdrawal.status}
+                  </span>
+                </div>
+                <p className="text-[11.5px] text-[#888]"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  {withdrawal.method === 'bank' ? 'Bank transfer' : withdrawal.method === 'paypal' ? 'PayPal' : 'Mobile Money'} · Requested {withdrawal.requestedAt}
+                </p>
+                {withdrawal.status === 'completed' && withdrawal.processedAt && (
+                  <p className="text-[10.5px] text-green-600 mt-0.5"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    Processed {withdrawal.processedAt}
+                  </p>
+                )}
+                {withdrawal.status === 'failed' && withdrawal.failureReason && (
+                  <p className="text-[10.5px] text-red-600 mt-0.5"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    {withdrawal.failureReason}
+                  </p>
+                )}
+              </div>
+            </button>
           ))}
         </div>
       </div>
@@ -149,7 +312,7 @@ export default function EarningsPage() {
           </h2>
         </div>
         <div className="divide-y divide-[#F8F8F8]">
-          {TRANSACTIONS.map((tx) => (
+          {EARNINGS_TRANSACTIONS.map((tx) => (
             <button
               key={tx.id}
               onClick={() => setSelectedAsset(tx)}
@@ -165,7 +328,11 @@ export default function EarningsPage() {
                 </p>
                 <p className="text-[11.5px] text-[#888]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  {tx.type} licence · {tx.date}
+                  {tx.type.charAt(0).toUpperCase() + tx.type.slice(1)} licence · {tx.date}
+                </p>
+                <p className="text-[10.5px] text-[#666] mt-0.5"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  {tx.earningStatus === 'pending' ? `Available ${tx.availableAt}` : tx.earningStatus === 'paid' ? `Paid ${tx.paidAt}` : 'Available now'}
                 </p>
               </div>
               <span className="text-[14px] font-bold text-green-600 shrink-0"
@@ -189,6 +356,18 @@ export default function EarningsPage() {
         <AssetStatsModal
           asset={selectedAsset}
           onClose={() => setSelectedAsset(null)}
+        />
+      )}
+
+      {selectedWithdrawal && (
+        <WithdrawalDetailsModal
+          withdrawal={selectedWithdrawal}
+          onClose={() => setSelectedWithdrawal(null)}
+          onRetry={() => {
+            // Handle retry logic
+            console.log('Retry withdrawal:', selectedWithdrawal.id)
+            setSelectedWithdrawal(null)
+          }}
         />
       )}
     </div>

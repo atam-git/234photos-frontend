@@ -2,33 +2,32 @@
 
 import { useState } from 'react'
 import { Info } from 'lucide-react'
+import type { LicenseType } from '@/types'
 
 const LICENSES = [
   {
-    value: 'standard',
+    value: 'standard' as LicenseType,
     label: 'Standard',
     price: '1 credit',
     desc: 'Web, social, print up to 500K copies',
   },
   {
-    value: 'enhanced',
+    value: 'enhanced' as LicenseType,
     label: 'Enhanced',
     price: '3 credits',
     desc: 'Unlimited print, resale & broadcast',
   },
   {
-    value: 'editorial',
+    value: 'editorial' as LicenseType,
     label: 'Editorial',
     price: '1 credit',
     desc: 'News & editorial use only',
   },
 ] as const
 
-type LicenseValue = 'standard' | 'enhanced' | 'editorial'
-
 interface LicenseSelectorProps {
-  value: LicenseValue
-  onChange: (v: LicenseValue) => void
+  value: LicenseType
+  onChange: (v: LicenseType) => void
 }
 
 export function LicenseSelector({ value, onChange }: LicenseSelectorProps) {

@@ -5,17 +5,18 @@ import { X, Copy, Check, Mail } from 'lucide-react'
 
 interface ShareBoardModalProps {
   boardName: string
+  shareLink?: string
   onClose: () => void
 }
 
-export function ShareBoardModal({ boardName, onClose }: ShareBoardModalProps) {
+export function ShareBoardModal({ boardName, shareLink, onClose }: ShareBoardModalProps) {
   const [copied, setCopied] = useState(false)
   const [email, setEmail] = useState('')
   
-  const shareLink = `https://234photos.com/boards/shared/abc123`
+  const link = shareLink || `https://234photos.com/boards/shared/${Math.random().toString(36).substring(7)}`
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(shareLink)
+    navigator.clipboard.writeText(link)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -51,7 +52,7 @@ export function ShareBoardModal({ boardName, onClose }: ShareBoardModalProps) {
             <div className="flex gap-2">
               <input
                 type="text"
-                value={shareLink}
+                value={link}
                 readOnly
                 className="flex-1 h-[44px] px-4 border border-[#D0D0D0] rounded-xl text-[13px] text-[#666] bg-[#F8F8F8]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}

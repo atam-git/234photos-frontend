@@ -1,36 +1,24 @@
-export type UserRole = 'buyer' | 'contributor'
+import type { User } from '@/types'
 
-export interface MockUser {
-  id: string
-  name: string
-  username: string
-  email: string
-  avatar: string
-  country: string
-  countryFlag: string
-  role: UserRole
-  credits: number
-  joinedYear: number
-  isContributorApproved: boolean
-}
-
-// Buyer user for testing
-export const MOCK_BUYER_USER: MockUser = {
+// Customer user for testing
+export const MOCK_CUSTOMER_USER: User = {
   id: 'usr_001',
   name: 'Adaeze Okafor',
   username: 'adaeze-okafor',
-  email: 'buyer@example.com',
+  email: 'customer@example.com',
   avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&q=80',
   country: 'Nigeria',
   countryFlag: '🇳🇬',
-  role: 'buyer',
+  role: 'customer',
   credits: 12,
   joinedYear: 2023,
   isContributorApproved: false,
+  createdAt: '2023-01-01T00:00:00Z',
+  updatedAt: '2026-04-01T00:00:00Z',
 }
 
 // Contributor user for testing
-export const MOCK_CONTRIBUTOR_USER: MockUser = {
+export const MOCK_CONTRIBUTOR_USER: User = {
   id: 'usr_002',
   name: 'Adaeze Okafor',
   username: 'adaeze-okafor',
@@ -42,8 +30,10 @@ export const MOCK_CONTRIBUTOR_USER: MockUser = {
   credits: 12,
   joinedYear: 2023,
   isContributorApproved: true,
+  createdAt: '2023-01-01T00:00:00Z',
+  updatedAt: '2026-04-01T00:00:00Z',
 }
 
-// Default export for backward compatibility
-export const MOCK_USER = MOCK_BUYER_USER
-
+// Backward compatibility
+export const MOCK_BUYER_USER = MOCK_CUSTOMER_USER
+export const MOCK_USER = MOCK_CUSTOMER_USER

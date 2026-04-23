@@ -22,6 +22,36 @@
   body {
     @apply bg-white text-gray-900 antialiased;
   }
+
+  /* Custom slim scrollbar - applied globally */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #D0D0D0 transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #D0D0D0;
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #BBBBBB;
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
 
 @layer utilities {
@@ -38,14 +68,15 @@
     display: none;
   }
 
-  /* Slim scrollbar for filter sidebar */
+  /* Slim scrollbar for filter sidebar - extra slim variant */
   .scrollbar-slim {
     scrollbar-width: thin;
     scrollbar-color: #E0E0E0 transparent;
   }
 
   .scrollbar-slim::-webkit-scrollbar {
-    width: 3px;
+    width: 4px;
+    height: 4px;
   }
 
   .scrollbar-slim::-webkit-scrollbar-track {
@@ -59,6 +90,32 @@
 
   .scrollbar-slim::-webkit-scrollbar-thumb:hover {
     background-color: #BBBBBB;
+  }
+
+  /* Primary colored scrollbar variant */
+  .scrollbar-primary {
+    scrollbar-width: thin;
+    scrollbar-color: #EE2B24 transparent;
+  }
+
+  .scrollbar-primary::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-primary::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-primary::-webkit-scrollbar-thumb {
+    background-color: #EE2B24;
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .scrollbar-primary::-webkit-scrollbar-thumb:hover {
+    background-color: #d42520;
   }
 
   /* Infinite marquee */

@@ -1,15 +1,7 @@
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import Link from 'next/link'
-import { ARTICLES } from '@/lib/mock/editorial'
-
-const CATEGORY_COLORS: Record<string, string> = {
-  MUSIC: 'bg-[#FFF0F0] text-[#EE2B24]',
-  SPORTS: 'bg-[#F0F7FF] text-[#2B6EEE]',
-  FASHION: 'bg-[#FFF8F0] text-[#EE8B2B]',
-  TECHNOLOGY: 'bg-[#F0FFF4] text-[#2BEE6E]',
-  BUSINESS: 'bg-[#F5F0FF] text-[#8B2BEE]',
-}
+import { ARTICLES, CATEGORY_COLORS } from '@/lib/mock/editorial'
 
 export default function EditorialPage() {
   const featured = ARTICLES.find((a) => a.featured)
@@ -45,7 +37,7 @@ export default function EditorialPage() {
             {featured && (
               <Link href={`/editorial/${featured.slug}`} className="group block mb-12">
                 <div className="relative rounded-2xl overflow-hidden h-[400px] md:h-[480px] bg-[#111]">
-                  <img src={featured.image} alt={featured.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={featured.coverImage} alt={featured.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute top-4 left-4">
                     <span className="bg-[#EE2B24] text-white text-[10px] font-bold uppercase tracking-[1px] px-2.5 py-1 rounded"
@@ -82,7 +74,7 @@ export default function EditorialPage() {
               {rest.map((article) => (
                 <Link key={article.slug} href={`/editorial/${article.slug}`} className="group flex flex-col">
                   <div className="relative h-[200px] rounded-xl overflow-hidden bg-[#E8E8E8] mb-3">
-                    <img src={article.image} alt={article.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     <div className="absolute top-2 left-2">
                       <span className={`text-[10px] font-bold uppercase tracking-[0.5px] px-2 py-0.5 rounded ${CATEGORY_COLORS[article.category] ?? 'bg-[#F0F0F0] text-[#555]'}`}
                         style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>

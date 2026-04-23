@@ -3,12 +3,16 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuthStore } from '@/stores/authStore'
+import { DeleteAccountModal } from '@/components/shared/Modals/DeleteAccountModal'
+import { UploadAvatarModal } from '@/components/shared/Modals/UploadAvatarModal'
 
 export default function AccountPage() {
   const user = useAuthStore((state) => state.user)
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
   const [saved, setSaved] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showAvatarModal, setShowAvatarModal] = useState(false)
 
   if (!user) {
     return (
@@ -59,7 +63,9 @@ export default function AccountPage() {
             )}
           </div>
           <div>
-            <button className="px-4 py-2 border border-[#D0D0D0] text-[#111] text-[13px] font-medium rounded-full hover:border-[#999] transition-colors"
+            <button
+              onClick={() => setShowAvatarModal(true)}
+              className="px-4 py-2 border border-[#D0D0D0] text-[#111] text-[13px] font-medium rounded-full hover:border-[#999] transition-colors"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Change photo
             </button>
@@ -83,20 +89,92 @@ export default function AccountPage() {
             <div>
               <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                Email address
+                Username
               </label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
+              <input type="text" defaultValue={user.username}
+                className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#888] outline-none bg-[#F8F8F8] cursor-not-allowed"
+                disabled
+                title="Username cannot be changed" />
             </div>
           </div>
           <div>
             <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              Country
+              Email address
             </label>
-            <input type="text" defaultValue={`${user.countryFlag} ${user.country}`}
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                Country
+              </label>
+              <input type="text" defaultValue={`${user.countryFlag} ${user.country}`}
+                className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
+            </div>
+            <div>
+              <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                Location (City)
+              </label>
+              <input type="text" placeholder="e.g. Lagos, Nairobi, Accra"
+                className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
+            </div>
+          </div>
+          {user.role === 'contributor' && user.isContributorApproved && (
+            <>
+              <div>
+                <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  Bio
+                </label>
+                <textarea
+                  placeholder="Tell us about yourself and your photography..."
+                  rows={3}
+                  className="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors resize-none"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    Website
+                  </label>
+                  <input type="url" placeholder="https://yourwebsite.com"
+                    className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    Instagram
+                  </label>
+                  <input type="text" placeholder="@username"
+                    className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    Twitter
+                  </label>
+                  <input type="text" placeholder="@username"
+                    className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    Facebook
+                  </label>
+                  <input type="text" placeholder="username or page"
+                    className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
+                </div>
+              </div>
+            </>
+          )}
           <div className="flex items-center gap-3 pt-1">
             <button type="submit"
               className="px-6 py-2.5 bg-[#111] text-white text-[13.5px] font-semibold rounded-full hover:bg-[#333] transition-colors"
@@ -107,27 +185,7 @@ export default function AccountPage() {
         </form>
       </div>
 
-      {/* Credits */}
-      <div className="bg-white rounded-2xl border border-[#F0F0F0] p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[15px] font-bold text-[#111]"
-            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            Credits
-          </h2>
-          <span className="text-[22px] font-extrabold text-[#EE2B24]"
-            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            {user.credits}
-          </span>
-        </div>
-        <p className="text-[13px] text-[#666] mb-4"
-          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-          Credits are used to download assets. 1 credit = 1 Standard download.
-        </p>
-        <Link href="/billing" className="inline-block px-5 py-2.5 bg-[#EE2B24] text-white text-[13.5px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
-          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-          Buy more credits
-        </Link>
-      </div>
+
 
       {/* Password */}
       <div className="bg-white rounded-2xl border border-[#F0F0F0] p-6">
@@ -153,6 +211,8 @@ export default function AccountPage() {
         </div>
       </div>
 
+
+
       {/* Danger zone */}
       <div className="bg-white rounded-2xl border border-red-100 p-6">
         <h2 className="text-[15px] font-bold text-red-600 mb-2"
@@ -163,11 +223,38 @@ export default function AccountPage() {
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
           Permanently delete your account and all associated data.
         </p>
-        <button className="px-5 py-2.5 border border-red-300 text-red-600 text-[13.5px] font-semibold rounded-full hover:bg-red-50 transition-colors"
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="px-5 py-2.5 border border-red-300 text-red-600 text-[13.5px] font-semibold rounded-full hover:bg-red-50 transition-colors"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
           Delete account
         </button>
       </div>
+
+      {/* Modals */}
+      {showAvatarModal && (
+        <UploadAvatarModal
+          currentAvatar={user.avatar}
+          userName={user.name}
+          onClose={() => setShowAvatarModal(false)}
+          onUpload={(file) => {
+            console.log('Uploading avatar:', file.name)
+            // Handle avatar upload
+          }}
+        />
+      )}
+
+      {showDeleteModal && (
+        <DeleteAccountModal
+          userName={user.name}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={() => {
+            console.log('Account deleted')
+            // Handle account deletion - redirect to login
+            window.location.href = '/login'
+          }}
+        />
+      )}
     </div>
   )
 }

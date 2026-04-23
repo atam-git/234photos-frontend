@@ -2,18 +2,19 @@
 
 import { useState } from 'react'
 import { Plus, Lock, Users, MoreHorizontal, Trash2, Edit2, Share2, FolderOpen } from 'lucide-react'
-import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { MOCK_BOARDS } from '@/lib/mock/boards'
 import { CreateBoardModal } from '@/components/shared/Modals/CreateBoardModal'
 import Link from 'next/link'
 
-const BOARDS = [
-  { id: '1', name: 'Campaign Q3 2024', count: 24, type: 'shared' as const, updatedAt: '2 hours ago', thumbnails: MOCK_ASSETS.slice(0, 3).map(a => a.src) },
-  { id: '2', name: 'Brand Assets', count: 12, type: 'private' as const, updatedAt: 'Yesterday', thumbnails: MOCK_ASSETS.slice(3, 6).map(a => a.src) },
-  { id: '3', name: 'Inspiration', count: 47, type: 'private' as const, updatedAt: '3 days ago', thumbnails: MOCK_ASSETS.slice(6, 9).map(a => a.src) },
-  { id: '4', name: 'Team Collection', count: 8, type: 'team' as const, updatedAt: 'Last week', thumbnails: MOCK_ASSETS.slice(9, 12).map(a => a.src) },
-]
-
 export default function BoardsPage() {
+  const BOARDS = MOCK_BOARDS.map(board => ({
+    id: board.id,
+    name: board.name,
+    count: board.assetCount,
+    type: board.type,
+    updatedAt: new Date(board.updatedAt).toLocaleDateString(),
+    thumbnails: board.thumbnails
+  }))
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
 

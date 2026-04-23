@@ -1,45 +1,130 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { TrendingUp, Download, Eye, Award, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { DASHBOARD_STATS, DASHBOARD_ACTIVITY, DASHBOARD_BADGES } from '@/lib/mock/dashboard'
 import { useAuthStore } from '@/stores/authStore'
+import { BadgeDetailsModal } from '@/components/shared/Modals/BadgeDetailsModal'
+import { LeaderboardModal } from '@/components/shared/Modals/LeaderboardModal'
+import { AssetStatsModal } from '@/components/shared/Modals/AssetStatsModal'
+import { ProfileCompletionBanner } from '@/components/shared/ProfileCompletionBanner'
 import Link from 'next/link'
 
-const STATS = [
-  { label: 'Earnings this month', value: '$1,240', change: '+18%', up: true, icon: TrendingUp },
-  { label: 'Downloads this month', value: '847', change: '+12%', up: true, icon: Download },
-  { label: 'Total views', value: '12.4K', change: '+5%', up: true, icon: Eye },
-  { label: 'Leaderboard rank', value: '#12', change: '↑3', up: true, icon: Award },
-]
-
-const ACTIVITY = [
-  { icon: '⬇️', text: '5 downloads of "Lagos Skyline" today', sub: 'Earned $12.50 · 2 hours ago' },
-  { icon: '✅', text: '12 assets approved and now live', sub: '4 hours ago' },
-  { icon: '💰', text: '$45 earned from "Accra Market" this week', sub: 'Yesterday' },
-  { icon: '📈', text: '"Lagos Fintech" trending in Business', sub: '2 days ago' },
-  { icon: '⬇️', text: '3 downloads of "Nairobi Office"', sub: 'Earned $7.50 · 3 days ago' },
-]
-
-const BADGES = [
-  { emoji: '🏆', label: 'Top 10 Nigeria', earned: true },
-  { emoji: '🔥', label: '30-day streak', earned: true },
-  { emoji: '🎯', label: 'Gap filler ×3', earned: true },
-  { emoji: '👑', label: '1000 downloads', earned: true },
-  { emoji: '⭐', label: '5000 downloads', earned: false, progress: 58 },
-]
-
-export default function OverviewPage() {
+export default function DashboardPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const isContributor = user?.role === 'contributor' && user?.isContributorApproved
+  const isPendingContributor = user?.role === 'contributor' && !user?.isContributorApproved
+  const isRejectedContributor = user?.role === 'contributor' && (user as any).applicationStatus === 'rejected'
+  
+  const [selectedBadge, setSelectedBadge] = useState<typeof DASHBOARD_BADGES[0] | null>(null)
+  const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [selectedAsset, setSelectedAsset] = useState<any>(null)
 
   useEffect(() => {
-    if (!isContributor) {
+    if (!isContributor && !isPendingContributor && !isRejectedContributor) {
       router.push('/discover?openContributorModal=true')
     }
-  }, [isContributor, router])
+  }, [isContributor, isPendingContributor, isRejectedContributor, router])
+
+  // Show rejected status banner
+  if (isRejectedContributor) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="max-w-[560px] text-center">
+          <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h2 className="text-[22px] font-extrabold text-[#111] mb-3"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Application Not Approved
+          </h2>
+          <p className="text-[14px] text-[#666] mb-4 leading-relaxed"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Thank you for your interest in becoming a contributor. Unfortunately, we're unable to approve your application at this time.
+          </p>
+          {(user as any).rejectionReason && (
+            <div className="p-4 bg-red-50 border border-red-100 rounded-xl mb-6 text-left">
+              <p className="text-[12px] font-bold text-red-900 uppercase tracking-[0.5px] mb-2"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                Reason
+              </p>
+              <p className="text-[13px] text-red-800 leading-relaxed"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                {(user as any).rejectionReason}
+              </p>
+            </div>
+          )}
+          <div className="p-4 bg-[#F8F8F8] rounded-xl mb-6 text-left">
+            <p className="text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-2"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              What's Next?
+            </p>
+            <ul className="text-[13px] text-[#666] leading-relaxed space-y-1.5"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              <li>• Review our <a href="/contribute" className="text-[#EE2B24] hover:underline">contributor guidelines</a></li>
+              <li>• Improve your portfolio quality and uniqueness</li>
+              <li>• You can reapply after 30 days</li>
+            </ul>
+          </div>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => router.push('/discover')}
+              className="px-6 py-3 border border-[#D0D0D0] text-[#111] text-[14px] font-semibold rounded-full hover:border-[#999] transition-colors"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+            >
+              Browse Assets
+            </button>
+            <button
+              onClick={() => router.push('/contribute')}
+              className="px-6 py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+            >
+              Learn More
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show pending status banner
+  if (isPendingContributor) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="max-w-[500px] text-center">
+          <div className="w-20 h-20 rounded-full bg-yellow-50 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-[22px] font-extrabold text-[#111] mb-3"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Application Under Review
+          </h2>
+          <p className="text-[14px] text-[#666] mb-2 leading-relaxed"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Thank you for applying to become a contributor! Our team is reviewing your application.
+          </p>
+          <p className="text-[13px] text-[#888] mb-6"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            We typically review applications within 2-3 business days. You'll receive an email once your application has been processed.
+          </p>
+          <button
+            onClick={() => router.push('/discover')}
+            className="inline-block px-6 py-3 bg-[#111] text-white text-[14px] font-semibold rounded-full hover:bg-[#333] transition-colors"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+          >
+            Browse Assets
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (!isContributor) {
     return (
@@ -62,8 +147,20 @@ export default function OverviewPage() {
 
   const topAssets = MOCK_ASSETS.slice(0, 4)
 
+  // Check profile completion for contributors
+  const profileFields = [
+    { name: 'bio', label: 'Bio', completed: !!(user as any).bio, required: true },
+    { name: 'location', label: 'Location', completed: !!(user as any).location, required: true },
+    { name: 'specialties', label: 'Specialties', completed: !!((user as any).specialties?.length > 0), required: true },
+    { name: 'website', label: 'Website', completed: !!(user as any).website, required: false },
+    { name: 'instagram', label: 'Instagram', completed: !!(user as any).instagram, required: false },
+  ]
+
   return (
     <div className="flex flex-col gap-6">
+
+      {/* Profile completion banner */}
+      <ProfileCompletionBanner fields={profileFields} />
 
       {/* Welcome */}
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -86,10 +183,18 @@ export default function OverviewPage() {
 
       {/* Stats cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {STATS.map((stat) => {
+        {DASHBOARD_STATS.map((stat) => {
           const Icon = stat.icon
-          return (
-            <div key={stat.label} className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+          const getLink = () => {
+            if (stat.label === 'Earnings this month') return '/earnings'
+            if (stat.label === 'Downloads this month') return '/my-assets'
+            if (stat.label === 'Total views') return '/my-assets'
+            return null
+          }
+          const link = getLink()
+          
+          const content = (
+            <>
               <div className="flex items-center justify-between mb-3">
                 <div className="w-8 h-8 rounded-lg bg-[#FFF0F0] flex items-center justify-center">
                   <Icon className="w-4 h-4 text-[#EE2B24]" />
@@ -108,6 +213,34 @@ export default function OverviewPage() {
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                 {stat.label}
               </p>
+            </>
+          )
+
+          if (stat.label === 'Leaderboard rank') {
+            return (
+              <button
+                key={stat.label}
+                onClick={() => setShowLeaderboard(true)}
+                className="bg-white rounded-2xl p-5 border border-[#F0F0F0] hover:border-[#EE2B24] hover:shadow-md transition-all text-left">
+                {content}
+              </button>
+            )
+          }
+
+          if (link) {
+            return (
+              <Link
+                key={stat.label}
+                href={link}
+                className="bg-white rounded-2xl p-5 border border-[#F0F0F0] hover:border-[#EE2B24] hover:shadow-md transition-all">
+                {content}
+              </Link>
+            )
+          }
+
+          return (
+            <div key={stat.label} className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+              {content}
             </div>
           )
         })}
@@ -130,7 +263,10 @@ export default function OverviewPage() {
           </div>
           <div className="divide-y divide-[#F8F8F8]">
             {topAssets.map((asset, i) => (
-              <div key={asset.id} className="flex items-center gap-3 px-5 py-3">
+              <button
+                key={asset.id}
+                onClick={() => setSelectedAsset(asset)}
+                className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[#F8F8F8] transition-colors text-left">
                 <span className="text-[13px] font-bold text-[#BBBBBB] w-4 shrink-0">{i + 1}</span>
                 <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#E8E8E8] shrink-0">
                   <img src={asset.src} alt={asset.alt} className="w-full h-full object-cover" />
@@ -149,7 +285,7 @@ export default function OverviewPage() {
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                   ${Math.floor(Math.random() * 200 + 50)}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -166,7 +302,7 @@ export default function OverviewPage() {
               </h2>
             </div>
             <div className="divide-y divide-[#F8F8F8]">
-              {ACTIVITY.map((item, i) => (
+              {DASHBOARD_ACTIVITY.map((item, i) => (
                 <div key={i} className="flex items-start gap-3 px-5 py-3">
                   <span className="text-[16px] shrink-0 mt-0.5">{item.icon}</span>
                   <div>
@@ -191,8 +327,11 @@ export default function OverviewPage() {
               Badges
             </h2>
             <div className="flex flex-col gap-2">
-              {BADGES.map((badge) => (
-                <div key={badge.label} className={`flex items-center gap-2.5 ${!badge.earned ? 'opacity-50' : ''}`}>
+              {DASHBOARD_BADGES.map((badge) => (
+                <button
+                  key={badge.label}
+                  onClick={() => setSelectedBadge(badge)}
+                  className={`flex items-center gap-2.5 p-2 rounded-lg hover:bg-[#F8F8F8] transition-colors text-left ${!badge.earned ? 'opacity-50' : ''}`}>
                   <span className="text-[18px]">{badge.emoji}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-[12.5px] font-semibold text-[#111]"
@@ -209,12 +348,34 @@ export default function OverviewPage() {
                   {badge.progress !== undefined && (
                     <span className="text-[10px] text-[#888] shrink-0">{badge.progress}%</span>
                   )}
-                </div>
+                </button>
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      {selectedBadge && (
+        <BadgeDetailsModal
+          badge={selectedBadge}
+          onClose={() => setSelectedBadge(null)}
+        />
+      )}
+
+      {showLeaderboard && (
+        <LeaderboardModal
+          currentUserRank={12}
+          onClose={() => setShowLeaderboard(false)}
+        />
+      )}
+
+      {selectedAsset && (
+        <AssetStatsModal
+          asset={selectedAsset}
+          onClose={() => setSelectedAsset(null)}
+        />
+      )}
     </div>
   )
 }

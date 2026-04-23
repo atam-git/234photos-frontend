@@ -1,33 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
-const starterFeatures = [
-  '10 watermarked previews/month',
-  'Access to free collection',
-  'Basic search & filters',
-  'Standard licence',
-  'Email support',
-]
-
-const standardFeatures = [
-  '750 assets / month',
-  'Full HD photos & footage',
-  'AI image generator (50 credits)',
-  'Background remover tool',
-  'Commercial licence included',
-  'Priority support',
-]
-
-const businessFeatures = [
-  'Unlimited asset downloads',
-  '4K footage & RAW files',
-  'AI generator (500 credits)',
-  'Team seats (up to 10)',
-  'Custom collections & folders',
-  'Dedicated account manager',
-  'API access',
-]
+import { HOMEPAGE_PRICING_FEATURES } from '@/lib/mock'
 
 function CheckIcon() {
   return (
@@ -154,7 +128,7 @@ export function PricingSection() {
             </a>
 
             <ul className="flex flex-col gap-3">
-              {starterFeatures.map((feature) => (
+              {HOMEPAGE_PRICING_FEATURES.starter.map((feature) => (
                 <li key={feature} className="flex items-start gap-2.5">
                   <CheckIcon />
                   <span
@@ -226,7 +200,7 @@ export function PricingSection() {
               </a>
 
               <ul className="flex flex-col gap-3">
-                {standardFeatures.map((feature) => (
+                {HOMEPAGE_PRICING_FEATURES.standard.map((feature) => (
                   <li key={feature} className="flex items-start gap-2.5">
                     <CheckIcon />
                     <span
@@ -288,7 +262,7 @@ export function PricingSection() {
             </a>
 
             <ul className="flex flex-col gap-3">
-              {businessFeatures.map((feature) => (
+              {HOMEPAGE_PRICING_FEATURES.business.map((feature) => (
                 <li key={feature} className="flex items-start gap-2.5">
                   <CheckIcon />
                   <span

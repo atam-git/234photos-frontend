@@ -11,21 +11,14 @@ import { SortDropdown } from '@/components/features/search/SortDropdown'
 import { MasonryGrid } from '@/components/features/search/MasonryGrid'
 import { ZeroResultState } from '@/components/features/search/ZeroResultState'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
-import { Asset } from '@/components/features/search/AssetCard'
+import { MEDIA_TABS } from '@/lib/mock/marketing'
+import type { Asset, ModalState } from '@/types'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { useAuthStore } from '@/stores/authStore'
 
-const MEDIA_TABS = ['Photos', 'Videos', 'Footage', 'Vectors', 'Illustrations', 'Music', 'Templates', '3D']
-
-type ModalState =
-  | { type: 'none' }
-  | { type: 'preview'; asset: Asset }
-  | { type: 'download'; asset: Asset }
-  | { type: 'board'; asset: Asset }
-  | { type: 'auth'; defaultTab?: 'login' | 'signup' }
 
 export default function SearchPage() {
   return (
@@ -48,7 +41,7 @@ function SearchPageInner() {
   )
   const [filters, setFilters] = useState<ActiveFilters>({
     type: typeParam || undefined,
-    orientation: searchParams.get('orientation') ?? undefined,
+    orientation: (searchParams.get('orientation') as 'landscape' | 'portrait' | 'square' | null) ?? undefined,
     license: searchParams.get('license') ?? undefined,
     price: searchParams.get('price') ?? undefined,
     dateAdded: searchParams.get('dateAdded') ?? undefined,
@@ -92,7 +85,6 @@ function SearchPageInner() {
       <Header
         variant="search"
         initialQuery={query}
-        onAuthClick={(tab) => setModal({ type: 'auth', defaultTab: tab })}
       />
 
       {/* Media type tabs */}

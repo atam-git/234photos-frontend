@@ -3,7 +3,7 @@
 import { X, ChevronLeft, ChevronRight, Download, Plus, Heart, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
 import { ModalBackdrop } from './ModalBackdrop'
-import { Asset } from '@/components/features/search/AssetCard'
+import type { Asset } from '@/types'
 import { getContributorAvatar, getContributorUsername } from '@/lib/mock/contributors'
 
 interface QuickPreviewModalProps {
@@ -142,27 +142,27 @@ export function QuickPreviewModal({
             )}
             <div className="flex justify-between text-[12.5px]">
               <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Dimensions</span>
-              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>3840 × 2560px</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{asset.dimensions || '3840 × 2560px'}</span>
             </div>
             <div className="flex justify-between text-[12.5px]">
               <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>File size</span>
-              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>5.2 MB</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{asset.fileSize || '5.2 MB'}</span>
             </div>
             <div className="flex justify-between text-[12.5px]">
               <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>File type</span>
-              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>JPEG</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{asset.mimeType?.split('/')[1]?.toUpperCase() || 'JPEG'}</span>
             </div>
             <div className="flex justify-between text-[12.5px]">
               <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Category</span>
-              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Fashion</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{asset.category || 'N/A'}</span>
             </div>
             <div className="flex justify-between text-[12.5px]">
               <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>License</span>
-              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Standard</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{asset.license ? asset.license.charAt(0).toUpperCase() + asset.license.slice(1) : 'Standard'}</span>
             </div>
             <div className="flex justify-between text-[12.5px]">
               <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Date added</span>
-              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Apr 15, 2026</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{asset.dateAdded ? new Date(asset.dateAdded).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Apr 15, 2026'}</span>
             </div>
           </div>
 

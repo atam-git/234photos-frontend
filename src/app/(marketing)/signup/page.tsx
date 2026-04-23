@@ -5,14 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Mail, Lock, Eye, EyeOff, User, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useAuthStore } from '@/stores/authStore'
-
-type SignupStep = 'account' | 'contributor'
-
-const SPECIALTIES = [
-  'Business', 'Fashion', 'Food & Cuisine', 'Nature', 'Sports', 
-  'Technology', 'Culture', 'Architecture', 'Lifestyle', 'Music',
-  'Portrait', 'Street', 'Documentary', 'Editorial'
-]
+import type { SignupStep } from '@/types'
+import { SPECIALTIES } from '@/lib/mock/marketing'
 
 function SignupPageInner() {
   const searchParams = useSearchParams()
@@ -49,7 +43,7 @@ function SignupPageInner() {
     if (isContributorIntent) {
       setStep('contributor')
     } else {
-      // Regular signup - login as buyer
+      // Regular signup - login as customer
       login(false)
       router.push('/discover')
     }
@@ -77,7 +71,7 @@ function SignupPageInner() {
 
   const handleSocialSignup = (provider: string) => {
     console.log('Social signup:', provider)
-    // Regular signup - login as buyer
+    // Regular signup - login as customer
     login(false)
     router.push('/discover')
   }
@@ -216,6 +210,27 @@ function SignupPageInner() {
                   required
                 />
               </div>
+            </div>
+
+            {/* Username */}
+            <div>
+              <label className="block text-[13px] font-medium text-[#444] mb-1.5">
+                Username
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-[#999]">@</span>
+                <input
+                  type="text"
+                  placeholder="johndoe"
+                  className="w-full h-11 pl-8 pr-4 border border-[#D0D0D0] rounded-lg text-[14px] text-[#111] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[#EE2B24] focus:border-transparent"
+                  required
+                  pattern="[a-z0-9_-]+"
+                  title="Username can only contain lowercase letters, numbers, hyphens and underscores"
+                />
+              </div>
+              <p className="text-[11px] text-[#888] mt-1">
+                Your unique identifier. Only lowercase letters, numbers, - and _
+              </p>
             </div>
 
             {/* Email */}

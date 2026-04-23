@@ -1,16 +1,11 @@
-const stats = [
-  { value: '50M+', label: 'African creative assets' },
-  { value: '100K+', label: 'African contributors' },
-  { value: '10K+', label: 'New assets daily' },
-  { value: '54', label: 'African markets served' },
-]
+import { STATS } from '@/lib/mock'
 
 export function StatsBar() {
   return (
     <section className="bg-white border-t border-[#F0F0F0]">
       <div className="max-w-[1280px] mx-auto px-6">
         <div className="flex flex-wrap">
-          {stats.map((stat, index) => (
+          {STATS.map((stat, index) => (
             <div
               key={stat.label}
               className="flex-1 min-w-[140px] flex flex-col items-center justify-center gap-1 py-8 px-3 relative"

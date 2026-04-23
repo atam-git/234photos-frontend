@@ -1,16 +1,10 @@
 'use client'
 
 import { X } from 'lucide-react'
+import type { SearchFilters, ActiveFilters } from '@/types'
 
-export interface ActiveFilters {
-  type?: string
-  orientation?: string
-  license?: string
-  price?: string
-  dateAdded?: string
-  aiContent?: string
-  sort?: string
-}
+// Re-exported for backward compatibility with existing imports
+export type { ActiveFilters }
 
 const FILTER_LABELS: Record<string, Record<string, string>> = {
   type: { photos: 'Photos', videos: 'Videos', vectors: 'Vectors', illustrations: 'Illustrations' },
@@ -22,10 +16,10 @@ const FILTER_LABELS: Record<string, Record<string, string>> = {
 }
 
 interface ActiveFilterChipsProps {
-  filters: ActiveFilters
+  filters: SearchFilters
   resultCount: number
   query: string
-  onRemove: (key: keyof ActiveFilters) => void
+  onRemove: (key: keyof SearchFilters) => void
   onClearAll: () => void
 }
 
@@ -36,7 +30,7 @@ export function ActiveFilterChips({
   onRemove,
   onClearAll,
 }: ActiveFilterChipsProps) {
-  const activeKeys = (Object.keys(filters) as (keyof ActiveFilters)[]).filter(
+  const activeKeys = (Object.keys(filters) as (keyof SearchFilters)[]).filter(
     (k) => k !== 'sort' && filters[k]
   )
 
@@ -56,7 +50,7 @@ export function ActiveFilterChips({
       {/* Active filter chips */}
       {activeKeys.map((key) => {
         const val = filters[key]!
-        const label = FILTER_LABELS[key]?.[val] ?? val
+        const label = typeof val === 'string' ? (FILTER_LABELS[key]?.[val] ?? val) : String(val)
         return (
           <button
             key={key}

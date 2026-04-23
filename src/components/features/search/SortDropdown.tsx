@@ -2,13 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
-
-const SORT_OPTIONS = [
-  { value: 'relevance', label: 'Relevance' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'popular', label: 'Most downloaded' },
-  { value: 'trending', label: 'Trending' },
-]
+import { SORT_OPTIONS } from '@/lib/mock'
 
 interface SortDropdownProps {
   value: string

@@ -9,25 +9,17 @@ import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
-import { Asset } from '@/components/features/search/AssetCard'
+import type { Asset, ModalState, ProfileTab } from '@/types'
 import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
+import { PROFILE_COLLECTIONS } from '@/lib/mock'
 import { getContributor } from '@/lib/mock/contributors'
-import { MapPin, Calendar, Download, ImageIcon, FolderOpen } from 'lucide-react'
+import { MapPin, Calendar, Download, ImageIcon, FolderOpen, Globe, Instagram, Twitter, Facebook } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import Link from 'next/link'
 
-type Tab = 'portfolio' | 'collections'
-
-type ModalState =
-  | { type: 'none' }
-  | { type: 'preview'; asset: Asset }
-  | { type: 'download'; asset: Asset }
-  | { type: 'board'; asset: Asset }
-  | { type: 'auth'; defaultTab?: 'login' | 'signup' }
-
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>()
-  const [tab, setTab] = useState<Tab>('portfolio')
+  const [tab, setTab] = useState<ProfileTab>('portfolio')
   const [following, setFollowing] = useState(false)
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
@@ -60,31 +52,9 @@ export default function ProfilePage() {
 
   const assets = MOCK_ASSETS.slice(0, 18)
 
-  // Mock collections for this contributor
-  const collections = [
-    {
-      id: '1',
-      name: 'Lagos Street Photography',
-      assetCount: 24,
-      thumbnails: [MOCK_ASSETS[0].src, MOCK_ASSETS[1].src, MOCK_ASSETS[2].src, MOCK_ASSETS[3].src],
-    },
-    {
-      id: '2',
-      name: 'Best of 2026',
-      assetCount: 18,
-      thumbnails: [MOCK_ASSETS[4].src, MOCK_ASSETS[5].src, MOCK_ASSETS[6].src, MOCK_ASSETS[7].src],
-    },
-    {
-      id: '3',
-      name: 'Nigerian Business',
-      assetCount: 32,
-      thumbnails: [MOCK_ASSETS[8].src, MOCK_ASSETS[9].src, MOCK_ASSETS[10].src, MOCK_ASSETS[11].src],
-    },
-  ]
-
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <Header onAuthClick={(tab) => setModal({ type: 'auth', defaultTab: tab })} />
+      <Header />
 
       {/* Profile hero */}
       <section className="bg-[#F5F5F7] border-b border-[#E8E8E8]">
@@ -136,6 +106,57 @@ export default function ProfilePage() {
                       ))}
                     </div>
                   )}
+                  {/* Social links */}
+                  <div className="flex items-center gap-3 mt-3 flex-wrap">
+                    {profile.website && (
+                      <a
+                        href={profile.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-[13px] text-[#EE2B24] hover:underline font-medium"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        Website
+                      </a>
+                    )}
+                    {profile.instagram && (
+                      <a
+                        href={`https://instagram.com/${profile.instagram.replace('@', '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-[13px] text-[#EE2B24] hover:underline font-medium"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+                      >
+                        <Instagram className="w-3.5 h-3.5" />
+                        {profile.instagram}
+                      </a>
+                    )}
+                    {profile.twitter && (
+                      <a
+                        href={`https://twitter.com/${profile.twitter.replace('@', '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-[13px] text-[#EE2B24] hover:underline font-medium"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+                      >
+                        <Twitter className="w-3.5 h-3.5" />
+                        {profile.twitter}
+                      </a>
+                    )}
+                    {profile.facebook && (
+                      <a
+                        href={`https://facebook.com/${profile.facebook}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-[13px] text-[#EE2B24] hover:underline font-medium"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+                      >
+                        <Facebook className="w-3.5 h-3.5" />
+                        Facebook
+                      </a>
+                    )}
+                  </div>
                 </div>
 
                 <button
@@ -197,7 +218,7 @@ export default function ProfilePage() {
                 : 'border-transparent text-[#888] hover:text-[#111]'
             }`}
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            Collections ({collections.length})
+            Collections ({PROFILE_COLLECTIONS.length})
           </button>
         </div>
 
@@ -234,11 +255,11 @@ export default function ProfilePage() {
               </h2>
               <span className="text-[13px] text-[#888]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {collections.length} collections
+                {PROFILE_COLLECTIONS.length} collections
               </span>
             </div>
 
-            {collections.length === 0 ? (
+            {PROFILE_COLLECTIONS.length === 0 ? (
               <div className="bg-white rounded-2xl border border-[#F0F0F0] flex flex-col items-center justify-center py-16 px-8 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#F8F8F8] flex items-center justify-center mb-4">
                   <FolderOpen className="w-7 h-7 text-[#BBBBBB]" />
@@ -254,7 +275,7 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {collections.map((collection) => (
+                {PROFILE_COLLECTIONS.map((collection) => (
                   <Link
                     key={collection.id}
                     href={`/collections/${username}/${collection.id}`}
