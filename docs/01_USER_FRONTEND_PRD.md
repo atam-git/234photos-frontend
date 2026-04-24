@@ -429,12 +429,13 @@ Authenticated feature for managing liked assets.
 - Drag and drop file upload
 - Multiple file support (up to 100 files, max 4GB each)
 - Upload progress tracking with status indicators
+- **AI-Assisted Metadata Generation** (🤖 NEW)
 - Per-file metadata using centralized UploadFile type:
-  - Title (auto-generated from filename, editable)
-  - Description (textarea)
-  - Category dropdown (10 categories)
+  - Title (auto-generated from filename, editable, 🤖 AI-suggested)
+  - Description (textarea, 🤖 AI-suggested)
+  - Category dropdown (10 categories, 🤖 AI-suggested)
   - Model release toggle (Yes/No)
-  - Tags (add/remove chips)
+  - Tags (add/remove chips, 🤖 AI-suggested)
   - AI-generated checkbox
   - Editorial use checkbox
 - Auto-detected metadata (read-only):
@@ -444,7 +445,7 @@ Authenticated feature for managing liked assets.
 - File list sidebar with thumbnails
 - Active file highlighting
 - "Apply to all files" functionality (copies metadata except title)
-- Upload status tracking (uploading → complete)
+- Upload status tracking (uploading → processing → AI analyzing → complete)
 - Success screen with asset count
 - Uses centralized UploadFile type with proper field names:
   - fileName (not name)
@@ -453,6 +454,193 @@ Authenticated feature for managing liked assets.
   - mimeType (not fileType)
   - dimensions as object (not string)
   - modelRelease and propertyRelease booleans
+
+**AI-Assisted Tagging Flow:**
+
+**Step 1: Upload Files**
+```
+┌─────────────────────────────────────────────┐
+│ Upload Your Photos                          │
+├─────────────────────────────────────────────┤
+│                                              │
+│ [Drag & drop photos here]                   │
+│ or click to browse                          │
+│                                              │
+│ Supports: JPG, PNG, WebP                    │
+│ Max 100 photos per upload                   │
+│ Max 4GB per photo                           │
+│                                              │
+│ [Select Photos]                             │
+│                                              │
+│ Selected: 0 photos                          │
+└─────────────────────────────────────────────┘
+```
+
+**Step 2: AI Processing**
+```
+┌─────────────────────────────────────────────┐
+│ Processing 5 photos...                      │
+├─────────────────────────────────────────────┤
+│                                              │
+│ ████████████████░░░░░░░░░░ 65%             │
+│                                              │
+│ ✓ Uploaded to cloud                         │
+│ ✓ Images optimized                          │
+│ 🤖 AI analyzing images...                   │
+│ 🤖 Generating smart suggestions...          │
+│                                              │
+│ Estimated time: 30 seconds                  │
+└─────────────────────────────────────────────┘
+```
+
+**Step 3: Review & Edit with AI Suggestions**
+
+**Left Panel - File List:**
+```
+┌─────────────────────────────────────────────┐
+│ Your Photos (5)                             │
+├─────────────────────────────────────────────┤
+│ [✓] [Thumbnail] lagos-sunset.jpg            │
+│     🤖 AI: 92% confident                    │
+│                                              │
+│ [ ] [Thumbnail] nairobi-market.jpg          │
+│     🤖 AI: 88% confident                    │
+│                                              │
+│ [ ] [Thumbnail] accra-beach.jpg             │
+│     🤖 AI: 85% confident                    │
+│                                              │
+│ [Select All] [Apply to All]                │
+└─────────────────────────────────────────────┘
+```
+
+**Right Panel - Metadata Editor:**
+```
+┌─────────────────────────────────────────────┐
+│ Edit Details - lagos-sunset.jpg             │
+├─────────────────────────────────────────────┤
+│                                              │
+│ Title: 🤖                                    │
+│ [Lagos Skyline at Sunset_______________]    │
+│ ✓ Use AI suggestion                         │
+│                                              │
+│ Description: 🤖                              │
+│ [Stunning view of Lagos Island skyline___]  │
+│ [during golden hour with vibrant colors__]  │
+│ ✓ Use AI suggestion                         │
+│                                              │
+│ Category: 🤖                                 │
+│ [Landscapes ▼]                              │
+│ ✓ Use AI suggestion                         │
+│                                              │
+│ Tags: 🤖                                     │
+│ [lagos] [nigeria] [skyline] [sunset]        │
+│ [cityscape] [golden hour] [+ Add]           │
+│ ✓ Use AI suggestions                        │
+│                                              │
+│ Location: 🤖 [Lagos, Nigeria___________]    │
+│                                              │
+│ Additional Info:                            │
+│ [ ] AI-generated                            │
+│ [ ] Editorial use only                      │
+│ [✓] Model release                           │
+│ [ ] Property release                        │
+│                                              │
+│ AI Confidence: ████████░░ 92%               │
+│                                              │
+│ [< Previous] [Next >] [Save & Continue]    │
+└─────────────────────────────────────────────┘
+```
+
+**AI Suggestion Features:**
+
+1. **Smart Suggestions:**
+   - Title: Descriptive, SEO-friendly (max 60 chars)
+   - Description: 2-3 sentences (max 200 chars)
+   - Tags: 10-15 relevant, searchable tags
+   - Category: Best-fit category from 10 options
+   - Location: City and country (if identifiable)
+
+2. **Confidence Indicator:**
+   - High (90-100%): Green badge, auto-applied
+   - Good (70-89%): Blue badge, suggested
+   - Fair (50-69%): Yellow badge, review recommended
+   - Low (<50%): Red badge, manual input needed
+
+3. **One-Click Actions:**
+   - ✓ Accept all AI suggestions (per photo)
+   - ✓ Accept individual suggestions (per field)
+   - ✗ Reject and edit manually
+   - 🔄 Regenerate suggestions (if not satisfied)
+
+4. **Bulk Actions:**
+   - Apply AI suggestions to all photos
+   - Apply custom metadata to all photos
+   - Mix: AI for some fields, custom for others
+
+5. **AI Toggle (Settings):**
+   - Enable/disable AI suggestions
+   - Choose AI model (fast vs. accurate)
+   - Set confidence threshold (auto-apply if >X%)
+
+**AI Suggestions Panel (Collapsible):**
+```
+┌─────────────────────────────────────────────┐
+│ 🤖 AI Analysis                              │
+├─────────────────────────────────────────────┤
+│ Detected:                                   │
+│ • Location: Lagos, Nigeria                  │
+│ • Time: Evening/Golden Hour                 │
+│ • Subjects: Cityscape, Buildings, Sky       │
+│ • Mood: Vibrant, Energetic                  │
+│ • Colors: Orange, Blue, Gold                │
+│                                              │
+│ Suggested Tags:                             │
+│ [lagos] [nigeria] [skyline] [sunset]        │
+│ [cityscape] [golden hour] [urban]           │
+│ [africa] [west africa] [architecture]       │
+│                                              │
+│ Similar Assets: 234 photos                  │
+│ Demand: High 🔥                             │
+│                                              │
+│ [Accept All Suggestions]                    │
+└─────────────────────────────────────────────┘
+```
+
+**Step 4: Submit for Review**
+```
+┌─────────────────────────────────────────────┐
+│ Ready to Submit?                            │
+├─────────────────────────────────────────────┤
+│ 5 photos ready for review                   │
+│                                              │
+│ ✓ All photos have titles                   │
+│ ✓ All photos have descriptions              │
+│ ✓ All photos have tags                      │
+│ ✓ All photos have categories                │
+│                                              │
+│ AI Confidence: 88% average                  │
+│                                              │
+│ [Submit for Review]  [Save as Draft]       │
+└─────────────────────────────────────────────┘
+```
+
+**Benefits:**
+- ⚡ 80-85% time saved on metadata entry
+- 🎯 Better SEO with AI-optimized titles/tags
+- 🔍 Higher discoverability in search
+- ✅ Consistent quality across uploads
+- 🚀 Faster approval (complete metadata)
+
+**Cost:**
+- Free for all contributors
+- Powered by OpenAI GPT-4o-mini
+- ~$0.00015 per image (platform absorbs cost)
+
+**Privacy:**
+- Images analyzed securely via API
+- No data stored by OpenAI
+- AI suggestions are optional
+- Contributors can edit/reject any suggestion
 
 ### My Assets (`/my-assets`)
 
