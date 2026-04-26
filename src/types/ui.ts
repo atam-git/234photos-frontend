@@ -35,7 +35,7 @@ export interface Toast {
 
 export type BillingPeriod = 'monthly' | 'annual'
 
-export type SignupStep = 'account' | 'contributor'
+export type SignupStep = 'account' | 'contributor' | 'verification'
 
 export type ApplicationStep = 'form' | 'uploading' | 'success'
 
