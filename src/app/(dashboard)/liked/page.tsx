@@ -2,35 +2,35 @@
 
 import { useState } from 'react'
 import { Heart, Download, Plus, Search } from 'lucide-react'
-import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
-import { MY_LIKED_ASSETS } from '@/lib/mock'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import type { Asset, ModalState } from '@/types'
 import Link from 'next/link'
+import { useLikedAssets, useUnlikeAsset } from '@/hooks/useLikes'
 
 export default function LikedPage() {
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
-  const [likedAssets, setLikedAssets] = useState<Set<string>>(new Set(MY_LIKED_ASSETS.map(a => a.id)))
   const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(1)
 
-  const filtered = MY_LIKED_ASSETS.filter(asset => 
-    likedAssets.has(asset.id) && 
-    asset.alt.toLowerCase().includes(searchQuery.toLowerCase())
+  // Fetch liked assets from API
+  const { data: likedData, isLoading, error } = useLikedAssets(page, 50)
+  const { mutate: unlike } = useUnlikeAsset()
+
+  const assets = likedData?.data || []
+  const meta = likedData?.meta
+
+  // Filter by search query
+  const filtered = assets.filter(asset => 
+    asset.alt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    asset.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const toggleLike = (assetId: string) => {
-    setLikedAssets(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(assetId)) {
-        newSet.delete(assetId)
-      } else {
-        newSet.add(assetId)
-      }
-      return newSet
-    })
+  const handleUnlike = (assetId: string) => {
+    unlike(assetId)
   }
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -40,11 +40,32 @@ export default function LikedPage() {
         </h1>
         <p className="text-[13px] text-[#888] mt-0.5"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-          {likedAssets.size} {likedAssets.size === 1 ? 'asset' : 'assets'} you&apos;ve saved as favourites
+          {meta?.total || 0} {meta?.total === 1 ? 'asset' : 'assets'} you&apos;ve saved as favourites
         </p>
       </div>
 
-      {likedAssets.size === 0 ? (
+      {/* Loading state */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="mb-4 text-4xl">⏳</div>
+            <p className="text-[#666]">Loading liked assets...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="mb-4 text-4xl text-red-500">⚠️</div>
+            <p className="text-[#666]">Failed to load liked assets</p>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!isLoading && !error && assets.length === 0 && (
         <div className="bg-white rounded-2xl border border-[#F0F0F0] flex flex-col items-center justify-center py-20 text-center">
           <Heart className="w-10 h-10 text-[#DDDDDD] mb-4" />
           <p className="text-[15px] font-semibold text-[#111] mb-1"
@@ -55,13 +76,16 @@ export default function LikedPage() {
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
             Heart any asset while browsing to save it here
           </p>
-          <Link href="/search"
+          <Link href="/discover"
             className="px-6 py-2.5 bg-[#EE2B24] text-white text-[13.5px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
             Browse assets
           </Link>
         </div>
-      ) : (
+      )}
+
+      {/* Content */}
+      {!isLoading && !error && assets.length > 0 && (
         <>
           {/* Search */}
           <div className="relative">
@@ -125,7 +149,7 @@ export default function LikedPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        toggleLike(asset.id)
+                        handleUnlike(asset.id)
                       }}
                       className="w-7 h-7 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors pointer-events-auto"
                       title="Unlike">
@@ -134,6 +158,29 @@ export default function LikedPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {meta && meta.totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 bg-white border border-[#E0E0E0] rounded-lg text-[13px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F5F5F5] transition-colors"
+              >
+                Previous
+              </button>
+              <span className="text-[13px] text-[#666]">
+                Page {page} of {meta.totalPages}
+              </span>
+              <button
+                onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+                disabled={page === meta.totalPages}
+                className="px-4 py-2 bg-white border border-[#E0E0E0] rounded-lg text-[13px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F5F5F5] transition-colors"
+              >
+                Next
+              </button>
             </div>
           )}
         </>

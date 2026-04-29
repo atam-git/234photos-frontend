@@ -8,6 +8,8 @@ export type ModalState =
   | { type: 'board'; asset: Asset }
   | { type: 'share' }
   | { type: 'collaborators' }
+  | { type: 'rename' }
+  | { type: 'confirm'; title: string; message: string; confirmText?: string; variant?: 'danger' | 'warning' | 'info'; onConfirm: () => void }
   | { type: 'auth'; defaultTab?: 'login' | 'signup' }
   | { type: 'custom'; name: string; data?: any }
 
@@ -47,7 +49,7 @@ export type MyAssetsTab = 'assets' | 'collections'
 
 export type ProfileTab = 'portfolio' | 'collections'
 
-export type LicenseFilter = 'all' | 'standard' | 'enhanced'
+export type LicenseFilter = 'all' | 'standard' | 'enhanced' | 'editorial'
 
 export type FeedFilter = 'latest' | 'popular' | 'featured' | 'foryou'
 export type DiscoverCategory = 'all' | 'nature' | 'urban' | 'people' | 'business' | 'food' | 'tech' | 'fashion'

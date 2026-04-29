@@ -9,9 +9,12 @@ import { useAuthStore } from '@/stores/authStore'
 function LoginPageInner() {
   const searchParams = useSearchParams()
   const isContributorIntent = searchParams.get('intent') === 'contributor'
+  const redirectUrl = searchParams.get('redirect')
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('customer@example.com')
-  const [password, setPassword] = useState('password123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
   const router = useRouter()
   const login = useAuthStore((state) => state.login)
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
@@ -20,30 +23,40 @@ function LoginPageInner() {
   // Redirect if already logged in
   useEffect(() => {
     if (isLoggedIn && user) {
-      const isContributor = user.role === 'contributor' && user.isContributorApproved
-      router.push(isContributor ? '/dashboard' : '/discover')
+      if (redirectUrl) {
+        router.push(redirectUrl)
+      } else {
+        const isContributor = user.role === 'contributor' && user.isContributor
+        router.push(isContributor ? '/dashboard' : '/discover')
+      }
     }
-  }, [isLoggedIn, user, router])
+  }, [isLoggedIn, user, router, redirectUrl])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Login form submitted')
+    setIsSubmitting(true)
+    setLoginError(null)
     
-    // Check intent parameter or email to determine which user to login as
-    const isContributor = isContributorIntent || email === 'contributor@example.com'
-    login(isContributor)
-    
-    console.log('Login called, redirecting...')
-    router.push(isContributor ? '/dashboard' : '/discover')
+    try {
+      // Use real API login
+      await login({ email, password })
+      
+      // Redirect will happen via useEffect when user state updates
+    } catch (error) {
+      console.error('Login failed:', error)
+      setLoginError(
+        error instanceof Error 
+          ? error.message 
+          : 'Login failed. Please check your credentials and try again.'
+      )
+      setIsSubmitting(false)
+    }
   }
 
   const handleSocialLogin = (provider: string) => {
     console.log('Social login:', provider)
-    // Check intent parameter to determine which user to login as
-    const isContributor = isContributorIntent
-    login(isContributor)
-    console.log('Login called, redirecting...')
-    router.push(isContributor ? '/dashboard' : '/discover')
+    // TODO: Implement social login when backend supports it
+    setLoginError(`${provider} login is not yet implemented`)
   }
 
   return (
@@ -81,11 +94,19 @@ function LoginPageInner() {
           {/* Form card */}
           <div className="bg-white h-full flex flex-col justify-center p-8 lg:p-16 max-w-[560px] mx-auto w-full">
           
+          {/* Error message */}
+          {loginError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-[13px] text-red-600">{loginError}</p>
+            </div>
+          )}
+
           {/* Social login */}
           <div className="space-y-3 mb-6">
             <button
               onClick={() => handleSocialLogin('google')}
-              className="w-full h-11 flex items-center justify-center gap-3 border border-[#E0E0E0] rounded-lg hover:bg-[#F5F5F7] transition-colors text-[14px] font-medium text-[#111]"
+              disabled={isSubmitting}
+              className="w-full h-11 flex items-center justify-center gap-3 border border-[#E0E0E0] rounded-lg hover:bg-[#F5F5F7] transition-colors text-[14px] font-medium text-[#111] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -98,7 +119,8 @@ function LoginPageInner() {
 
             <button
               onClick={() => handleSocialLogin('facebook')}
-              className="w-full h-11 flex items-center justify-center gap-3 border border-[#E0E0E0] rounded-lg hover:bg-[#F5F5F7] transition-colors text-[14px] font-medium text-[#111]"
+              disabled={isSubmitting}
+              className="w-full h-11 flex items-center justify-center gap-3 border border-[#E0E0E0] rounded-lg hover:bg-[#F5F5F7] transition-colors text-[14px] font-medium text-[#111] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -132,6 +154,7 @@ function LoginPageInner() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="w-full h-11 pl-10 pr-4 border border-[#D0D0D0] rounded-lg text-[14px] text-[#111] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[#EE2B24] focus:border-transparent"
+                  disabled={isSubmitting}
                   required
                 />
               </div>
@@ -150,6 +173,7 @@ function LoginPageInner() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   className="w-full h-11 pl-10 pr-11 border border-[#D0D0D0] rounded-lg text-[14px] text-[#111] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[#EE2B24] focus:border-transparent"
+                  disabled={isSubmitting}
                   required
                 />
                 <button
@@ -172,9 +196,10 @@ function LoginPageInner() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full h-11 bg-[#EE2B24] hover:bg-[#d42520] text-white font-semibold rounded-lg transition-colors text-[14px]"
+              disabled={isSubmitting}
+              className="w-full h-11 bg-[#EE2B24] hover:bg-[#d42520] text-white font-semibold rounded-lg transition-colors text-[14px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Log in
+              {isSubmitting ? 'Logging in...' : 'Log in'}
             </button>
           </form>
 

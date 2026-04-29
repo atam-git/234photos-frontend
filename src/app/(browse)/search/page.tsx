@@ -10,7 +10,6 @@ import { ActiveFilterChips, ActiveFilters } from '@/components/features/search/A
 import { SortDropdown } from '@/components/features/search/SortDropdown'
 import { MasonryGrid } from '@/components/features/search/MasonryGrid'
 import { ZeroResultState } from '@/components/features/search/ZeroResultState'
-import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
 import { MEDIA_TABS } from '@/lib/mock/marketing'
 import type { Asset, ModalState } from '@/types'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
@@ -18,6 +17,7 @@ import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { useAuthStore } from '@/stores/authStore'
+import { useSearch } from '@/hooks/useSearch'
 
 
 export default function SearchPage() {
@@ -35,6 +35,7 @@ function SearchPageInner() {
 
   const query = searchParams.get('q') ?? ''
   const typeParam = searchParams.get('type') ?? ''
+  const colorParam = searchParams.get('color') ?? ''
 
   const [activeTab, setActiveTab] = useState(
     typeParam ? typeParam.charAt(0).toUpperCase() + typeParam.slice(1) : 'Photos'
@@ -46,10 +47,31 @@ function SearchPageInner() {
     price: searchParams.get('price') ?? undefined,
     dateAdded: searchParams.get('dateAdded') ?? undefined,
     aiContent: searchParams.get('aiContent') ?? undefined,
+    color: colorParam || undefined,
   })
   const [sort, setSort] = useState(searchParams.get('sort') ?? 'relevance')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
+
+  // Build search params from filters
+  const searchApiParams = {
+    q: query || undefined,
+    page: 1,
+    limit: 50,
+    sort: sort as any,
+    orientation: filters.orientation,
+    color: filters.color,
+    license: filters.license?.toUpperCase() as any,
+    isFree: filters.price === 'free' ? true : undefined,
+    isAI: filters.aiContent === 'ai' ? true : filters.aiContent === 'human' ? false : undefined,
+    isEditorial: filters.license === 'editorial' ? true : undefined,
+  }
+
+  // Fetch search results from API
+  const { data: searchData, isLoading, error } = useSearch(searchApiParams)
+  
+  const results = searchData?.hits || []
+  const total = searchData?.total || 0
 
   const handleFilterChange = useCallback(
     (key: keyof ActiveFilters, value: string | undefined) => {
@@ -66,16 +88,6 @@ function SearchPageInner() {
     else params.set('type', tab.toLowerCase())
     router.push(`/search?${params.toString()}`)
   }
-
-  const results = query
-    ? MOCK_ASSETS.filter((a) => {
-        if (filters.price === 'free' && !a.isFree) return false
-        if (filters.aiContent === 'ai' && !a.isAI) return false
-        if (filters.aiContent === 'human' && a.isAI) return false
-        if (filters.license === 'editorial' && !a.isEditorial) return false
-        return true
-      })
-    : MOCK_ASSETS
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
   const closeModal = () => setModal({ type: 'none' })
@@ -148,7 +160,22 @@ function SearchPageInner() {
             onToggleCollapse={() => setSidebarCollapsed(true)}
           />
           <div className="flex-1 min-w-0">
-            {results.length === 0 ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <div className="text-center">
+                  <div className="mb-4 text-4xl">⏳</div>
+                  <p className="text-[#666]">Searching...</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="flex items-center justify-center py-16">
+                <div className="text-center">
+                  <div className="mb-4 text-4xl text-red-500">⚠️</div>
+                  <p className="text-[#666]">Search failed</p>
+                  <p className="text-[13px] text-red-500 mt-2">{error.message}</p>
+                </div>
+              </div>
+            ) : results.length === 0 ? (
               <ZeroResultState query={query} />
             ) : (
               <MasonryGrid

@@ -21,10 +21,10 @@ export interface Board {
   name: string
   description?: string
   userId: string
-  assetIds: string[]
+  assetIds: string[]  // Backend provides this
   assets?: Asset[]
   thumbnails: string[]
-  assetCount: number
+  assetCount: number  // Backend computes this
   type: 'private' | 'shared' | 'team'
   collaborators?: BoardCollaborator[]
   shareLink?: string

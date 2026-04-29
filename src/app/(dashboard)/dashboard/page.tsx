@@ -15,8 +15,8 @@ import Link from 'next/link'
 export default function DashboardPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
-  const isContributor = user?.role === 'contributor' && user?.isContributorApproved
-  const isPendingContributor = user?.role === 'contributor' && !user?.isContributorApproved
+  const isContributor = user?.role === 'contributor' && user?.isContributor
+  const isPendingContributor = user?.role === 'contributor' && !user?.isContributor
   const isRejectedContributor = user?.role === 'contributor' && (user as any).applicationStatus === 'rejected'
   
   const [selectedBadge, setSelectedBadge] = useState<typeof DASHBOARD_BADGES[0] | null>(null)

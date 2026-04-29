@@ -1,4 +1,4 @@
-import { Notification, NotificationType, NotificationPreferences } from '@/types'
+﻿import { Notification, NotificationType, NotificationPreferences } from '@/types'
 
 export const MOCK_NOTIFICATIONS: Notification[] = [
   {
@@ -12,7 +12,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#4F46E5',
     link: '/dashboard/contributor/earnings',
     isRead: false,
-    time: '2 hours ago',
     createdAt: '2026-04-23T12:00:00Z',
   },
   {
@@ -26,7 +25,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#4F46E5',
     link: '/dashboard/contributor/earnings',
     isRead: true,
-    time: '5 hours ago',
     createdAt: '2026-04-23T09:00:00Z',
   },
   {
@@ -40,7 +38,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#059669',
     link: '/dashboard/contributor/earnings',
     isRead: false,
-    time: '5 hours ago',
     createdAt: '2026-04-23T09:01:00Z',
   },
   {
@@ -54,7 +51,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#059669',
     link: '/dashboard/contributor/earnings',
     isRead: true,
-    time: 'Yesterday',
     createdAt: '2026-04-22T14:30:00Z',
   },
   {
@@ -68,7 +64,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#DC2626',
     link: '/assets/5',
     isRead: false,
-    time: 'Yesterday',
     createdAt: '2026-04-22T11:00:00Z',
   },
   {
@@ -82,7 +77,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#DC2626',
     link: '/assets/22',
     isRead: true,
-    time: '2 days ago',
     createdAt: '2026-04-21T16:20:00Z',
   },
   {
@@ -96,7 +90,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#0284C7',
     link: '/dashboard/contributor/profile',
     isRead: false,
-    time: '2 days ago',
     createdAt: '2026-04-21T09:45:00Z',
   },
   {
@@ -110,7 +103,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#059669',
     link: '/assets/13',
     isRead: true,
-    time: '3 days ago',
     createdAt: '2026-04-20T10:00:00Z',
   },
   {
@@ -124,7 +116,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#DC2626',
     link: '/dashboard/contributor/uploads',
     isRead: false,
-    time: '4 days ago',
     createdAt: '2026-04-19T15:30:00Z',
   },
   {
@@ -138,7 +129,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#EA580C',
     link: '/assets/23',
     isRead: true,
-    time: '5 days ago',
     createdAt: '2026-04-18T12:15:00Z',
   },
   {
@@ -152,7 +142,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#7C3AED',
     link: '/dashboard/contributor/uploads',
     isRead: false,
-    time: '1 week ago',
     createdAt: '2026-04-16T08:00:00Z',
   },
   {
@@ -166,7 +155,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     iconColor: '#D97706',
     link: '/dashboard/contributor/analytics',
     isRead: true,
-    time: '2 weeks ago',
     createdAt: '2026-04-09T10:00:00Z',
   },
 ]

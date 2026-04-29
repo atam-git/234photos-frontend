@@ -1,4 +1,4 @@
-import type { FeedItem } from '@/types'
+﻿import type { FeedItem } from '@/types'
 
 export const MOCK_FEED: FeedItem[] = [
   {
@@ -32,8 +32,9 @@ export const MOCK_FEED: FeedItem[] = [
         fileType: 'image',
         mimeType: 'image/jpeg',
         fileSize: '4.2 MB',
-        dimensions: '4000x2667',
-        dateAdded: '2026-04-23T10:00:00Z',
+        dimensions: '4000 x 2667',
+      width: 4000,
+      height: 2667,
         category: 'Nature',
         tags: ['mountain', 'landscape', 'nature'],
         license: 'standard',
@@ -44,6 +45,7 @@ export const MOCK_FEED: FeedItem[] = [
         stats: { views: 1250, downloads: 45, likes: 89, earnings: 67.5 },
         status: 'approved',
         uploadedAt: '2026-04-23T10:00:00Z',
+
         updatedAt: '2026-04-23T10:00:00Z',
       },
       { 
@@ -62,8 +64,9 @@ export const MOCK_FEED: FeedItem[] = [
         fileType: 'image',
         mimeType: 'image/jpeg',
         fileSize: '3.8 MB',
-        dimensions: '3840x2560',
-        dateAdded: '2026-04-23T10:15:00Z',
+        dimensions: '3840 x 2560',
+      width: 3840,
+      height: 2560,
         category: 'Nature',
         tags: ['forest', 'path', 'trees'],
         license: 'standard',
@@ -74,6 +77,7 @@ export const MOCK_FEED: FeedItem[] = [
         stats: { views: 980, downloads: 32, likes: 67, earnings: 48 },
         status: 'approved',
         uploadedAt: '2026-04-23T10:15:00Z',
+
         updatedAt: '2026-04-23T10:15:00Z',
       },
       { 
@@ -93,8 +97,9 @@ export const MOCK_FEED: FeedItem[] = [
         fileType: 'image',
         mimeType: 'image/jpeg',
         fileSize: '5.1 MB',
-        dimensions: '4096x2731',
-        dateAdded: '2026-04-23T10:30:00Z',
+        dimensions: '4096 x 2731',
+      width: 4096,
+      height: 2731,
         category: 'Nature',
         tags: ['lake', 'water', 'landscape'],
         license: 'standard',
@@ -104,6 +109,7 @@ export const MOCK_FEED: FeedItem[] = [
         stats: { views: 1450, downloads: 52, likes: 103, earnings: 78 },
         status: 'approved',
         uploadedAt: '2026-04-23T10:30:00Z',
+
         updatedAt: '2026-04-23T10:30:00Z',
       },
     ],
@@ -139,8 +145,9 @@ export const MOCK_FEED: FeedItem[] = [
         fileType: 'image',
         mimeType: 'image/jpeg',
         fileSize: '4.5 MB',
-        dimensions: '3840x2560',
-        dateAdded: '2026-04-23T05:00:00Z',
+        dimensions: '3840 x 2560',
+      width: 3840,
+      height: 2560,
         category: 'Urban',
         tags: ['city', 'skyline', 'urban'],
         license: 'standard',
@@ -151,6 +158,7 @@ export const MOCK_FEED: FeedItem[] = [
         stats: { views: 2100, downloads: 78, likes: 145, earnings: 117 },
         status: 'approved',
         uploadedAt: '2026-04-23T05:00:00Z',
+
         updatedAt: '2026-04-23T05:00:00Z',
       },
       { 
@@ -170,8 +178,9 @@ export const MOCK_FEED: FeedItem[] = [
         fileType: 'image',
         mimeType: 'image/jpeg',
         fileSize: '5.3 MB',
-        dimensions: '4096x2731',
-        dateAdded: '2026-04-23T05:15:00Z',
+        dimensions: '4096 x 2731',
+      width: 4096,
+      height: 2731,
         category: 'Urban',
         tags: ['street', 'urban', 'city'],
         license: 'standard',
@@ -181,6 +190,7 @@ export const MOCK_FEED: FeedItem[] = [
         stats: { views: 3200, downloads: 156, likes: 234, earnings: 0 },
         status: 'approved',
         uploadedAt: '2026-04-23T05:15:00Z',
+
         updatedAt: '2026-04-23T05:15:00Z',
       },
     ],

@@ -1,4 +1,4 @@
-import type { Asset, AssetDetail } from '@/types'
+﻿import type { Asset, AssetDetail } from '@/types'
 import { MOCK_ASSETS } from './assets'
 
 export const MOCK_ASSET_DETAILS: Record<string, Partial<AssetDetail>> = {
@@ -14,7 +14,6 @@ export const MOCK_ASSET_DETAILS: Record<string, Partial<AssetDetail>> = {
     fileSize: '8.4 MB',
     fileType: 'image',
     mimeType: 'image/jpeg',
-    dateAdded: 'March 12, 2026',
     resolution: '4K',
     aspectRatio: 1.5,
     contributor: 'Amara Osei',
@@ -38,7 +37,6 @@ export const MOCK_ASSET_DETAILS: Record<string, Partial<AssetDetail>> = {
     fileSize: '124 MB',
     fileType: 'video',
     mimeType: 'video/mp4',
-    dateAdded: 'April 10, 2026',
     resolution: '4K',
     aspectRatio: 1.78,
     duration: 45,
@@ -66,7 +64,6 @@ export function getAssetDetail(id: string): Partial<AssetDetail> {
       fileSize: '5.2 MB',
       fileType: 'image',
       mimeType: 'image/jpeg',
-      dateAdded: 'April 1, 2026',
       aspectRatio: 1.5,
       contributorCountry: '🌍 Africa',
       contributorAssets: 320,

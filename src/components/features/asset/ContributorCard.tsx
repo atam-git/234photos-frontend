@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getContributorUsername } from '@/lib/mock/contributors'
+import { useIsFollowing, useFollowUser, useUnfollowUser } from '@/hooks/useFollow'
 
 interface ContributorCardProps {
   name?: string
@@ -25,23 +26,31 @@ export function ContributorCard({
   onFollow,
   onAuthRequired,
 }: ContributorCardProps) {
-  const [following, setFollowing] = useState(false)
   const username = getContributorUsername(name)
   const initials = name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
 
-  const handleFollow = () => {
+  // Fetch follow status
+  const { data: followStatus } = useIsFollowing(username)
+  const followMutation = useFollowUser()
+  const unfollowMutation = useUnfollowUser()
+  const isFollowing = followStatus?.isFollowing || false
+
+  const handleFollow = async () => {
     // If not logged in, show auth modal
     if (!isLoggedIn) {
       onAuthRequired?.()
       return
     }
 
-    // Toggle follow state
-    if (!following) {
-      setFollowing(true)
+    try {
+      if (isFollowing) {
+        await unfollowMutation.mutateAsync(username)
+      } else {
+        await followMutation.mutateAsync(username)
+      }
       onFollow?.()
-    } else {
-      setFollowing(false)
+    } catch (error) {
+      console.error('Follow error:', error)
     }
   }
 
@@ -76,14 +85,15 @@ export function ContributorCard({
       {/* Follow */}
       <button
         onClick={handleFollow}
+        disabled={followMutation.isPending || unfollowMutation.isPending}
         className={`shrink-0 px-4 py-1.5 rounded-full text-[12.5px] font-semibold border transition-colors ${
-          following
+          isFollowing
             ? 'border-[#D0D0D0] text-[#888] bg-white hover:border-[#EE2B24] hover:text-[#EE2B24]'
             : 'border-[#111] text-[#111] bg-white hover:bg-[#111] hover:text-white'
-        }`}
+        } ${(followMutation.isPending || unfollowMutation.isPending) ? 'opacity-50 cursor-not-allowed' : ''}`}
         style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
       >
-        {following ? 'Following' : 'Follow'}
+        {followMutation.isPending || unfollowMutation.isPending ? '...' : isFollowing ? 'Following' : 'Follow'}
       </button>
     </div>
   )

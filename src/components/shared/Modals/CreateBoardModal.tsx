@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { X, Lock, Users } from 'lucide-react'
-import type { Board } from '@/types'
+import { useCreateBoard } from '@/hooks/useBoards'
 
 interface CreateBoardModalProps {
   onClose: () => void
@@ -11,13 +11,25 @@ interface CreateBoardModalProps {
 export function CreateBoardModal({ onClose }: CreateBoardModalProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [type, setType] = useState<Board['type']>('private')
+  const [isPublic, setIsPublic] = useState(false)
+
+  const { mutate: createBoard, isPending } = useCreateBoard()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Create board
-    console.log('Create board:', { name, description, type })
-    onClose()
+    
+    createBoard(
+      {
+        name: name.trim(),
+        description: description.trim() || undefined,
+        isPublic,
+      },
+      {
+        onSuccess: () => {
+          onClose()
+        },
+      }
+    )
   }
 
   return (
@@ -48,7 +60,8 @@ export function CreateBoardModal({ onClose }: CreateBoardModalProps) {
               placeholder="e.g. Campaign Assets"
               required
               autoFocus
-              className="w-full h-[44px] px-4 border border-[#D0D0D0] rounded-xl text-[14px] text-[#111] outline-none focus:border-[#111] transition-colors"
+              disabled={isPending}
+              className="w-full h-[44px] px-4 border border-[#D0D0D0] rounded-xl text-[14px] text-[#111] outline-none focus:border-[#111] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             />
           </div>
@@ -63,7 +76,8 @@ export function CreateBoardModal({ onClose }: CreateBoardModalProps) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What's this board for?"
               rows={2}
-              className="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl text-[14px] text-[#111] outline-none focus:border-[#111] transition-colors resize-none"
+              disabled={isPending}
+              className="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl text-[14px] text-[#111] outline-none focus:border-[#111] transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             />
           </div>
@@ -75,11 +89,12 @@ export function CreateBoardModal({ onClose }: CreateBoardModalProps) {
             </label>
             <div className="flex flex-col gap-2">
               <label className="flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition-colors hover:bg-[#F8F8F8]"
-                style={{ borderColor: type === 'private' ? '#111' : '#E0E0E0' }}>
+                style={{ borderColor: !isPublic ? '#111' : '#E0E0E0' }}>
                 <input
                   type="radio"
-                  checked={type === 'private'}
-                  onChange={() => setType('private')}
+                  checked={!isPublic}
+                  onChange={() => setIsPublic(false)}
+                  disabled={isPending}
                   className="mt-0.5 w-4 h-4 text-[#111] focus:ring-[#111]"
                 />
                 <div className="flex-1">
@@ -98,11 +113,12 @@ export function CreateBoardModal({ onClose }: CreateBoardModalProps) {
               </label>
 
               <label className="flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition-colors hover:bg-[#F8F8F8]"
-                style={{ borderColor: type === 'shared' ? '#111' : '#E0E0E0' }}>
+                style={{ borderColor: isPublic ? '#111' : '#E0E0E0' }}>
                 <input
                   type="radio"
-                  checked={type === 'shared'}
-                  onChange={() => setType('shared')}
+                  checked={isPublic}
+                  onChange={() => setIsPublic(true)}
+                  disabled={isPending}
                   className="mt-0.5 w-4 h-4 text-[#111] focus:ring-[#111]"
                 />
                 <div className="flex-1">
@@ -127,16 +143,17 @@ export function CreateBoardModal({ onClose }: CreateBoardModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-5 py-3 border border-[#D0D0D0] text-[#111] text-[14px] font-semibold rounded-full hover:border-[#999] transition-colors"
+              disabled={isPending}
+              className="flex-1 px-5 py-3 border border-[#D0D0D0] text-[#111] text-[14px] font-semibold rounded-full hover:border-[#999] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Cancel
             </button>
             <button
               type="submit"
-              disabled={!name.trim()}
+              disabled={!name.trim() || isPending}
               className="flex-1 px-5 py-3 bg-[#111] text-white text-[14px] font-semibold rounded-full hover:bg-[#333] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              Create Board
+              {isPending ? 'Creating...' : 'Create Board'}
             </button>
           </div>
         </form>

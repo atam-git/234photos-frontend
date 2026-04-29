@@ -66,7 +66,12 @@ export default function NotificationsPage() {
                 </p>
                 <p className="text-[12px] text-[#888]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  {notification.time}
+                  {new Date(notification.createdAt).toLocaleString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    hour: 'numeric', 
+                    minute: '2-digit' 
+                  })}
                 </p>
               </div>
               {!notification.isRead && (

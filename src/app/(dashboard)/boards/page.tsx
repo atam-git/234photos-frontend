@@ -1,28 +1,105 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Lock, Users, MoreHorizontal, Trash2, Edit2, Share2, FolderOpen } from 'lucide-react'
-import { MOCK_BOARDS } from '@/lib/mock/boards'
+import { Plus, Lock, Users, MoreHorizontal, Trash2, Edit2, Share2, FolderOpen, LogOut } from 'lucide-react'
 import { CreateBoardModal } from '@/components/shared/Modals/CreateBoardModal'
+import { ConfirmModal } from '@/components/shared/Modals/ConfirmModal'
 import Link from 'next/link'
+import { useBoards, useDeleteBoard, useRemoveCollaborator } from '@/hooks/useBoards'
+import { useAuthStore } from '@/stores/authStore'
 
 export default function BoardsPage() {
-  const BOARDS = MOCK_BOARDS.map(board => ({
-    id: board.id,
-    name: board.name,
-    count: board.assetCount,
-    type: board.type,
-    updatedAt: new Date(board.updatedAt).toLocaleDateString(),
-    thumbnails: board.thumbnails
-  }))
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const [confirmAction, setConfirmAction] = useState<{ type: 'delete' | 'leave'; boardId: string; boardName: string } | null>(null)
+
+  // Fetch boards from API
+  const { data: boards = [], isLoading, error } = useBoards()
+  const { mutate: deleteBoard } = useDeleteBoard()
+  const { mutate: removeCollaborator } = useRemoveCollaborator()
+  const currentUser = useAuthStore((state) => state.user)
 
   const handleDeleteBoard = (boardId: string, boardName: string) => {
-    if (confirm(`Delete "${boardName}"? This cannot be undone.`)) {
-      console.log('Delete board:', boardId)
-      setActiveMenu(null)
+    setConfirmAction({ type: 'delete', boardId, boardName })
+    setActiveMenu(null)
+  }
+
+  const handleLeaveBoard = (boardId: string, boardName: string) => {
+    setConfirmAction({ type: 'leave', boardId, boardName })
+    setActiveMenu(null)
+  }
+
+  const executeConfirmAction = () => {
+    if (!confirmAction) return
+
+    if (confirmAction.type === 'delete') {
+      deleteBoard(confirmAction.boardId)
+    } else if (confirmAction.type === 'leave') {
+      removeCollaborator({ boardId: confirmAction.boardId, userId: currentUser!.id })
     }
+
+    setConfirmAction(null)
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[22px] font-extrabold text-[#111]"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Boards
+            </h1>
+            <p className="text-[13px] text-[#888] mt-0.5"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Organise and share your saved assets
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden animate-pulse">
+              <div className="h-[140px] bg-gray-200" />
+              <div className="px-4 py-3">
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2" />
+                <div className="h-3 bg-gray-200 rounded w-3/4" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[22px] font-extrabold text-[#111]"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Boards
+            </h1>
+            <p className="text-[13px] text-[#888] mt-0.5"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Organise and share your saved assets
+            </p>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-[#F0F0F0] flex flex-col items-center justify-center py-20 text-center">
+          <p className="text-[15px] font-semibold text-[#EE2B24] mb-1"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Failed to load boards
+          </p>
+          <p className="text-[13px] text-[#888]"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            {error instanceof Error ? error.message : 'Something went wrong'}
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -47,7 +124,7 @@ export default function BoardsPage() {
       </div>
 
       {/* Empty state */}
-      {BOARDS.length === 0 ? (
+      {boards.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#F0F0F0] flex flex-col items-center justify-center py-20 text-center">
           <div className="w-16 h-16 rounded-full bg-[#F8F8F8] flex items-center justify-center mb-4">
             <FolderOpen className="w-7 h-7 text-[#BBBBBB]" />
@@ -71,95 +148,129 @@ export default function BoardsPage() {
         <>
           {/* Board grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {BOARDS.map((board) => (
-              <div key={board.id} className="relative">
-                <Link href={`/boards/${board.id}`} className="bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden group hover:shadow-md transition-shadow cursor-pointer block">
-                  {/* Mosaic thumbnails */}
-                  <div className="flex gap-0.5 h-[140px]">
-                    <div className="flex-[2] overflow-hidden">
-                      <img src={board.thumbnails[0]} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                    </div>
-                    <div className="flex-1 flex flex-col gap-0.5">
-                      <div className="flex-1 overflow-hidden">
-                        <img src={board.thumbnails[1]} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+            {boards.map((board) => {
+              const isOwner = currentUser && board.userId === currentUser.id
+              
+              return (
+                <div key={board.id} className="relative">
+                  <Link href={`/boards/${board.id}`} className="bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden group hover:shadow-md transition-shadow cursor-pointer block">
+                    {/* Mosaic thumbnails */}
+                    {board.thumbnails.length > 0 ? (
+                      <div className="flex gap-0.5 h-[140px]">
+                        <div className="flex-[2] overflow-hidden">
+                          <img src={board.thumbnails[0]} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                        </div>
+                        {board.thumbnails.length > 1 && (
+                          <div className="flex-1 flex flex-col gap-0.5">
+                            <div className="flex-1 overflow-hidden">
+                              <img src={board.thumbnails[1]} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                            </div>
+                            {board.thumbnails.length > 2 && (
+                              <div className="flex-1 overflow-hidden">
+                                <img src={board.thumbnails[2]} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1 overflow-hidden">
-                        <img src={board.thumbnails[2]} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    ) : (
+                      <div className="h-[140px] bg-gray-100 flex items-center justify-center">
+                        <FolderOpen className="w-12 h-12 text-gray-300" />
                       </div>
-                    </div>
-                  </div>
+                    )}
 
-                  {/* Info */}
-                  <div className="px-4 py-3 flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        {board.type === 'private' && <Lock className="w-3 h-3 text-[#888]" />}
-                        {board.type === 'shared' && <Users className="w-3 h-3 text-[#888]" />}
-                        {board.type === 'team' && <Users className="w-3 h-3 text-[#EE2B24]" />}
-                        <p className="text-[13.5px] font-bold text-[#111]"
+                    {/* Info */}
+                    <div className="px-4 py-3 flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          {!board.isPublic && <Lock className="w-3 h-3 text-[#888]" />}
+                          {board.isPublic && <Users className="w-3 h-3 text-[#888]" />}
+                          <p className="text-[13.5px] font-bold text-[#111]"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                            {board.name}
+                          </p>
+                        </div>
+                        <p className="text-[11.5px] text-[#888]"
                           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                          {board.name}
+                          {board.assetCount} assets · Updated {new Date(board.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </p>
                       </div>
-                      <p className="text-[11.5px] text-[#888]"
-                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        {board.count} assets · Updated {board.updatedAt}
-                      </p>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
 
-                {/* More menu button */}
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setActiveMenu(activeMenu === board.id ? null : board.id)
-                  }}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white flex items-center justify-center transition-colors shadow-sm z-10">
-                  <MoreHorizontal className="w-4 h-4 text-[#888]" />
-                </button>
+                  {/* More menu button */}
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setActiveMenu(activeMenu === board.id ? null : board.id)
+                    }}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white flex items-center justify-center transition-colors shadow-sm z-10">
+                    <MoreHorizontal className="w-4 h-4 text-[#888]" />
+                  </button>
 
-                {/* Dropdown menu */}
-                {activeMenu === board.id && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setActiveMenu(null)} />
-                    <div className="absolute top-12 right-3 w-[180px] bg-white rounded-xl shadow-lg border border-[#F0F0F0] py-2 z-50">
-                      <button
-                        onClick={() => {
-                          setActiveMenu(null)
-                          // TODO: Open edit modal
-                        }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors"
-                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        <Edit2 className="w-4 h-4" />
-                        Rename
-                      </button>
-                      {board.type === 'private' && (
-                        <button
-                          onClick={() => {
-                            setActiveMenu(null)
-                            // TODO: Share board
-                          }}
-                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors"
-                          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                          <Share2 className="w-4 h-4" />
-                          Share
-                        </button>
-                      )}
-                      <div className="h-px bg-[#F0F0F0] my-1" />
-                      <button
-                        onClick={() => handleDeleteBoard(board.id, board.name)}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#EE2B24] hover:bg-[#FFF0F0] transition-colors"
-                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+                  {/* Dropdown menu */}
+                  {activeMenu === board.id && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setActiveMenu(null)} />
+                      <div className="absolute top-12 right-3 w-[180px] bg-white rounded-xl shadow-lg border border-[#F0F0F0] py-2 z-50">
+                        {/* Rename - only for owner */}
+                        {isOwner && (
+                          <button
+                            onClick={() => {
+                              setActiveMenu(null)
+                              // TODO: Open edit modal
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors rounded-lg mx-1"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif', width: 'calc(100% - 8px)' }}>
+                            <Edit2 className="w-4 h-4" />
+                            Rename
+                          </button>
+                        )}
+                        {/* Share - for everyone if not public */}
+                        {!board.isPublic && (
+                          <button
+                            onClick={() => {
+                              setActiveMenu(null)
+                              // TODO: Share board
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors rounded-lg mx-1"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif', width: 'calc(100% - 8px)' }}>
+                            <Share2 className="w-4 h-4" />
+                            Share
+                          </button>
+                        )}
+                        {/* Delete - only for owner */}
+                        {isOwner ? (
+                          <>
+                            <div className="h-px bg-[#F0F0F0] my-1" />
+                            <button
+                              onClick={() => handleDeleteBoard(board.id, board.name)}
+                              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#EE2B24] hover:bg-[#FFF0F0] transition-colors rounded-lg mx-1"
+                              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif', width: 'calc(100% - 8px)' }}>
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </button>
+                          </>
+                        ) : (
+                          /* Leave board - only for collaborators */
+                          <>
+                            <div className="h-px bg-[#F0F0F0] my-1" />
+                            <button
+                              onClick={() => handleLeaveBoard(board.id, board.name)}
+                              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#EE2B24] hover:bg-[#FFF0F0] transition-colors rounded-lg mx-1"
+                              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif', width: 'calc(100% - 8px)' }}>
+                              <LogOut className="w-4 h-4" />
+                              Leave board
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </>
       )}
@@ -167,6 +278,22 @@ export default function BoardsPage() {
       {/* Create Board Modal */}
       {showCreateModal && (
         <CreateBoardModal onClose={() => setShowCreateModal(false)} />
+      )}
+
+      {/* Confirm Modal */}
+      {confirmAction && (
+        <ConfirmModal
+          title={confirmAction.type === 'delete' ? 'Delete Board' : 'Leave Board'}
+          message={
+            confirmAction.type === 'delete'
+              ? `Delete "${confirmAction.boardName}"? This cannot be undone and all assets will be removed from the board.`
+              : `Leave "${confirmAction.boardName}"? You will lose access to it.`
+          }
+          confirmText={confirmAction.type === 'delete' ? 'Delete' : 'Leave'}
+          variant="danger"
+          onConfirm={executeConfirmAction}
+          onCancel={() => setConfirmAction(null)}
+        />
       )}
     </div>
   )

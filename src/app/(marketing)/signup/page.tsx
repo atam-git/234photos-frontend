@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Mail, Lock, Eye, EyeOff, User, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useAuthStore } from '@/stores/authStore'
+import { authApi } from '@/lib/api'
 import type { SignupStep } from '@/types'
 import { SPECIALTIES } from '@/lib/mock/marketing'
 
@@ -32,6 +33,7 @@ function SignupPageInner() {
   
   const router = useRouter()
   const login = useAuthStore((state) => state.login)
+  const signup = useAuthStore((state) => state.signup)
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   // Redirect if already logged in
@@ -47,49 +49,37 @@ function SignupPageInner() {
     setIsSubmitting(true)
     
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          intent: isContributorIntent ? 'contributor' : 'customer'
-        })
+      // Use the real API via authStore
+      await signup({
+        name,
+        email,
+        password,
+        intent: isContributorIntent ? 'contributor' : 'customer'
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        // Handle email already exists
-        if (data.error === 'EMAIL_EXISTS_AS_CUSTOMER' && isContributorIntent) {
-          // Smart redirect to login with contributor intent
-          router.push(`/login?intent=contributor&email=${encodeURIComponent(email)}`)
-          return
-        }
-        
-        if (data.error === 'EMAIL_EXISTS') {
-          setError(data.message || 'Email already registered. Please login.')
-          return
-        }
-
-        setError(data.message || 'Signup failed. Please try again.')
-        return
-      }
 
       // Success - proceed based on intent
       if (isContributorIntent) {
         setStep('contributor')
       } else {
-        // Regular customer signup - login and redirect
-        login(false)
+        // Regular customer signup - already logged in via signup
         router.push('/discover')
       }
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('Signup error:', err)
-      setError('Something went wrong. Please try again.')
+      
+      // Handle specific error cases
+      if (err.message?.includes('already exists') || err.message?.includes('already registered')) {
+        if (isContributorIntent) {
+          // Smart redirect to login with contributor intent
+          router.push(`/login?intent=contributor&email=${encodeURIComponent(email)}`)
+          return
+        }
+        setError('Email already registered. Please login.')
+        return
+      }
+      
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -101,34 +91,23 @@ function SignupPageInner() {
     setIsSubmitting(true)
     
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/auth/contributor/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          bio,
-          location,
-          country,
-          specialties: selectedSpecialties,
-          portfolioUrl: portfolio || null,
-          instagram: instagram || null,
-        })
+      // Use the real API
+      await authApi.applyContributor({
+        email,
+        bio,
+        location,
+        country,
+        specialties: selectedSpecialties,
+        portfolioUrl: portfolio || undefined,
+        instagram: instagram || undefined,
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.message || 'Application failed. Please try again.')
-        return
-      }
 
       // Success - show email verification screen
       setStep('verification')
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('Application error:', err)
-      setError('Something went wrong. Please try again.')
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -137,17 +116,12 @@ function SignupPageInner() {
   const handleResendVerification = async () => {
     setIsSubmitting(true)
     try {
-      // TODO: Replace with actual API call
-      await fetch('/api/auth/resend-verification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
+      await authApi.resendVerification(email)
       // Show success message
       alert('Verification email sent!')
-    } catch (err) {
+    } catch (err: any) {
       console.error('Resend error:', err)
-      alert('Failed to resend email. Please try again.')
+      alert(err.message || 'Failed to resend email. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

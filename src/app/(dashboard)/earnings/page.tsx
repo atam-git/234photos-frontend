@@ -21,7 +21,7 @@ export default function EarningsPage() {
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null)
   const [payoutMethod, setPayoutMethod] = useState<'bank' | 'paypal' | 'mobile_money'>('bank')
   const [payoutSaved, setPayoutSaved] = useState(false)
-  const isContributor = user?.role === 'contributor' && user?.isContributorApproved
+  const isContributor = user?.role === 'contributor' && user?.isContributor
 
   useEffect(() => {
     if (!isContributor) {

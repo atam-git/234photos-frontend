@@ -12,7 +12,8 @@ export const MOCK_CUSTOMER_USER: User = {
   role: 'customer',
   credits: 12,
   joinedYear: 2023,
-  isContributorApproved: false,
+  isContributor: false,
+  emailVerified: true,
   createdAt: '2023-01-01T00:00:00Z',
   updatedAt: '2026-04-01T00:00:00Z',
 }
@@ -29,7 +30,8 @@ export const MOCK_CONTRIBUTOR_USER: User = {
   role: 'contributor',
   credits: 12,
   joinedYear: 2023,
-  isContributorApproved: true,
+  isContributor: true,
+  emailVerified: true,
   createdAt: '2023-01-01T00:00:00Z',
   updatedAt: '2026-04-01T00:00:00Z',
 }

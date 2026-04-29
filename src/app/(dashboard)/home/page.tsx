@@ -10,7 +10,7 @@ export default function DashboardIndex() {
 
   useEffect(() => {
     if (user) {
-      if (user.role === 'contributor' && user.isContributorApproved) {
+      if (user.role === 'contributor' && user.isContributor) {
         router.push('/dashboard')
       } else {
         router.push('/discover')

@@ -401,9 +401,11 @@ export function getContributorByName(name: string): Contributor | undefined {
 
 // Fallback avatar for unknown contributors
 export function getContributorAvatar(name: string): string {
+  if (!name) return ''
   return getContributorByName(name)?.avatar ?? ''
 }
 
 export function getContributorUsername(name: string): string {
+  if (!name) return 'unknown'
   return NAME_TO_USERNAME[name] ?? name.toLowerCase().replace(/\s+/g, '-')
 }

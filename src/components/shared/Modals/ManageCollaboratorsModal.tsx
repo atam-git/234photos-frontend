@@ -1,98 +1,91 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Mail, UserPlus, Trash2, Crown, Edit, Eye } from 'lucide-react'
-import type { BoardCollaborator } from '@/types'
+import { X, Mail, UserPlus, Trash2, Users, Crown, Link2, Check } from 'lucide-react'
+import { useCollaborators, useAddCollaborator, useRemoveCollaborator } from '@/hooks/useBoards'
+import { useAuthStore } from '@/stores/authStore'
+import { ConfirmModal } from './ConfirmModal'
 
 interface ManageCollaboratorsModalProps {
+  boardId: string
   boardName: string
-  collaborators: BoardCollaborator[]
+  boardOwnerId: string
+  boardOwnerName?: string
+  boardOwnerUsername?: string
+  boardOwnerAvatar?: string
+  boardShareLink?: string
   onClose: () => void
 }
 
-const MOCK_COLLABORATORS: BoardCollaborator[] = [
-  { 
-    userId: '1', 
-    user: { 
-      id: '1', 
-      email: 'john@example.com', 
-      name: 'John Doe', 
-      username: 'johndoe',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
-      role: 'customer',
-      credits: 0,
-      joinedYear: 2024,
-      isContributorApproved: false,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01'
-    },
-    role: 'admin',
-    addedAt: '2024-01-15'
-  },
-  { 
-    userId: '2', 
-    user: { 
-      id: '2', 
-      email: 'jane@example.com', 
-      name: 'Jane Smith', 
-      username: 'janesmith',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
-      role: 'customer',
-      credits: 0,
-      joinedYear: 2024,
-      isContributorApproved: false,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01'
-    },
-    role: 'editor',
-    addedAt: '2024-02-01'
-  },
-  { 
-    userId: '3', 
-    user: { 
-      id: '3', 
-      email: 'mike@example.com', 
-      name: 'Mike Johnson', 
-      username: 'mikejohnson',
-      role: 'customer',
-      credits: 0,
-      joinedYear: 2024,
-      isContributorApproved: false,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01'
-    },
-    role: 'viewer',
-    addedAt: '2024-03-01'
-  },
-]
+export function ManageCollaboratorsModal({ 
+  boardId, 
+  boardName, 
+  boardOwnerId,
+  boardOwnerName,
+  boardOwnerUsername,
+  boardOwnerAvatar,
+  boardShareLink,
+  onClose 
+}: ManageCollaboratorsModalProps) {
+  const [emailOrUsername, setEmailOrUsername] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [confirmAction, setConfirmAction] = useState<{ type: 'remove' | 'leave'; userId: string; userName: string } | null>(null)
+  const currentUser = useAuthStore((state) => state.user)
 
-export function ManageCollaboratorsModal({ boardName, collaborators = MOCK_COLLABORATORS, onClose }: ManageCollaboratorsModalProps) {
-  const [email, setEmail] = useState('')
-  const [role, setRole] = useState<'viewer' | 'editor'>('editor')
+  // Fetch collaborators
+  const { data: collaborators = [], isLoading } = useCollaborators(boardId)
+  const { mutate: addCollaborator, isPending: isAdding } = useAddCollaborator()
+  const { mutate: removeCollaborator, isPending: isRemoving } = useRemoveCollaborator()
+
+  const isOwner = currentUser?.id === boardOwnerId
+
+  const handleCopyLink = () => {
+    if (boardShareLink) {
+      const fullUrl = `${window.location.origin}/boards/shared/${boardShareLink}`
+      navigator.clipboard.writeText(fullUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Invite:', { email, role })
-    setEmail('')
+    if (!emailOrUsername.trim()) return
+
+    addCollaborator(
+      { boardId, emailOrUsername: emailOrUsername.trim() },
+      {
+        onSuccess: () => {
+          setEmailOrUsername('')
+        },
+        onError: (error: any) => {
+          alert(error.response?.data?.message || 'Failed to add collaborator')
+        },
+      }
+    )
   }
 
-  const handleRemove = (collaboratorId: string, collaboratorName: string) => {
-    if (confirm(`Remove ${collaboratorName} from this board?`)) {
-      console.log('Remove collaborator:', collaboratorId)
-    }
+  const handleRemove = (userId: string, userName: string) => {
+    setConfirmAction({ type: 'remove', userId, userName })
   }
 
-  const handleChangeRole = (collaboratorId: string, newRole: 'viewer' | 'editor' | 'admin') => {
-    console.log('Change role:', { collaboratorId, newRole })
+  const handleLeave = () => {
+    setConfirmAction({ type: 'leave', userId: currentUser!.id, userName: 'yourself' })
   }
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'admin': return <Crown className="w-3.5 h-3.5 text-[#EE2B24]" />
-      case 'editor': return <Edit className="w-3.5 h-3.5 text-[#888]" />
-      case 'viewer': return <Eye className="w-3.5 h-3.5 text-[#888]" />
-      default: return null
-    }
+  const executeConfirmAction = () => {
+    if (!confirmAction) return
+
+    removeCollaborator({ boardId, userId: confirmAction.userId }, {
+      onSuccess: () => {
+        if (confirmAction.type === 'leave') {
+          onClose()
+          window.location.href = '/boards'
+        }
+      },
+    })
+
+    setConfirmAction(null)
   }
 
   return (
@@ -118,58 +111,86 @@ export function ManageCollaboratorsModal({ boardName, collaborators = MOCK_COLLA
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 flex flex-col gap-5">
-            {/* Invite form */}
-            <form onSubmit={handleInvite} className="p-4 bg-[#F8F8F8] rounded-xl">
-              <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-2"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                <UserPlus className="w-3.5 h-3.5 inline mr-1" />
-                Invite People
-              </label>
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="colleague@example.com"
-                  className="flex-1 h-[40px] px-3 border border-[#D0D0D0] rounded-lg text-[13px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white"
-                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
-                />
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as 'viewer' | 'editor')}
-                  className="h-[40px] px-3 border border-[#D0D0D0] rounded-lg text-[13px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white"
+            {/* Copy link button - show if board is shared */}
+            {boardShareLink && (
+              <div className="p-4 bg-[#F8F8F8] rounded-xl">
+                <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-2"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  <option value="editor">Can edit</option>
-                  <option value="viewer">Can view</option>
-                </select>
+                  <Link2 className="w-3.5 h-3.5 inline mr-1" />
+                  Share Link
+                </label>
+                <button
+                  onClick={handleCopyLink}
+                  className="w-full h-[40px] bg-white border border-[#D0D0D0] rounded-lg text-[13px] font-medium text-[#111] hover:bg-[#F5F5F7] transition-colors flex items-center justify-center gap-2"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4 text-green-600" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Link2 className="w-4 h-4" />
+                      Copy share link
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                type="submit"
-                disabled={!email.trim()}
-                className="w-full h-[36px] bg-[#EE2B24] text-white text-[13px] font-semibold rounded-lg hover:bg-[#d42520] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                <Mail className="w-4 h-4" />
-                Send Invite
-              </button>
-            </form>
+            )}
+
+            {/* Invite form - only show if user is owner */}
+            {isOwner && (
+              <form onSubmit={handleInvite} className="p-4 bg-[#F8F8F8] rounded-xl">
+                <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-2"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  <UserPlus className="w-3.5 h-3.5 inline mr-1" />
+                  Invite People
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={emailOrUsername}
+                    onChange={(e) => setEmailOrUsername(e.target.value)}
+                    placeholder="email@example.com or username"
+                    disabled={isAdding}
+                    className="flex-1 h-[40px] px-3 border border-[#D0D0D0] rounded-lg text-[13px] text-[#111] outline-none focus:border-[#111] transition-colors bg-white disabled:opacity-50"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={!emailOrUsername.trim() || isAdding}
+                  className="w-full h-[36px] bg-[#EE2B24] text-white text-[13px] font-semibold rounded-lg hover:bg-[#d42520] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  <Mail className="w-4 h-4" />
+                  {isAdding ? 'Adding...' : 'Add Collaborator'}
+                </button>
+              </form>
+            )}
 
             {/* Collaborators list */}
             <div>
               <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-3"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                Collaborators ({collaborators.length})
+                People with access ({1 + collaborators.length})
               </label>
-              <div className="flex flex-col gap-2">
-                {collaborators.map((collaborator) => (
-                  <div key={collaborator.userId} className="flex items-center gap-3 p-3 bg-white border border-[#F0F0F0] rounded-xl hover:border-[#D0D0D0] transition-colors">
+              
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="inline-block w-6 h-6 border-2 border-[#EE2B24] border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {/* Board Owner */}
+                  <div className="flex items-center gap-3 p-3 bg-[#FFF9F8] border border-[#FFE5E0] rounded-xl">
                     {/* Avatar */}
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-[#E8E8E8] shrink-0">
-                      {collaborator.user.avatar ? (
-                        <img src={collaborator.user.avatar} alt={collaborator.user.name} className="w-full h-full object-cover" />
+                      {boardOwnerAvatar ? (
+                        <img src={boardOwnerAvatar} alt={boardOwnerName || 'Owner'} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full bg-[#EE2B24] flex items-center justify-center">
                           <span className="text-white text-[14px] font-bold">
-                            {collaborator.user.name.split(' ').map(n => n[0]).join('')}
+                            {(boardOwnerName || 'O').split(' ').map((n: string) => n[0]).join('')}
                           </span>
                         </div>
                       )}
@@ -179,65 +200,128 @@ export function ManageCollaboratorsModal({ boardName, collaborators = MOCK_COLLA
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-semibold text-[#111] truncate"
                         style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        {collaborator.user.name}
+                        {boardOwnerName || 'Board Owner'}
+                        {currentUser?.id === boardOwnerId && (
+                          <span className="text-[#888] font-normal"> (You)</span>
+                        )}
                       </p>
                       <p className="text-[11.5px] text-[#888] truncate"
                         style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        {collaborator.user.email}
+                        {boardOwnerUsername ? `@${boardOwnerUsername}` : 'Owner'}
                       </p>
                     </div>
 
-                    {/* Role selector */}
-                    <select
-                      value={collaborator.role}
-                      onChange={(e) => handleChangeRole(collaborator.userId, e.target.value as any)}
-                      disabled={collaborator.role === 'admin'}
-                      className="h-[32px] px-2 pr-7 border border-[#D0D0D0] rounded-lg text-[12px] text-[#111] outline-none focus:border-[#111] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    {/* Owner badge */}
+                    <div className="flex items-center gap-1 px-2 py-1 bg-[#EE2B24] rounded text-[11px] font-medium text-white"
                       style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      <option value="admin">Admin</option>
-                      <option value="editor">Editor</option>
-                      <option value="viewer">Viewer</option>
-                    </select>
-
-                    {/* Remove button */}
-                    {collaborator.role !== 'admin' && (
-                      <button
-                        onClick={() => handleRemove(collaborator.userId, collaborator.user.name)}
-                        className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center transition-colors"
-                        title="Remove">
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </button>
-                    )}
+                      <Crown className="w-3 h-3" />
+                      Owner
+                    </div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Collaborators */}
+                  {collaborators.length === 0 ? (
+                    <div className="text-center py-6">
+                      <Users className="w-10 h-10 text-[#BBBBBB] mx-auto mb-2" />
+                      <p className="text-[12px] text-[#888]"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        No collaborators yet
+                      </p>
+                    </div>
+                  ) : (
+                    collaborators.map((collaborator: any) => (
+                      <div key={collaborator.userId} className="flex items-center gap-3 p-3 bg-white border border-[#F0F0F0] rounded-xl hover:border-[#D0D0D0] transition-colors">
+                        {/* Avatar */}
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#E8E8E8] shrink-0">
+                          {collaborator.avatar ? (
+                            <img src={collaborator.avatar} alt={collaborator.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-[#EE2B24] flex items-center justify-center">
+                              <span className="text-white text-[14px] font-bold">
+                                {collaborator.name.split(' ').map((n: string) => n[0]).join('')}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-semibold text-[#111] truncate"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                            {collaborator.name}
+                            {currentUser?.id === collaborator.userId && (
+                              <span className="text-[#888] font-normal"> (You)</span>
+                            )}
+                          </p>
+                          <p className="text-[11.5px] text-[#888] truncate"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                            @{collaborator.username}
+                          </p>
+                        </div>
+
+                        {/* Role badge */}
+                        <div className="px-2 py-1 bg-[#F0F0F0] rounded text-[11px] font-medium text-[#666]"
+                          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                          Can edit
+                        </div>
+
+                        {/* Remove button - only show if current user is owner */}
+                        {isOwner && (
+                          <button
+                            onClick={() => handleRemove(collaborator.userId, collaborator.name)}
+                            disabled={isRemoving}
+                            className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center transition-colors disabled:opacity-50"
+                            title="Remove">
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Role descriptions */}
+            {/* Info */}
             <div className="p-4 bg-[#F8F8F8] rounded-xl">
-              <p className="text-[11px] font-bold text-[#444] uppercase tracking-[0.5px] mb-2"
+              <p className="text-[12px] text-[#666] leading-relaxed"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                Permissions
+                💡 Collaborators can add and remove assets from this board. The board will appear in their boards list.
               </p>
-              <div className="flex flex-col gap-1.5 text-[11.5px] text-[#666]"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                <div className="flex items-start gap-2">
-                  <Crown className="w-3.5 h-3.5 text-[#EE2B24] shrink-0 mt-0.5" />
-                  <span><strong>Admin:</strong> Full access, can manage collaborators</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Edit className="w-3.5 h-3.5 text-[#888] shrink-0 mt-0.5" />
-                  <span><strong>Editor:</strong> Can add and remove assets</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Eye className="w-3.5 h-3.5 text-[#888] shrink-0 mt-0.5" />
-                  <span><strong>Viewer:</strong> Can only view assets</span>
-                </div>
-              </div>
             </div>
+
+            {/* Leave board button - only for collaborators (not owner) */}
+            {!isOwner && (
+              <button
+                onClick={handleLeave}
+                disabled={isRemoving}
+                className="w-full h-[40px] border border-red-200 text-red-600 text-[13px] font-semibold rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                <Trash2 className="w-4 h-4" />
+                Leave board
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Confirm Modal */}
+        {confirmAction && (
+          <ConfirmModal
+            title={confirmAction.type === 'remove' ? 'Remove Collaborator' : 'Leave Board'}
+            message={
+              confirmAction.type === 'remove'
+                ? `Remove ${confirmAction.userName} from this board?`
+                : 'Leave this board? You will lose access to it.'
+            }
+            confirmText={confirmAction.type === 'remove' ? 'Remove' : 'Leave'}
+            variant="danger"
+            onConfirm={executeConfirmAction}
+            onCancel={() => setConfirmAction(null)}
+          />
+        )}
       </div>
     </div>
   )
 }
+
+

@@ -12,11 +12,11 @@ export interface Asset {
   id: string
   title: string
   description?: string
-  slug: string
+  slug: string  // Now provided by backend
 
   // Media URLs
-  src: string
-  alt: string
+  src: string  // Backend provides this
+  alt: string  // Now provided by backend
   thumbnailUrl: string
   previewUrl: string
   watermarkedUrl: string
@@ -25,18 +25,24 @@ export interface Asset {
   // Metadata
   fileType: AssetFileType
   mimeType: string
-  fileSize: string
-  dimensions: string
+  fileSize: string  // Backend formats this
+  dimensions: string  // Backend formats this
+  width: number  // NEW - Separate field
+  height: number  // NEW - Separate field
   aspectRatio?: number
-  resolution?: AssetResolution
+  resolution?: AssetResolution  // Now provided by backend
+  orientation?: 'landscape' | 'portrait' | 'square' | 'panoramic'  // NEW
   duration?: number
   fps?: number
-  dateAdded: string
+  uploadedAt: string  // RENAMED from dateAdded
 
   // Classification
-  category: string
-  tags: string[]
+  category: string  // Backend flattens this
+  tags: string[]  // Backend flattens this
   colors?: string[]
+  hasPeople?: boolean  // NEW
+  location?: string  // NEW
+  assetCountry?: string  // NEW
 
   // Licensing
   license: LicenseType
@@ -47,26 +53,26 @@ export interface Asset {
   propertyRelease?: boolean
 
   // Pricing
-  prices: AssetPrices
+  prices: AssetPrices  // Backend nests this
 
   // Contributor
-  contributor: string
+  contributor: string  // Backend flattens this
   contributorId: string
   contributorAvatar?: string
   contributorCountry?: string
   contributorAssets?: number
   contributorDownloads?: string
+  contributorCollections?: number
 
   // Stats
-  stats: AssetStats
+  stats: AssetStats  // Backend nests this
 
   // Status
   status: AssetStatus
   rejectionReason?: string
 
   // Timestamps
-  uploadedAt: string
-  publishedAt?: string
+  approvedAt?: string  // RENAMED from publishedAt
   updatedAt: string
 }
 

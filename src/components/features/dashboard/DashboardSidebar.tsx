@@ -46,7 +46,7 @@ export function DashboardSidebar({ user, mobileOpen, onMobileClose, onOpenContri
   const router = useRouter()
   const logout = useAuthStore((state) => state.logout)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-  const isContributor = user.role === 'contributor' && user.isContributorApproved
+  const isContributor = user.role === 'contributor' && user.isContributor
 
   const handleLogout = () => {
     logout()

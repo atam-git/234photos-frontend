@@ -48,6 +48,9 @@ lerna-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Generated types (regenerate with npm run generate:types)
+src/types/generated/api.ts
+
 # IDE
 .vscode/*
 !.vscode/settings.json

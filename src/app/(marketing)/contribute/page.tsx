@@ -14,7 +14,7 @@ export default function ContributePage() {
   const [showContributorModal, setShowContributorModal] = useState(false)
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const user = useAuthStore((state) => state.user)
-  const isContributor = user?.role === 'contributor' && user?.isContributorApproved
+  const isContributor = user?.role === 'contributor' && user?.isContributor
 
   const handleStartContributing = () => {
     if (!isLoggedIn) {

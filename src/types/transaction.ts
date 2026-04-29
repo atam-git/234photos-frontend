@@ -10,9 +10,10 @@ export interface Download {
   size: string
   creditsCost: number
   downloadUrl: string
-  downloadedAt: string
+  downloadedAt: string  // Backend provides this
   expiresAt?: string
   licenseUrl?: string
+  status?: 'active' | 'expired' | 'revoked'  // NEW
 }
 
 export interface Transaction {
@@ -73,9 +74,9 @@ export interface Earning {
   assetId: string
   asset?: Asset
   downloadId: string
-  amount: number
+  amount: number  // Backend converts to NGN
   currency: string
-  status: 'pending' | 'available' | 'paid'
+  status: 'pending' | 'available' | 'paid' | 'refunded'  // Added 'refunded'
   earnedAt: string
   availableAt?: string
   paidAt?: string

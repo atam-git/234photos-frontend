@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { X, ChevronLeft, ChevronRight, Download, Plus, Heart, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
@@ -26,8 +26,9 @@ export function QuickPreviewModal({
   const [currentIndex, setCurrentIndex] = useState(assets.findIndex((a) => a.id === initialAsset.id))
   const [liked, setLiked] = useState(false)
   const asset = assets[currentIndex] ?? initialAsset
-  const avatar = getContributorAvatar(asset.contributor)
-  const username = getContributorUsername(asset.contributor)
+  const contributorName = asset.contributor
+  const avatar = asset.contributorAvatar || getContributorAvatar(contributorName)
+  const username = getContributorUsername(contributorName)
 
   const goPrev = () => setCurrentIndex((i) => Math.max(0, i - 1))
   const goNext = () => setCurrentIndex((i) => Math.min(assets.length - 1, i + 1))
@@ -121,7 +122,7 @@ export function QuickPreviewModal({
                   <img src={avatar} alt={asset.contributor} className="w-full h-full object-cover" />
                 ) : (
                   <span className="w-full h-full flex items-center justify-center text-white text-[9px] font-bold">
-                    {asset.contributor[0]}
+                    {asset.contributor[0] || '?'}
                   </span>
                 )}
               </div>
@@ -162,7 +163,7 @@ export function QuickPreviewModal({
             </div>
             <div className="flex justify-between text-[12.5px]">
               <span className="text-[#888]" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Date added</span>
-              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{asset.dateAdded ? new Date(asset.dateAdded).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Apr 15, 2026'}</span>
+              <span className="text-[#111] font-semibold" style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{asset.uploadedAt ? new Date(asset.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Apr 15, 2026'}</span>
             </div>
           </div>
 

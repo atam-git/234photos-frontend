@@ -3,18 +3,28 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuthStore } from '@/stores/authStore'
+import { useMe } from '@/hooks/useMe'
 import { DeleteAccountModal } from '@/components/shared/Modals/DeleteAccountModal'
 import { UploadAvatarModal } from '@/components/shared/Modals/UploadAvatarModal'
 
 export default function AccountPage() {
-  const user = useAuthStore((state) => state.user)
-  const [name, setName] = useState(user?.name || '')
-  const [email, setEmail] = useState(user?.email || '')
+  const authUser = useAuthStore((state) => state.user)
+  const { data: user, isLoading, error } = useMe()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [saved, setSaved] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showAvatarModal, setShowAvatarModal] = useState(false)
 
-  if (!user) {
+  // Update form fields when user data loads
+  useState(() => {
+    if (user) {
+      setName(user.name)
+      setEmail(user.email)
+    }
+  })
+
+  if (isLoading || !user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
@@ -25,8 +35,22 @@ export default function AccountPage() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 text-4xl text-red-500">⚠️</div>
+          <p className="text-[#666]">Failed to load profile</p>
+          <p className="text-[13px] text-red-500 mt-2">{error.message}</p>
+        </div>
+      </div>
+    )
+  }
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
+    // TODO: Implement API call to update profile
+    console.log('Saving profile:', { name, email })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -123,7 +147,7 @@ export default function AccountPage() {
                 className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#111] transition-colors" />
             </div>
           </div>
-          {user.role === 'contributor' && user.isContributorApproved && (
+          {user.role === 'contributor' && user.isContributor && (
             <>
               <div>
                 <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"

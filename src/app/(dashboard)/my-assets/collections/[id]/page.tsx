@@ -18,7 +18,7 @@ export default function CollectionDetailPage() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [collection, setCollection] = useState(MOCK_COLLECTION_DETAIL)
   const [selectedAsset, setSelectedAsset] = useState<typeof MOCK_COLLECTION_DETAIL.assets[0] | null>(null)
-  const isContributor = user?.role === 'contributor' && user?.isContributorApproved
+  const isContributor = user?.role === 'contributor' && user?.isContributor
 
   useEffect(() => {
     if (!isContributor) {

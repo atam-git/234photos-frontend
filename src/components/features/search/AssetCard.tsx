@@ -10,20 +10,29 @@ export type { Asset }
 
 interface AssetCardProps {
   asset: Asset
+  isLiked?: boolean
   onClick?: (asset: Asset) => void
   onDownload?: (asset: Asset) => void
   onSaveToBoard?: (asset: Asset) => void
   onLike?: (asset: Asset) => void
 }
 
-export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }: AssetCardProps) {
-  const [liked, setLiked] = useState(false)
-  const avatar = getContributorAvatar(asset.contributor)
-  const username = getContributorUsername(asset.contributor)
+export function AssetCard({ asset, isLiked = false, onClick, onDownload, onSaveToBoard, onLike }: AssetCardProps) {
+  const [loaded, setLoaded] = useState(false)
+  const contributorName = asset.contributor
+  const avatar = asset.contributorAvatar || getContributorAvatar(contributorName)
+  const username = getContributorUsername(contributorName)
+
+  // Reserve exact box BEFORE the image arrives → no layout shift (Unsplash/Shutterstock pattern)
+  const aspectRatio =
+    asset.aspectRatio ||
+    (asset.width && asset.height ? asset.width / asset.height : 1)
+
+  // Use dominant color as placeholder if backend provides one; falls back to grey
+  const placeholderColor = asset.colors?.[0] || '#E8E8E8'
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setLiked(!liked)
     onLike?.(asset)
   }
 
@@ -39,16 +48,35 @@ export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }:
 
   return (
     <div
-      className="relative group cursor-pointer rounded-xl overflow-hidden bg-[#E8E8E8] break-inside-avoid mb-[10px]"
+      className="relative group cursor-pointer rounded-xl overflow-hidden break-inside-avoid mb-[10px]"
       onClick={() => onClick?.(asset)}
     >
-      {/* Image */}
-      <img
-        src={asset.src}
-        alt={asset.alt}
-        className="w-full h-auto block transition-transform duration-300 group-hover:scale-[1.03]"
-        loading="lazy"
-      />
+      {/* Aspect-ratio placeholder reserves space + shows dominant color while loading */}
+      <div
+        className="relative w-full overflow-hidden"
+        style={{
+          aspectRatio: String(aspectRatio),
+          backgroundColor: placeholderColor,
+        }}
+      >
+        {/* Subtle shimmer while waiting for the image */}
+        {!loaded && (
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.6s_infinite] [background-size:200%_100%]" />
+        )}
+
+        <img
+          src={asset.src}
+          alt={asset.alt}
+          width={asset.width}
+          height={asset.height}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          className={`w-full h-full object-cover block transition-all duration-500 group-hover:scale-[1.03] ${
+            loaded ? 'opacity-100 blur-0' : 'opacity-0 blur-md'
+          }`}
+        />
+      </div>
 
       {/* Top-left badges */}
       <div className="absolute top-2 left-2 flex gap-1">
@@ -93,10 +121,10 @@ export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }:
       >
         <div className="w-5 h-5 rounded-full overflow-hidden bg-[#EE2B24] shrink-0 ring-1 ring-white/50">
           {avatar ? (
-            <img src={avatar} alt={asset.contributor} className="w-full h-full object-cover" />
+            <img src={avatar} alt={contributorName} className="w-full h-full object-cover" />
           ) : (
             <span className="w-full h-full flex items-center justify-center text-white text-[8px] font-bold">
-              {asset.contributor[0]}
+              {contributorName[0]}
             </span>
           )}
         </div>
@@ -104,7 +132,7 @@ export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }:
           className="text-white text-[11px] font-semibold drop-shadow hover:underline"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
         >
-          {asset.contributor}
+          {contributorName}
         </span>
       </a>
 
@@ -113,7 +141,7 @@ export function AssetCard({ asset, onClick, onDownload, onSaveToBoard, onLike }:
         <button onClick={handleLike}
           className="w-7 h-7 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow transition-colors"
           aria-label="Save to favourites">
-          <Heart className={`w-3.5 h-3.5 transition-colors ${liked ? 'fill-[#EE2B24] text-[#EE2B24]' : 'text-[#444]'}`} />
+          <Heart className={`w-3.5 h-3.5 transition-colors ${isLiked ? 'fill-[#EE2B24] text-[#EE2B24]' : 'text-[#444]'}`} />
         </button>
         <button onClick={handleBoard}
           className="w-7 h-7 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow transition-colors"

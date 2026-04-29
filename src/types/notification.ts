@@ -10,12 +10,11 @@ export interface Notification {
   emoji?: string
   iconBg?: string
   iconColor?: string
-  actionUrl?: string
+  actionUrl?: string  // Now provided by backend
   link?: string
   metadata?: Record<string, any>
   isRead: boolean
-  time: string
-  createdAt: string
+  createdAt: string  // Removed duplicate 'time' field
 }
 
 export interface NotificationPreferences {

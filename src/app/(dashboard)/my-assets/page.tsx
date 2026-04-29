@@ -20,7 +20,7 @@ export default function MyAssetsPage() {
   const [selectedAssets, setSelectedAssets] = useState<string[]>([])
   const [showCreateCollection, setShowCreateCollection] = useState(false)
   const [selectedAssetForStats, setSelectedAssetForStats] = useState<typeof MY_ASSETS_WITH_STATS[0] | null>(null)
-  const isContributor = user?.role === 'contributor' && user?.isContributorApproved
+  const isContributor = user?.role === 'contributor' && user?.isContributor
 
   useEffect(() => {
     if (!isContributor) {

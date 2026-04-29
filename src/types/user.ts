@@ -8,10 +8,29 @@ export interface User {
   avatar?: string
   role: UserRole
   country?: string
-  countryFlag?: string
+  countryFlag?: string  // Now provided by backend
   credits: number
-  joinedYear: number
-  isContributorApproved: boolean
+  joinedYear: number  // Now provided by backend
+  isContributor: boolean  // RENAMED from isContributor
+  emailVerified: boolean  // NEW - Added for contributor flow
+  contributorTier?: 'bronze' | 'silver' | 'gold' | 'platinum'  // NEW - Normalized to lowercase
+  // Profile fields (from UserProfileResponseDto)
+  bio?: string
+  location?: string
+  website?: string
+  instagram?: string
+  twitter?: string
+  facebook?: string
+  phone?: string
+  timezone?: string
+  language?: string
+  // Contributor stats
+  totalEarnings?: number
+  totalDownloads?: number
+  totalUploads?: number
+  totalAssets?: number  // Alias for totalUploads
+  specialties?: string[]
+  portfolioUrl?: string
   createdAt: string
   updatedAt: string
 }

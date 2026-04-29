@@ -16,18 +16,22 @@ import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
 import type { Asset, ModalState, ActiveFilters } from '@/types'
-import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
-import { COLLECTION_META } from '@/lib/mock'
 import { useAuthStore } from '@/stores/authStore'
+import { useQuery } from '@tanstack/react-query'
+import { api } from '@/lib/api/client'
 
 export default function CollectionPage() {
   const { slug } = useParams<{ slug: string }>()
-  const meta = COLLECTION_META[slug] ?? { 
-    title: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), 
-    desc: 'Curated African content.', 
-    cover: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=1400&q=80' 
-  }
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+
+  // Fetch collection data from API
+  const { data: collection, isLoading, error } = useQuery({
+    queryKey: ['collections', slug],
+    queryFn: async () => {
+      return api.get<any>(`/collections/${slug}`)
+    },
+    enabled: !!slug,
+  })
 
   const [filters, setFilters] = useState<ActiveFilters>({})
   const [sort, setSort] = useState('relevance')
@@ -41,12 +45,39 @@ export default function CollectionPage() {
   const closeModal = () => setModal({ type: 'none' })
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
-  const results = MOCK_ASSETS.filter((a) => {
-    if (filters.price === 'free' && !a.isFree) return false
-    if (filters.aiContent === 'ai' && !a.isAI) return false
-    if (filters.aiContent === 'human' && a.isAI) return false
-    return true
-  })
+  const results = collection?.assets || []
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-white">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4 text-4xl">⏳</div>
+            <p className="text-[#666]">Loading collection...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  // Error state
+  if (error || !collection) {
+    return (
+      <div className="min-h-screen flex flex-col bg-white">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4 text-4xl text-red-500">⚠️</div>
+            <p className="text-[#666]">Collection not found</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -54,18 +85,22 @@ export default function CollectionPage() {
 
       {/* Collection hero banner */}
       <div className="relative h-[220px] md:h-[280px] overflow-hidden">
-        <img src={meta.cover} alt={meta.title} className="w-full h-full object-cover" />
+        <img 
+          src={collection.coverImage || collection.thumbnails?.[0] || '/placeholder-collection.jpg'} 
+          alt={collection.name} 
+          className="w-full h-full object-cover" 
+        />
         <div className="absolute inset-0 bg-black/55" />
         <div className="absolute inset-0 flex flex-col justify-end px-4 md:px-6 pb-8">
           <div className="max-w-[1280px] mx-auto w-full">
-            <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Collections', href: '/collections' }, { label: meta.title }]} />
+            <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Collections', href: '/collections' }, { label: collection.name }]} />
             <h1 className="text-white text-[28px] md:text-[36px] font-extrabold mt-2 mb-1 tracking-[-0.5px]"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              {meta.title}
+              {collection.name}
             </h1>
             <p className="text-white/75 text-[14px]"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              {meta.desc} · <span className="font-semibold">{results.length} assets</span>
+              {collection.description} · <span className="font-semibold">{collection.assetCount} assets</span>
             </p>
           </div>
         </div>

@@ -11,7 +11,7 @@ import type { UploadStep, UploadFile } from '@/types'
 export default function UploadPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
-  const isContributor = user?.role === 'contributor' && user?.isContributorApproved
+  const isContributor = user?.role === 'contributor' && user?.isContributor
   const [step, setStep] = useState<UploadStep>('drop')
   const [files, setFiles] = useState<UploadFile[]>([])
   const [dragging, setDragging] = useState(false)
