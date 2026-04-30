@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Performance Test</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f9f9f9;
+      border-left: 4px solid #4CAF50;
+    }
+    .test-section.error {
+      border-left-color: #f44336;
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .metric:last-child {
+      border-bottom: none;
+    }
+    .metric-label {
+      font-weight: bold;
+      color: #666;
+    }
+    .metric-value {
+      color: #333;
+    }
+    .metric-value.good {
+      color: #4CAF50;
+    }
+    .metric-value.warning {
+      color: #ff9800;
+    }
+    .metric-value.bad {
+      color: #f44336;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4CAF50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Search Performance Test</h1>
+    
+    <div>
+      <button onclick="runAllTests()" id="runBtn">Run All Tests</button>
+      <button onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div id="results"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3001/api/v1';
+    
+    const testQueries = [
+      { name: 'Empty query (50 results)', params: { limit: 50 } },
+      { name: 'Simple search: "lagos"', params: { q: 'lagos', limit: 50 } },
+      { name: 'Search with filters', params: { q: 'beach', orientation: 'landscape', limit: 50 } },
+      { name: 'Category filter', params: { category: 'nature', limit: 50 } },
+      { name: 'Large result set (100)', params: { limit: 100 } },
+    ];
+
+    function getPerformanceClass(ms, thresholds = { good: 200, warning: 500 }) {
+      if (ms < thresholds.good) return 'good';
+      if (ms < thresholds.warning) return 'warning';
+      return 'bad';
+    }
+
+    async function testSearch(query) {
+      const startTime = performance.now();
+      const networkStart = performance.now();
+      
+      try {
+        const params = new URLSearchParams(query.params);
+        const response = await fetch(`${API_BASE}/search?${params.toString()}`);
+        const networkEnd = performance.now();
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const parseStart = performance.now();
+        const data = await response.json();
+        const parseEnd = performance.now();
+        
+        const endTime = performance.now();
+        
+        return {
+          success: true,
+          totalTime: endTime - startTime,
+          networkTime: networkEnd - networkStart,
+          parseTime: parseEnd - parseStart,
+          results: data.total || 0,
+          hits: data.hits?.length || 0,
+          processingTimeMs: data.processingTimeMs || 0,
+          data: data,
+        };
+      } catch (error) {
+        const endTime = performance.now();
+        return {
+          success: false,
+          totalTime: endTime - startTime,
+          error: error.message,
+        };
+      }
+    }
+
+    async function runAllTests() {
+      const resultsDiv = document.getElementById('results');
+      const runBtn = document.getElementById('runBtn');
+      
+      runBtn.disabled = true;
+      runBtn.innerHTML = 'Running Tests <span class="loading"></span>';
+      resultsDiv.innerHTML = '';
+      
+      const allResults = [];
+      
+      for (const query of testQueries) {
+        const section = document.createElement('div');
+        section.className = 'test-section';
+        section.innerHTML = `<h3>${query.name}</h3><p>Testing...</p>`;
+        resultsDiv.appendChild(section);
+        
+        // Run test twice to measure cache
+        const firstRun = await testSearch(query);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const secondRun = await testSearch(query);
+        
+        allResults.push({ query: query.name, firstRun, secondRun });
+        
+        if (firstRun.success) {
+          section.className = 'test-section';
+          section.innerHTML = `
+            <h3>${query.name}</h3>
+            <div class="metric">
+              <span class="metric-label">Total Time (1st run):</span>
+              <span class="metric-value ${getPerformanceClass(firstRun.totalTime)}">${firstRun.totalTime.toFixed(0)}ms</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Network Time:</span>
+              <span class="metric-value">${firstRun.networkTime.toFixed(0)}ms</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Parse Time:</span>
+              <span class="metric-value">${firstRun.parseTime.toFixed(0)}ms</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Backend Processing:</span>
+              <span class="metric-value">${firstRun.processingTimeMs}ms</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Time (2nd run):</span>
+              <span class="metric-value ${getPerformanceClass(secondRun.totalTime)}">${secondRun.totalTime.toFixed(0)}ms</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Results:</span>
+              <span class="metric-value">${firstRun.results} total, ${firstRun.hits} returned</span>
+            </div>
+          `;
+        } else {
+          section.className = 'test-section error';
+          section.innerHTML = `
+            <h3>${query.name}</h3>
+            <p style="color: #f44336;">❌ Error: ${firstRun.error}</p>
+          `;
+        }
+      }
+      
+      // Summary
+      const successfulTests = allResults.filter(r => r.firstRun.success);
+      if (successfulTests.length > 0) {
+        const avgTotal = successfulTests.reduce((sum, r) => sum + r.firstRun.totalTime, 0) / successfulTests.length;
+        const avgNetwork = successfulTests.reduce((sum, r) => sum + r.firstRun.networkTime, 0) / successfulTests.length;
+        const avgParse = successfulTests.reduce((sum, r) => sum + r.firstRun.parseTime, 0) / successfulTests.length;
+        const avgBackend = successfulTests.reduce((sum, r) => sum + r.firstRun.processingTimeMs, 0) / successfulTests.length;
+        
+        const summarySection = document.createElement('div');
+        summarySection.className = 'test-section';
+        summarySection.style.borderLeftColor = '#2196F3';
+        summarySection.innerHTML = `
+          <h3>📊 Performance Summary</h3>
+          <div class="metric">
+            <span class="metric-label">Average Total Time:</span>
+            <span class="metric-value ${getPerformanceClass(avgTotal)}">${avgTotal.toFixed(0)}ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Average Network Time:</span>
+            <span class="metric-value">${avgNetwork.toFixed(0)}ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Average Parse Time:</span>
+            <span class="metric-value">${avgParse.toFixed(0)}ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Average Backend Processing:</span>
+            <span class="metric-value">${avgBackend.toFixed(0)}ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Frontend Overhead:</span>
+            <span class="metric-value">${(avgTotal - avgBackend).toFixed(0)}ms</span>
+          </div>
+          <h4 style="margin-top: 20px;">🔍 Analysis:</h4>
+          <pre>${generateAnalysis(avgTotal, avgNetwork, avgParse, avgBackend)}</pre>
+        `;
+        resultsDiv.appendChild(summarySection);
+      }
+      
+      runBtn.disabled = false;
+      runBtn.innerHTML = 'Run All Tests';
+    }
+
+    function generateAnalysis(avgTotal, avgNetwork, avgParse, avgBackend) {
+      let analysis = '';
+      
+      if (avgTotal > 1000) {
+        analysis += '⚠️  SLOW: Average response > 1s\n';
+      } else if (avgTotal > 500) {
+        analysis += '⚠️  MODERATE: Average response > 500ms\n';
+      } else {
+        analysis += '✅ GOOD: Average response < 500ms\n';
+      }
+      
+      analysis += '\nBreakdown:\n';
+      analysis += `- Backend processing: ${avgBackend.toFixed(0)}ms (${(avgBackend/avgTotal*100).toFixed(1)}%)\n`;
+      analysis += `- Network latency: ${avgNetwork.toFixed(0)}ms (${(avgNetwork/avgTotal*100).toFixed(1)}%)\n`;
+      analysis += `- JSON parsing: ${avgParse.toFixed(0)}ms (${(avgParse/avgTotal*100).toFixed(1)}%)\n`;
+      
+      const overhead = avgTotal - avgBackend;
+      analysis += `- Total overhead: ${overhead.toFixed(0)}ms (${(overhead/avgTotal*100).toFixed(1)}%)\n`;
+      
+      if (avgNetwork > 100) {
+        analysis += '\n⚠️  High network latency (> 100ms)\n';
+        analysis += '   - Check if backend is running locally\n';
+        analysis += '   - Check network conditions\n';
+      }
+      
+      if (avgParse > 50) {
+        analysis += '\n⚠️  Slow JSON parsing (> 50ms)\n';
+        analysis += '   - Response payload might be too large\n';
+        analysis += '   - Consider pagination or reducing data\n';
+      }
+      
+      return analysis;
+    }
+
+    function clearResults() {
+      document.getElementById('results').innerHTML = '';
+    }
+  </script>
+</body>
+</html>

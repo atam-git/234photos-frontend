@@ -7,12 +7,14 @@ import type { SearchFilters, ActiveFilters } from '@/types'
 export type { ActiveFilters }
 
 const FILTER_LABELS: Record<string, Record<string, string>> = {
-  type: { photos: 'Photos', videos: 'Videos', vectors: 'Vectors', illustrations: 'Illustrations' },
-  orientation: { horizontal: 'Horizontal', vertical: 'Vertical', square: 'Square' },
+  orientation: { landscape: 'Landscape', portrait: 'Portrait', square: 'Square', panoramic: 'Panoramic' },
   license: { standard: 'Standard', enhanced: 'Enhanced', editorial: 'Editorial' },
   price: { free: 'Free', paid: 'Paid', subscription: 'Subscription' },
   dateAdded: { '24h': 'Last 24h', week: 'Last week', month: 'Last month', year: 'Last year' },
   aiContent: { human: 'Human only', ai: 'AI only' },
+  hasPeople: { 'true': 'With people', 'false': 'Without people' },
+  modelRelease: { 'true': 'Has model release', 'false': 'No model release' },
+  propertyRelease: { 'true': 'Has property release', 'false': 'No property release' },
 }
 
 interface ActiveFilterChipsProps {

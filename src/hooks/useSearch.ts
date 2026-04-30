@@ -30,7 +30,8 @@ export function useSearch(params: SearchParams) {
         hits: toFrontendAssets(response.hits),
       }
     },
-    enabled: !!params.q || Object.keys(params).length > 1, // Enable if query exists or filters applied
+    // Always enable search - backend handles empty queries
+    enabled: true,
     staleTime: 2 * 60 * 1000, // 2 minutes
   })
 }

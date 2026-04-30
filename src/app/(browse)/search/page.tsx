@@ -34,14 +34,9 @@ function SearchPageInner() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
 
   const query = searchParams.get('q') ?? ''
-  const typeParam = searchParams.get('type') ?? ''
   const colorParam = searchParams.get('color') ?? ''
 
-  const [activeTab, setActiveTab] = useState(
-    typeParam ? typeParam.charAt(0).toUpperCase() + typeParam.slice(1) : 'Photos'
-  )
   const [filters, setFilters] = useState<ActiveFilters>({
-    type: typeParam || undefined,
     orientation: (searchParams.get('orientation') as 'landscape' | 'portrait' | 'square' | null) ?? undefined,
     license: searchParams.get('license') ?? undefined,
     price: searchParams.get('price') ?? undefined,
@@ -53,25 +48,54 @@ function SearchPageInner() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
 
-  // Build search params from filters
+  // Build search params from filters - only images supported
   const searchApiParams = {
     q: query || undefined,
     page: 1,
     limit: 50,
     sort: sort as any,
+    fileType: 'IMAGE' as const, // Only images supported for now
     orientation: filters.orientation,
     color: filters.color,
     license: filters.license?.toUpperCase() as any,
     isFree: filters.price === 'free' ? true : undefined,
     isAI: filters.aiContent === 'ai' ? true : filters.aiContent === 'human' ? false : undefined,
     isEditorial: filters.license === 'editorial' ? true : undefined,
+    hasPeople: filters.hasPeople === 'true' ? true : filters.hasPeople === 'false' ? false : undefined,
+    modelRelease: filters.modelRelease === 'true' ? true : filters.modelRelease === 'false' ? false : undefined,
+    propertyRelease: filters.propertyRelease === 'true' ? true : filters.propertyRelease === 'false' ? false : undefined,
+    uploadedAfter: filters.dateAdded ? getDateFromFilter(filters.dateAdded) : undefined,
+    category: filters.category,
+    minWidth: filters.minWidth,
+    minHeight: filters.minHeight,
+  }
+
+  // Helper to convert dateAdded filter to ISO date
+  function getDateFromFilter(filter: string): string | undefined {
+    const now = new Date()
+    switch (filter) {
+      case '24h':
+        return new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+      case 'week':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      case 'month':
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      case 'year':
+        return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString()
+      default:
+        return undefined
+    }
   }
 
   // Fetch search results from API
-  const { data: searchData, isLoading, error } = useSearch(searchApiParams)
+  const { data: searchData, isLoading, error, isFetching } = useSearch(searchApiParams)
   
   const results = searchData?.hits || []
   const total = searchData?.total || 0
+  
+  // Show results immediately if we have cached data, even while refetching
+  const showResults = results.length > 0
+  const showLoading = isLoading && !showResults
 
   const handleFilterChange = useCallback(
     (key: keyof ActiveFilters, value: string | undefined) => {
@@ -80,14 +104,6 @@ function SearchPageInner() {
   )
   const handleClearAll = useCallback(() => setFilters({}), [])
   const handleSortChange = useCallback((value: string) => setSort(value), [])
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab)
-    const params = new URLSearchParams(searchParams.toString())
-    if (tab === 'Photos') params.delete('type')
-    else params.set('type', tab.toLowerCase())
-    router.push(`/search?${params.toString()}`)
-  }
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
   const closeModal = () => setModal({ type: 'none' })
@@ -99,25 +115,7 @@ function SearchPageInner() {
         initialQuery={query}
       />
 
-      {/* Media type tabs */}
-      <div className="sticky top-[60px] z-30 bg-white border-b border-[#F0F0F0] px-4 md:px-6">
-        <div className="max-w-[1440px] mx-auto flex items-center gap-0.5 overflow-x-auto scrollbar-hide py-2">
-          {MEDIA_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => handleTabChange(tab)}
-              className={`px-3.5 py-[6px] rounded-lg text-[13px] whitespace-nowrap transition-colors ${
-                activeTab === tab
-                  ? 'bg-[#111] text-white font-semibold'
-                  : 'text-[#555] font-medium hover:text-[#111] hover:bg-[#F0F0F0]'
-              }`}
-              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Media type tabs removed - only images supported */}
 
       <main className="flex-1 max-w-[1440px] mx-auto w-full px-4 md:px-6 py-5">
 
@@ -160,12 +158,11 @@ function SearchPageInner() {
             onToggleCollapse={() => setSidebarCollapsed(true)}
           />
           <div className="flex-1 min-w-0">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="text-center">
-                  <div className="mb-4 text-4xl">⏳</div>
-                  <p className="text-[#666]">Searching...</p>
-                </div>
+            {showLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="aspect-[3/4] bg-gray-200 animate-pulse rounded-lg" />
+                ))}
               </div>
             ) : error ? (
               <div className="flex items-center justify-center py-16">
@@ -178,13 +175,20 @@ function SearchPageInner() {
             ) : results.length === 0 ? (
               <ZeroResultState query={query} />
             ) : (
-              <MasonryGrid
-                assets={results}
-                onAssetClick={(asset) => setModal({ type: 'preview', asset })}
-                onDownload={(asset) => setModal({ type: 'download', asset })}
-                onSaveToBoard={(asset) => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
-                onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
-              />
+              <>
+                <MasonryGrid
+                  assets={results}
+                  onAssetClick={(asset) => setModal({ type: 'preview', asset })}
+                  onDownload={(asset) => setModal({ type: 'download', asset })}
+                  onSaveToBoard={(asset) => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
+                  onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
+                />
+                {isFetching && (
+                  <div className="text-center py-4 text-sm text-gray-500">
+                    Updating results...
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

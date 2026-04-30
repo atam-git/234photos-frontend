@@ -15,53 +15,83 @@ import type { BackendAsset } from './assets'
  * Frontend just needs to map field names.
  */
 export function toFrontendAsset(backendAsset: BackendAsset): Asset {
+  // Search index hits use a flattened shape that omits some fields the
+  // /assets endpoint returns (src, alt, contributor, stats, prices, …).
+  // Coerce both shapes into the frontend Asset.
+  const raw = backendAsset as any
+
+  const src =
+    raw.src ||
+    raw.previewUrl ||
+    raw.watermarkedUrl ||
+    raw.thumbnailUrl ||
+    raw.originalUrl ||
+    ''
+
+  const alt = raw.alt || raw.title || raw.description || ''
+
+  const contributor = raw.contributor || raw.contributorName || ''
+
+  const stats = raw.stats ?? {
+    views: raw.views ?? 0,
+    downloads: raw.downloads ?? 0,
+    likes: raw.likes ?? 0,
+    earnings: raw.earnings ?? 0,
+  }
+
+  const prices = raw.prices ?? {
+    standard: raw.priceStandard ?? 0,
+    enhanced: raw.priceEnhanced ?? 0,
+    editorial: raw.priceEditorial ?? 0,
+  }
+
   return {
-    id: backendAsset.id,
-    title: backendAsset.title,
-    description: backendAsset.description,
-    slug: backendAsset.slug,
-    alt: backendAsset.alt,
-    src: backendAsset.src,
-    thumbnailUrl: backendAsset.thumbnailUrl,
-    previewUrl: backendAsset.previewUrl,
-    watermarkedUrl: backendAsset.watermarkedUrl,
-    originalUrl: backendAsset.originalUrl,
-    fileType: backendAsset.fileType as Asset['fileType'],
-    mimeType: backendAsset.mimeType,
-    fileSize: backendAsset.fileSize,
-    dimensions: backendAsset.dimensions,
-    width: backendAsset.width,
-    height: backendAsset.height,
-    aspectRatio: backendAsset.aspectRatio,
-    resolution: backendAsset.resolution as Asset['resolution'],
-    orientation: backendAsset.orientation as Asset['orientation'],
-    duration: backendAsset.duration,
-    fps: backendAsset.fps,
-    category: backendAsset.category,
-    tags: backendAsset.tags,
-    colors: backendAsset.colors,
-    contributor: backendAsset.contributor,
-    contributorId: backendAsset.contributorId,
-    contributorAvatar: backendAsset.contributorAvatar,
-    contributorCountry: backendAsset.contributorCountry,
-    contributorAssets: backendAsset.contributorAssets,
-    contributorDownloads: backendAsset.contributorDownloads,
-    license: backendAsset.license as Asset['license'],
-    isEditorial: backendAsset.isEditorial,
-    isAI: backendAsset.isAI,
-    isFree: backendAsset.isFree,
-    modelRelease: backendAsset.modelRelease,
-    propertyRelease: backendAsset.propertyRelease,
-    hasPeople: backendAsset.hasPeople,
-    location: backendAsset.location ?? undefined,
-    assetCountry: backendAsset.assetCountry ?? undefined,
-    prices: backendAsset.prices,
-    stats: backendAsset.stats,
-    status: backendAsset.status as Asset['status'],
-    rejectionReason: backendAsset.rejectionReason ?? undefined,
-    uploadedAt: backendAsset.uploadedAt,
-    approvedAt: backendAsset.approvedAt ?? undefined,
-    updatedAt: backendAsset.updatedAt,
+    id: raw.id,
+    title: raw.title,
+    description: raw.description,
+    slug: raw.slug,
+    alt,
+    src,
+    thumbnailUrl: raw.thumbnailUrl,
+    previewUrl: raw.previewUrl,
+    watermarkedUrl: raw.watermarkedUrl,
+    originalUrl: raw.originalUrl,
+    fileType: raw.fileType as Asset['fileType'],
+    mimeType: raw.mimeType,
+    fileSize: raw.fileSize,
+    dimensions: raw.dimensions,
+    width: raw.width,
+    height: raw.height,
+    aspectRatio: raw.aspectRatio,
+    resolution: raw.resolution as Asset['resolution'],
+    orientation: raw.orientation as Asset['orientation'],
+    duration: raw.duration,
+    fps: raw.fps,
+    category: raw.category,
+    tags: raw.tags,
+    colors: raw.colors,
+    contributor,
+    contributorId: raw.contributorId,
+    contributorAvatar: raw.contributorAvatar,
+    contributorCountry: raw.contributorCountry,
+    contributorAssets: raw.contributorAssets,
+    contributorDownloads: raw.contributorDownloads,
+    license: raw.license as Asset['license'],
+    isEditorial: raw.isEditorial,
+    isAI: raw.isAI,
+    isFree: raw.isFree,
+    modelRelease: raw.modelRelease,
+    propertyRelease: raw.propertyRelease,
+    hasPeople: raw.hasPeople,
+    location: raw.location ?? undefined,
+    assetCountry: raw.assetCountry ?? raw.country ?? undefined,
+    prices,
+    stats,
+    status: raw.status as Asset['status'],
+    rejectionReason: raw.rejectionReason ?? undefined,
+    uploadedAt: raw.uploadedAt,
+    approvedAt: raw.approvedAt ?? undefined,
+    updatedAt: raw.updatedAt,
   }
 }
 

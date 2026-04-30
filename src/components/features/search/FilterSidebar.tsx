@@ -113,21 +113,17 @@ export function FilterSidebar({ filters, onChange, collapsed, onToggleCollapse }
         </div>
 
         <FilterGroup title="Media Type">
-          {['photos', 'videos', 'vectors', 'illustrations'].map((v) => (
-            <FilterOption
-              key={v}
-              label={v.charAt(0).toUpperCase() + v.slice(1)}
-              active={filters.type === v}
-              onClick={() => toggle('type', v)}
-            />
-          ))}
+          <div className="text-[12px] text-[#666] px-2 py-1">
+            Only images are currently supported
+          </div>
         </FilterGroup>
 
         <FilterGroup title="Orientation">
           {[
-            { value: 'horizontal', label: 'Horizontal' },
-            { value: 'vertical', label: 'Vertical' },
+            { value: 'landscape', label: 'Landscape' },
+            { value: 'portrait', label: 'Portrait' },
             { value: 'square', label: 'Square' },
+            { value: 'panoramic', label: 'Panoramic' },
           ].map(({ value, label }) => (
             <FilterOption
               key={value}
@@ -194,6 +190,57 @@ export function FilterSidebar({ filters, onChange, collapsed, onToggleCollapse }
               label={label}
               active={filters.aiContent === value}
               onClick={() => toggle('aiContent', value)}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup title="People" defaultOpen={false}>
+          {[
+            { value: 'with', label: 'With people' },
+            { value: 'without', label: 'Without people' },
+          ].map(({ value, label }) => (
+            <FilterOption
+              key={value}
+              label={label}
+              active={filters.hasPeople === (value === 'with' ? 'true' : 'false')}
+              onClick={() => {
+                const newValue = value === 'with' ? 'true' : 'false'
+                onChange('hasPeople', filters.hasPeople === newValue ? undefined : newValue as any)
+              }}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup title="Model Release" defaultOpen={false}>
+          {[
+            { value: 'yes', label: 'Has model release' },
+            { value: 'no', label: 'No model release' },
+          ].map(({ value, label }) => (
+            <FilterOption
+              key={value}
+              label={label}
+              active={filters.modelRelease === (value === 'yes' ? 'true' : 'false')}
+              onClick={() => {
+                const newValue = value === 'yes' ? 'true' : 'false'
+                onChange('modelRelease', filters.modelRelease === newValue ? undefined : newValue as any)
+              }}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup title="Property Release" defaultOpen={false}>
+          {[
+            { value: 'yes', label: 'Has property release' },
+            { value: 'no', label: 'No property release' },
+          ].map(({ value, label }) => (
+            <FilterOption
+              key={value}
+              label={label}
+              active={filters.propertyRelease === (value === 'yes' ? 'true' : 'false')}
+              onClick={() => {
+                const newValue = value === 'yes' ? 'true' : 'false'
+                onChange('propertyRelease', filters.propertyRelease === newValue ? undefined : newValue as any)
+              }}
             />
           ))}
         </FilterGroup>

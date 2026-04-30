@@ -1,15 +1,22 @@
 export interface SearchFilters {
-  type?: string
-  orientation?: 'landscape' | 'portrait' | 'square'
+  // Removed: type (only images supported)
+  orientation?: 'landscape' | 'portrait' | 'square' | 'panoramic' // Added panoramic
   license?: string
   price?: string
   dateAdded?: string
   aiContent?: string
   color?: string
-  contributors?: string[]
+  
+  // New filters from backend (stored as strings for URL params, converted to boolean for API)
+  hasPeople?: string // 'true' | 'false'
+  modelRelease?: string // 'true' | 'false'
+  propertyRelease?: string // 'true' | 'false'
+  minWidth?: number
+  minHeight?: number
+  category?: string
+  
+  // Existing
   resolution?: string[]
-  modelRelease?: boolean
-  propertyRelease?: boolean
   sort?: string
   q?: string
   page?: number
