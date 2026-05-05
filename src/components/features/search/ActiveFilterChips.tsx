@@ -36,18 +36,23 @@ export function ActiveFilterChips({
     (k) => k !== 'sort' && filters[k]
   )
 
+  // Only show result count when filters are applied (not on default search with infinite scroll)
+  const hasActiveFilters = activeKeys.length > 0
+
   return (
     <div className="flex items-center gap-3 flex-wrap">
-      {/* Result count */}
-      <span
-        className="text-[#555] text-[13px] shrink-0"
-        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
-      >
-        <span className="text-[#111] font-semibold">{resultCount.toLocaleString()}</span> results
-        {query && (
-          <> for <span className="text-[#111] font-semibold">&ldquo;{query}&rdquo;</span></>
-        )}
-      </span>
+      {/* Result count - only show when filters are applied */}
+      {hasActiveFilters && (
+        <span
+          className="text-[#555] text-[13px] shrink-0"
+          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+        >
+          <span className="text-[#111] font-semibold">{resultCount.toLocaleString()}</span> results
+          {query && (
+            <> for <span className="text-[#111] font-semibold">&ldquo;{query}&rdquo;</span></>
+          )}
+        </span>
+      )}
 
       {/* Active filter chips */}
       {activeKeys.map((key) => {

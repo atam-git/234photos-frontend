@@ -1,10 +1,10 @@
 'use client'
 
 import { X, Download, FileText, AlertCircle, RefreshCw } from 'lucide-react'
-import type { Transaction } from '@/types'
+import type { Transaction } from '@/lib/api/payments'
 
 interface TransactionDetailsModalProps {
-  transaction: Partial<Transaction>
+  transaction: Transaction
   onClose: () => void
   onRetry?: () => void
 }
@@ -29,7 +29,7 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Status Banner */}
-          {transaction.status === 'failed' && (
+          {transaction.status === 'FAILED' && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
@@ -47,7 +47,7 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
             </div>
           )}
 
-          {transaction.status === 'refunded' && (
+          {transaction.status === 'REFUNDED' && (
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
@@ -96,7 +96,13 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
               </span>
               <span className="text-[13px] font-semibold text-[#111]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {transaction.date}
+                {new Date(transaction.createdAt).toLocaleDateString('en-NG', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </span>
             </div>
 
@@ -106,9 +112,9 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
                 Status
               </span>
               <span className={`text-[11px] font-bold uppercase tracking-[0.5px] px-2.5 py-1 rounded-full ${
-                transaction.status === 'completed' ? 'bg-green-50 text-green-700' :
-                transaction.status === 'pending' ? 'bg-yellow-50 text-yellow-700' :
-                transaction.status === 'failed' ? 'bg-red-50 text-red-700' :
+                transaction.status === 'COMPLETED' ? 'bg-green-50 text-green-700' :
+                transaction.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700' :
+                transaction.status === 'FAILED' ? 'bg-red-50 text-red-700' :
                 'bg-blue-50 text-blue-700'
               }`}
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -122,14 +128,14 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
                 Amount
               </span>
               <span className={`text-[15px] font-bold ${
-                transaction.type === 'credit_purchase' ? 'text-red-600' :
-                transaction.type === 'refund' ? 'text-green-600' :
+                transaction.type === 'CREDIT_PURCHASE' ? 'text-red-600' :
+                transaction.type === 'REFUND' ? 'text-green-600' :
                 'text-[#111]'
               }`}
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {transaction.type === 'credit_purchase' ? `-₦${(transaction.amount || 0).toLocaleString('en-NG')}` :
-                 transaction.type === 'refund' ? `+₦${(transaction.amount || 0).toLocaleString('en-NG')}` :
-                 `${transaction.amount || 0} credit`}
+                {transaction.type === 'CREDIT_PURCHASE' ? `-₦${(transaction.amount / 100).toLocaleString('en-NG')}` :
+                 transaction.type === 'REFUND' ? `+₦${(transaction.amount / 100).toLocaleString('en-NG')}` :
+                 `${transaction.credits || 0} credit${transaction.credits !== 1 ? 's' : ''}`}
               </span>
             </div>
 
@@ -146,15 +152,15 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
               </div>
             )}
 
-            {transaction.asset && (
+            {transaction.metadata?.assetId && (
               <div className="flex items-center justify-between py-2 border-b border-[#F8F8F8]">
                 <span className="text-[13px] text-[#888]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  Asset
+                  Asset ID
                 </span>
                 <span className="text-[13px] font-semibold text-[#111]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  {transaction.asset}
+                  {transaction.metadata.assetId}
                 </span>
               </div>
             )}
@@ -174,7 +180,7 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
           </div>
 
           {/* Actions */}
-          {transaction.status === 'completed' && transaction.type === 'credit_purchase' && (
+          {transaction.status === 'COMPLETED' && transaction.type === 'CREDIT_PURCHASE' && (
             <div className="space-y-2">
               <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#F5F5F5] text-[#111] text-[13.5px] font-semibold rounded-xl hover:bg-[#EBEBEB] transition-colors"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -189,7 +195,7 @@ export function TransactionDetailsModal({ transaction, onClose, onRetry }: Trans
             </div>
           )}
 
-          {transaction.status === 'failed' && onRetry && (
+          {transaction.status === 'FAILED' && onRetry && (
             <button
               onClick={onRetry}
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#EE2B24] text-white text-[13.5px] font-semibold rounded-xl hover:bg-[#d42520] transition-colors"

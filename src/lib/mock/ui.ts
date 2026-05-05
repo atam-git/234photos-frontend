@@ -194,7 +194,7 @@ export const SEARCH_MEDIA_TABS = ['Photos', 'Videos', 'Footage', 'Vectors', 'Ill
 // Sort options for search
 export const SORT_OPTIONS = [
   { value: 'relevance', label: 'Relevance' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'popular', label: 'Most downloaded' },
-  { value: 'trending', label: 'Trending' },
+  { value: 'uploadedAt:desc', label: 'Newest' },
+  { value: 'downloads:desc', label: 'Most downloaded' },
+  { value: 'views:desc', label: 'Trending' },
 ]

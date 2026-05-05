@@ -110,14 +110,14 @@ export function UpgradeSubscriptionModal({
                 </p>
                 <p className="text-[13px] text-[#888]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  ${(annualPrice / 12).toFixed(0)}/month
+                  ₦{(annualPrice / 12).toLocaleString('en-NG', { maximumFractionDigits: 0 })}/month
                 </p>
               </button>
             </div>
             {billingCycle === 'annual' && (
               <p className="text-[11px] text-green-600 mt-2"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                ✓ Save ${savings.toFixed(0)} per year with annual billing
+                ✓ Save ₦{savings.toLocaleString('en-NG', { maximumFractionDigits: 0 })} per year with annual billing
               </p>
             )}
           </div>
@@ -191,7 +191,7 @@ export function UpgradeSubscriptionModal({
               </span>
               <span className="text-[18px] font-extrabold text-[#111]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                ${displayPrice.toFixed(2)}
+                ₦{displayPrice.toLocaleString('en-NG')}
               </span>
             </div>
             <p className="text-[11px] text-[#888]"

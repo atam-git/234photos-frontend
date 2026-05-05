@@ -55,7 +55,7 @@ export const searchApi = {
    */
   search: (params: SearchParams) => {
     const queryParams = new URLSearchParams()
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
@@ -65,7 +65,7 @@ export const searchApi = {
         }
       }
     })
-    
+
     return api.get<SearchResponse>(`/search?${queryParams.toString()}`)
   },
 

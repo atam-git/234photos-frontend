@@ -4,7 +4,6 @@ export interface SearchFilters {
   license?: string
   price?: string
   dateAdded?: string
-  aiContent?: string
   color?: string
   
   // New filters from backend (stored as strings for URL params, converted to boolean for API)

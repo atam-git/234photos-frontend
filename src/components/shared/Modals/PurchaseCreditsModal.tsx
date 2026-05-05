@@ -1,8 +1,13 @@
 'use client'
 
-import { X, CreditCard, Tag } from 'lucide-react'
+import { X, Tag } from 'lucide-react'
+// FUTURE: re-import CreditCard when saved-cards picker is restored
+// import { CreditCard } from 'lucide-react'
 import { useState } from 'react'
-import type { CreditPackage, PaymentMethod } from '@/types'
+import type { PaymentMethod } from '@/types'
+import type { CreditPackage } from '@/lib/api/payments'
+import { useInitializePayment } from '@/hooks/usePayments'
+import { useToast } from '@/components/ui/toast-provider'
 
 interface PurchaseCreditsModalProps {
   package: CreditPackage
@@ -12,19 +17,39 @@ interface PurchaseCreditsModalProps {
 }
 
 export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, onConfirm }: PurchaseCreditsModalProps) {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods.find(pm => pm.isDefault)?.id || paymentMethods[0]?.id)
+  // FUTURE: re-enable when saved-card tokenization (Flutterwave Inline.js) is implemented
+  // const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods.find(pm => pm.isDefault)?.id || paymentMethods[0]?.id)
+  void paymentMethods // suppress unused-prop lint until saved-cards UI is restored
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
+  
+  const { mutate: initializePayment, isPending } = useInitializePayment()
+  const { showToast } = useToast()
 
   const handleApplyPromo = () => {
     // Mock promo code validation
     if (promoCode.toLowerCase() === 'save10') {
       setPromoApplied(true)
+      showToast('success', 'Promo code applied! 10% discount')
+    } else {
+      showToast('error', 'Invalid promo code')
     }
   }
 
   const discount = promoApplied ? pkg.price * 0.1 : 0
   const total = pkg.price - discount
+
+  const handleConfirmPurchase = () => {
+    initializePayment(pkg.id, {
+      onSuccess: (data) => {
+        // Redirect to Flutterwave payment page
+        window.location.href = data.paymentLink
+      },
+      onError: (error: any) => {
+        showToast('error', error.response?.data?.message || 'Failed to initialize payment. Please try again.')
+      }
+    })
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -68,7 +93,15 @@ export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, on
             </div>
           </div>
 
-          {/* Payment Method Selection */}
+          {/*
+            FUTURE: Saved Payment Method Picker
+            -----------------------------------
+            Hidden for now because checkout always redirects to Flutterwave's
+            hosted payment page where the user enters card details directly.
+            Re-enable once we wire up Flutterwave Inline.js + tokenization
+            (POST /v3/tokenized-charges) so a stored token can actually be
+            used to charge a saved card without re-entering details.
+
           <div>
             <label className="block text-[13px] font-semibold text-[#111] mb-3"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -76,36 +109,18 @@ export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, on
             </label>
             <div className="space-y-2">
               {paymentMethods.map((method) => (
-                <button
-                  key={method.id}
-                  onClick={() => setSelectedPaymentMethod(method.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                    selectedPaymentMethod === method.id
-                      ? 'border-[#EE2B24] bg-[#FFF5F5]'
-                      : 'border-[#F0F0F0] bg-white hover:border-[#E0E0E0]'
-                  }`}>
-                  <div className="w-10 h-10 rounded-lg bg-[#F5F5F5] flex items-center justify-center shrink-0">
-                    <CreditCard className="w-5 h-5 text-[#666]" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-[13px] font-semibold text-[#111]"
-                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {method.brand} •••• {method.last4}
-                    </p>
-                    <p className="text-[11px] text-[#888]"
-                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      Expires {method.expiry}
-                    </p>
-                  </div>
-                  {method.isDefault && (
-                    <span className="px-2 py-0.5 bg-[#F0F0F0] text-[#666] text-[10px] font-bold rounded-full"
-                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      DEFAULT
-                    </span>
-                  )}
+                <button key={method.id} ...>
+                  ... saved card row ...
                 </button>
               ))}
             </div>
+          </div>
+          */}
+
+          {/* Hosted-checkout notice (stand-in until tokenization is implemented) */}
+          <div className="rounded-xl border border-[#F0F0F0] bg-[#F8F8F8] p-3 text-[12px] text-[#666]"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            You&apos;ll be redirected to Flutterwave&apos;s secure checkout to enter your card details.
           </div>
 
           {/* Promo Code */}
@@ -152,7 +167,7 @@ export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, on
               </span>
               <span className="text-[13px] font-semibold text-[#111]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                ₦{pkg.price.toLocaleString('en-NG')}
+                ₦{(pkg.price / 100).toLocaleString('en-NG')}
               </span>
             </div>
             {promoApplied && (
@@ -163,7 +178,7 @@ export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, on
                 </span>
                 <span className="text-[13px] font-semibold text-green-600"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  -${discount.toFixed(2)}
+                  -₦{(discount / 100).toLocaleString('en-NG')}
                 </span>
               </div>
             )}
@@ -174,7 +189,7 @@ export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, on
               </span>
               <span className="text-[18px] font-extrabold text-[#111]"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                ${total.toFixed(2)}
+                ₦{(total / 100).toLocaleString('en-NG')}
               </span>
             </div>
           </div>
@@ -183,15 +198,24 @@ export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, on
           <div className="flex gap-3 pt-2">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-3 border border-[#D0D0D0] text-[#111] text-[13.5px] font-semibold rounded-xl hover:bg-[#F5F5F5] transition-colors"
+              disabled={isPending}
+              className="flex-1 px-4 py-3 border border-[#D0D0D0] text-[#111] text-[13.5px] font-semibold rounded-xl hover:bg-[#F5F5F5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Cancel
             </button>
             <button
-              onClick={() => onConfirm(selectedPaymentMethod, promoApplied ? promoCode : undefined)}
-              className="flex-1 px-4 py-3 bg-[#EE2B24] text-white text-[13.5px] font-semibold rounded-xl hover:bg-[#d42520] transition-colors"
+              onClick={handleConfirmPurchase}
+              disabled={isPending}
+              className="flex-1 px-4 py-3 bg-[#EE2B24] text-white text-[13.5px] font-semibold rounded-xl hover:bg-[#d42520] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              Confirm Purchase
+              {isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                'Confirm Purchase'
+              )}
             </button>
           </div>
         </div>

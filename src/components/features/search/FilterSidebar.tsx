@@ -153,7 +153,6 @@ export function FilterSidebar({ filters, onChange, collapsed, onToggleCollapse }
           {[
             { value: 'free', label: 'Free' },
             { value: 'paid', label: 'Paid' },
-            { value: 'subscription', label: 'Subscription only' },
           ].map(({ value, label }) => (
             <FilterOption
               key={value}
@@ -176,20 +175,6 @@ export function FilterSidebar({ filters, onChange, collapsed, onToggleCollapse }
               label={label}
               active={filters.dateAdded === value}
               onClick={() => toggle('dateAdded', value)}
-            />
-          ))}
-        </FilterGroup>
-
-        <FilterGroup title="AI Content" defaultOpen={false}>
-          {[
-            { value: 'human', label: 'Human only' },
-            { value: 'ai', label: 'AI generated' },
-          ].map(({ value, label }) => (
-            <FilterOption
-              key={value}
-              label={label}
-              active={filters.aiContent === value}
-              onClick={() => toggle('aiContent', value)}
             />
           ))}
         </FilterGroup>

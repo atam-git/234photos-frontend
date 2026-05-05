@@ -21,8 +21,11 @@ import type { Asset } from '@/types'
  * ```
  */
 export function useSearch(params: SearchParams) {
+  // Serialize params to ensure stable query key
+  const queryKey = ['search', JSON.stringify(params)]
+
   return useQuery({
-    queryKey: ['search', params],
+    queryKey,
     queryFn: async () => {
       const response = await searchApi.search(params)
       return {

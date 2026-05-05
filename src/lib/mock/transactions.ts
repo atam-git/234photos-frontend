@@ -319,7 +319,7 @@ export const MOCK_CREDIT_PACKAGES: CreditPackage[] = [
 
 export const MOCK_PAYMENT_METHODS: PaymentMethod[] = [
   {
-    id: 'pm_001',
+    id: 'pm_test_001',
     type: 'card',
     last4: '4242',
     brand: 'Visa',
@@ -328,25 +328,6 @@ export const MOCK_PAYMENT_METHODS: PaymentMethod[] = [
     expiryYear: 2027,
     isDefault: true,
     createdAt: '2025-06-10T12:00:00Z',
-  },
-  {
-    id: 'pm_002',
-    type: 'card',
-    last4: '8888',
-    brand: 'Mastercard',
-    expiry: '08/28',
-    expiryMonth: 8,
-    expiryYear: 2028,
-    isDefault: false,
-    createdAt: '2025-09-22T15:30:00Z',
-  },
-  {
-    id: 'pm_003',
-    type: 'bank',
-    last4: '7890',
-    brand: 'GTBank',
-    isDefault: false,
-    createdAt: '2026-01-05T09:00:00Z',
   },
 ]
 
