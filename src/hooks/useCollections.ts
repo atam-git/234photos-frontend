@@ -1,22 +1,117 @@
-import { useQuery } from '@tanstack/react-query'
-import { api } from '@/lib/api/client'
-import type { Collection } from '@/types'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { collectionsApi, CreateCollectionPayload, UpdateCollectionPayload, Collection } from '@/lib/api/collections'
 
 /**
- * Hook to fetch a user's public collections by username.
- * 
- * @example
- * ```tsx
- * const { data: collections, isLoading } = useUserCollections('john-doe')
- * ```
+ * Hook to fetch contributor's collections
+ */
+export function useMyCollections() {
+  return useQuery({
+    queryKey: ['collections', 'my'],
+    queryFn: () => collectionsApi.getMyCollections(),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
+}
+
+/**
+ * Hook to fetch collection by ID
+ */
+export function useCollection(id: string) {
+  return useQuery({
+    queryKey: ['collections', id],
+    queryFn: () => collectionsApi.getById(id),
+    enabled: !!id,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
+}
+
+/**
+ * Hook to fetch user's public collections (for profile pages)
  */
 export function useUserCollections(username: string) {
-  return useQuery<Collection[], Error>({
-    queryKey: ['users', username, 'collections'],
+  return useQuery({
+    queryKey: ['collections', 'user', username],
     queryFn: async () => {
-      return api.get<Collection[]>(`/users/${username}/collections`)
+      // TODO: Add endpoint to get public collections by username
+      // For now, return empty array with proper type
+      return [] as Collection[]
     },
     enabled: !!username,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+}
+
+/**
+ * Hook to create a collection
+ */
+export function useCreateCollection() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (payload: CreateCollectionPayload) => collectionsApi.create(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections', 'my'] })
+    },
+  })
+}
+
+/**
+ * Hook to update a collection
+ */
+export function useUpdateCollection() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateCollectionPayload }) =>
+      collectionsApi.update(id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['collections', 'my'] })
+      queryClient.invalidateQueries({ queryKey: ['collections', variables.id] })
+    },
+  })
+}
+
+/**
+ * Hook to delete a collection
+ */
+export function useDeleteCollection() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => collectionsApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections', 'my'] })
+    },
+  })
+}
+
+/**
+ * Hook to add assets to a collection
+ */
+export function useAddAssetsToCollection() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, assetIds }: { id: string; assetIds: string[] }) =>
+      collectionsApi.addAssets(id, assetIds),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['collections', 'my'] })
+      queryClient.invalidateQueries({ queryKey: ['collections', variables.id] })
+    },
+  })
+}
+
+/**
+ * Hook to remove assets from a collection
+ */
+export function useRemoveAssetsFromCollection() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, assetIds }: { id: string; assetIds: string[] }) =>
+      collectionsApi.removeAssets(id, assetIds),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['collections', 'my'] })
+      queryClient.invalidateQueries({ queryKey: ['collections', variables.id] })
+    },
   })
 }

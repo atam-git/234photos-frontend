@@ -103,10 +103,10 @@ export const SUPPORT_FAQ_ITEMS = [
 export const SUPPORT_CONTACT_OPTIONS = [
   {
     icon: 'MessageCircle',
-    title: 'Live Chat',
-    description: 'Chat with our support team',
-    action: 'Start chat',
-    available: 'Mon-Fri, 9am-6pm WAT',
+    title: 'Start a Ticket',
+    description: 'Get help from our support team',
+    action: 'Create ticket',
+    available: 'Response within 24 hours',
   },
   {
     icon: 'Mail',

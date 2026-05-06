@@ -35,7 +35,10 @@ export type {
   BoardActionResponse,
 } from './boards'
 export type {
-  BackendUserProfile,
+  UpdateProfilePayload,
+  UpdatePasswordPayload,
+  UpdateAvatarPayload,
+  DeleteAccountPayload,
 } from './users'
 export type {
   SearchParams,

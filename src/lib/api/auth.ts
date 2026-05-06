@@ -75,9 +75,9 @@ export const authApi = {
     ),
 
   verifyEmail: (token: string) =>
-    api.get<AuthTokens & { success: boolean; message: string; redirectTo: string }>(
-      '/auth/verify-email',
-      { query: { token }, skipAuth: true },
+    api.get<AuthResponse & { message: string; redirectTo: string }>(
+      `/auth/verify-email?token=${token}`,
+      { skipAuth: true },
     ),
 
   resendVerification: (email: string) =>

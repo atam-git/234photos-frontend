@@ -1,56 +1,76 @@
 'use client'
 
-'use client'
-
-import { useState } from 'react'
-import { Bell, Mail, Smartphone, Check } from 'lucide-react'
-import { NOTIFICATION_TYPES } from '@/lib/mock'
+import { useState, useEffect } from 'react'
+import { Bell, Mail, Smartphone, Check, Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import type { NotificationPreferences } from '@/types'
+import { useNotificationPreferences, useUpdateNotificationPreferences } from '@/hooks/useNotifications'
+import { useToast } from '@/components/ui/toast-provider'
+import type { NotificationPreferences } from '@/lib/api/notifications'
+
+const NOTIFICATION_TYPES = [
+  { key: 'sales' as const, label: 'Sales & Earnings', desc: 'When you make a sale or receive earnings', email: true, inApp: true },
+  { key: 'uploads' as const, label: 'Upload Updates', desc: 'Asset approval, rejection, and upload status', email: true, inApp: true },
+  { key: 'likes' as const, label: 'Likes', desc: 'When someone likes your content', email: false, inApp: true },
+  { key: 'follows' as const, label: 'New Followers', desc: 'When someone follows you', email: false, inApp: true },
+  { key: 'weekly' as const, label: 'Weekly Summary', desc: 'Weekly performance summary email', email: true, inApp: false },
+  { key: 'marketing' as const, label: 'Marketing & Updates', desc: 'Product updates and promotional emails', email: true, inApp: false },
+]
 
 export default function NotificationPreferencesPage() {
-  const [saved, setSaved] = useState(false)
-  const [settings, setSettings] = useState<NotificationPreferences>({
-    email: {
-      downloads: true,
-      likes: false,
-      comments: true,
-      follows: true,
-      earnings: true,
-      system: true,
-    },
-    push: {
-      downloads: true,
-      likes: true,
-      comments: true,
-      follows: true,
-      earnings: true,
-      system: false,
-    },
-    inApp: {
-      downloads: true,
-      likes: true,
-      comments: true,
-      follows: true,
-      earnings: true,
-      system: true,
-    },
-  })
+  const { data: preferences, isLoading } = useNotificationPreferences()
+  const { mutate: updatePreferences, isPending: isSaving } = useUpdateNotificationPreferences()
+  const { showToast } = useToast()
+  const [settings, setSettings] = useState<NotificationPreferences | null>(null)
 
-  const handleToggle = (channel: keyof NotificationPreferences, type: keyof NotificationPreferences['email']) => {
-    setSettings(prev => ({
-      ...prev,
-      [channel]: {
-        ...prev[channel],
-        [type]: !prev[channel][type],
-      },
-    }))
+  // Initialize settings from API data
+  useEffect(() => {
+    if (preferences) {
+      setSettings(preferences)
+    }
+  }, [preferences])
+
+  const handleToggle = (channel: 'email' | 'inApp', key: string) => {
+    if (!settings) return
+
+    setSettings(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        [channel]: {
+          ...prev[channel],
+          [key]: !prev[channel][key as keyof typeof prev[typeof channel]],
+        },
+      }
+    })
   }
 
   const handleSave = () => {
-    console.log('Saving notification preferences:', settings)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    if (!settings) return
+
+    updatePreferences(settings, {
+      onSuccess: () => {
+        showToast('success', 'Notification preferences saved')
+      },
+      onError: () => {
+        showToast('error', 'Failed to save preferences')
+      },
+    })
+  }
+
+  if (isLoading || !settings) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div>
+          <h1 className="text-[22px] font-extrabold text-[#111]"
+            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+            Notification Preferences
+          </h1>
+        </div>
+        <div className="bg-white rounded-2xl border border-[#F0F0F0] p-12 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#EE2B24]" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -89,11 +109,6 @@ export default function NotificationPreferencesPage() {
                 </th>
                 <th className="text-center px-4 py-4 text-[12px] font-bold text-[#444] uppercase tracking-[0.5px]"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  <Smartphone className="w-4 h-4 inline mr-1" />
-                  Push
-                </th>
-                <th className="text-center px-4 py-4 text-[12px] font-bold text-[#444] uppercase tracking-[0.5px]"
-                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
                   <Bell className="w-4 h-4 inline mr-1" />
                   In-App
                 </th>
@@ -113,37 +128,34 @@ export default function NotificationPreferencesPage() {
                     </p>
                   </td>
                   <td className="px-4 py-4 text-center">
-                    <button
-                      onClick={() => handleToggle('email', type.key)}
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors mx-auto ${
-                        settings.email[type.key]
-                          ? 'bg-[#EE2B24] text-white'
-                          : 'bg-[#F0F0F0] text-[#888] hover:bg-[#E0E0E0]'
-                      }`}>
-                      {settings.email[type.key] && <Check className="w-5 h-5" />}
-                    </button>
+                    {type.email ? (
+                      <button
+                        onClick={() => handleToggle('email', type.key)}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors mx-auto ${
+                          settings.email[type.key as keyof typeof settings.email]
+                            ? 'bg-[#EE2B24] text-white'
+                            : 'bg-[#F0F0F0] text-[#888] hover:bg-[#E0E0E0]'
+                        }`}>
+                        {settings.email[type.key as keyof typeof settings.email] && <Check className="w-5 h-5" />}
+                      </button>
+                    ) : (
+                      <span className="text-[#CCC]">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-4 text-center">
-                    <button
-                      onClick={() => handleToggle('push', type.key)}
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors mx-auto ${
-                        settings.push[type.key]
-                          ? 'bg-[#EE2B24] text-white'
-                          : 'bg-[#F0F0F0] text-[#888] hover:bg-[#E0E0E0]'
-                      }`}>
-                      {settings.push[type.key] && <Check className="w-5 h-5" />}
-                    </button>
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    <button
-                      onClick={() => handleToggle('inApp', type.key)}
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors mx-auto ${
-                        settings.inApp[type.key]
-                          ? 'bg-[#EE2B24] text-white'
-                          : 'bg-[#F0F0F0] text-[#888] hover:bg-[#E0E0E0]'
-                      }`}>
-                      {settings.inApp[type.key] && <Check className="w-5 h-5" />}
-                    </button>
+                    {type.inApp ? (
+                      <button
+                        onClick={() => handleToggle('inApp', type.key)}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors mx-auto ${
+                          settings.inApp[type.key as keyof typeof settings.inApp]
+                            ? 'bg-[#EE2B24] text-white'
+                            : 'bg-[#F0F0F0] text-[#888] hover:bg-[#E0E0E0]'
+                        }`}>
+                        {settings.inApp[type.key as keyof typeof settings.inApp] && <Check className="w-5 h-5" />}
+                      </button>
+                    ) : (
+                      <span className="text-[#CCC]">—</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -156,7 +168,7 @@ export default function NotificationPreferencesPage() {
       <div className="p-4 bg-[#F8F8F8] rounded-xl">
         <p className="text-[12px] text-[#666] leading-relaxed"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-          <strong>Email:</strong> Sent to your registered email address · <strong>Push:</strong> Mobile and desktop notifications · <strong>In-App:</strong> Notifications within 234photos
+          <strong>Email:</strong> Sent to your registered email address · <strong>In-App:</strong> Notifications within 234photos
         </p>
       </div>
 
@@ -164,9 +176,17 @@ export default function NotificationPreferencesPage() {
       <div className="flex justify-end">
         <button
           onClick={handleSave}
-          className="px-6 py-3 bg-[#111] text-white text-[14px] font-semibold rounded-full hover:bg-[#333] transition-colors"
+          disabled={isSaving}
+          className="flex items-center gap-2 px-6 py-3 bg-[#111] text-white text-[14px] font-semibold rounded-full hover:bg-[#333] transition-colors disabled:opacity-50"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-          {saved ? '✓ Saved' : 'Save Preferences'}
+          {isSaving ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            'Save Preferences'
+          )}
         </button>
       </div>
     </div>

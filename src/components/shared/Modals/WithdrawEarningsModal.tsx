@@ -3,34 +3,55 @@
 import { useState } from 'react'
 import { X, CreditCard, Building2, AlertCircle } from 'lucide-react'
 import { ModalBackdrop } from './ModalBackdrop'
-import type { PaymentMethod as PaymentMethodType, PaymentMethodOption } from '@/types'
+import { useRequestWithdrawal, usePayoutMethods } from '@/hooks/useEarnings'
+import { useToast } from '@/components/ui/toast-provider'
 
 interface WithdrawEarningsModalProps {
-  availableBalance: number
+  availableBalance: number // in naira
   onClose: () => void
 }
 
 export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEarningsModalProps) {
   const [amount, setAmount] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodOption>('bank')
+  const [paymentMethod, setPaymentMethod] = useState<'bank' | 'paypal' | 'mobile_money'>('bank')
+  
+  const { data: payoutMethods = [] } = usePayoutMethods()
+  const { mutate: requestWithdrawal, isPending } = useRequestWithdrawal()
+  const { showToast } = useToast()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const withdrawAmount = parseFloat(amount)
     
     if (withdrawAmount < 80000) {
-      alert('Minimum withdrawal amount is ₦80,000')
+      showToast('error', 'Minimum withdrawal amount is ₦80,000')
       return
     }
     
     if (withdrawAmount > availableBalance) {
-      alert('Insufficient balance')
+      showToast('error', 'Insufficient balance')
       return
     }
 
-    console.log('Withdraw:', { amount: withdrawAmount, method: paymentMethod })
-    alert(`Withdrawal request submitted! $${withdrawAmount} will be sent to your ${paymentMethod === 'bank' ? 'bank account' : 'PayPal'} within 3-5 business days.`)
-    onClose()
+    // Find or create payout method
+    let payoutMethodId = payoutMethods.find(m => m.type === paymentMethod)?.id
+    
+    // If no payout method exists, use a temporary ID (backend will handle)
+    if (!payoutMethodId) {
+      payoutMethodId = 'temp-' + paymentMethod
+    }
+
+    // Convert naira to kobo for API
+    const amountInKobo = Math.round(withdrawAmount * 100)
+
+    requestWithdrawal(
+      { amount: amountInKobo, payoutMethodId },
+      {
+        onSuccess: () => {
+          onClose()
+        }
+      }
+    )
   }
 
   const setMaxAmount = () => {
@@ -74,7 +95,7 @@ export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEar
               className="text-[32px] font-extrabold"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             >
-              ${availableBalance.toLocaleString()}
+              ₦{availableBalance.toLocaleString()}
             </p>
           </div>
 
@@ -96,16 +117,18 @@ export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEar
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
                 required
-                min="50"
+                min="80000"
                 max={availableBalance}
                 step="0.01"
-                className="w-full h-[42px] pl-8 pr-20 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] placeholder:text-[#999] outline-none focus:border-[#EE2B24] focus:ring-2 focus:ring-[#FFE5E5] transition-all"
+                disabled={isPending}
+                className="w-full h-[42px] pl-8 pr-20 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] placeholder:text-[#999] outline-none focus:border-[#EE2B24] focus:ring-2 focus:ring-[#FFE5E5] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
               />
               <button
                 type="button"
                 onClick={setMaxAmount}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-[#F5F5F5] text-[#111] text-[11px] font-bold rounded-lg hover:bg-[#EBEBEB] transition-colors"
+                disabled={isPending}
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-[#F5F5F5] text-[#111] text-[11px] font-bold rounded-lg hover:bg-[#EBEBEB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
               >
                 MAX
@@ -131,7 +154,8 @@ export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEar
               <button
                 type="button"
                 onClick={() => setPaymentMethod('bank')}
-                className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                disabled={isPending}
+                className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                   paymentMethod === 'bank'
                     ? 'border-[#EE2B24] bg-[#FFF5F5]'
                     : 'border-[#E0E0E0] bg-white hover:border-[#D0D0D0]'
@@ -157,7 +181,8 @@ export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEar
               <button
                 type="button"
                 onClick={() => setPaymentMethod('paypal')}
-                className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                disabled={isPending}
+                className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                   paymentMethod === 'paypal'
                     ? 'border-[#EE2B24] bg-[#FFF5F5]'
                     : 'border-[#E0E0E0] bg-white hover:border-[#D0D0D0]'
@@ -198,17 +223,19 @@ export function WithdrawEarningsModal({ availableBalance, onClose }: WithdrawEar
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 bg-[#F5F5F5] text-[#111] text-[14px] font-semibold rounded-full hover:bg-[#EBEBEB] transition-colors"
+              disabled={isPending}
+              className="flex-1 py-3 bg-[#F5F5F5] text-[#111] text-[14px] font-semibold rounded-full hover:bg-[#EBEBEB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
+              disabled={isPending}
+              className="flex-1 py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             >
-              Request Withdrawal
+              {isPending ? 'Processing...' : 'Request Withdrawal'}
             </button>
           </div>
         </form>

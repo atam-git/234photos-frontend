@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Lock, Globe } from 'lucide-react'
+import { X, Lock, Globe, Loader2 } from 'lucide-react'
+import { useCreateCollection } from '@/hooks/useCollections'
+import { useToast } from '@/components/ui/toast-provider'
 
 interface CreateCollectionModalProps {
   selectedAssets?: string[]
@@ -12,12 +14,30 @@ export function CreateCollectionModal({ selectedAssets = [], onClose }: CreateCo
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [isPublic, setIsPublic] = useState(true)
+  const { showToast } = useToast()
+  
+  const { mutate: createCollection, isPending } = useCreateCollection()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Create collection with selectedAssets
-    console.log('Create collection:', { name, description, isPublic, assetIds: selectedAssets })
-    onClose()
+    
+    createCollection(
+      {
+        name: name.trim(),
+        description: description.trim() || undefined,
+        isPublic,
+        assetIds: selectedAssets.length > 0 ? selectedAssets : undefined,
+      },
+      {
+        onSuccess: () => {
+          showToast('success', `Collection "${name}" created successfully`)
+          onClose()
+        },
+        onError: (error: any) => {
+          showToast('error', error.message || 'Failed to create collection')
+        },
+      }
+    )
   }
 
   return (
@@ -135,16 +155,18 @@ export function CreateCollectionModal({ selectedAssets = [], onClose }: CreateCo
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-5 py-3 border border-[#D0D0D0] text-[#111] text-[14px] font-semibold rounded-full hover:border-[#999] transition-colors"
+              disabled={isPending}
+              className="flex-1 px-5 py-3 border border-[#D0D0D0] text-[#111] text-[14px] font-semibold rounded-full hover:border-[#999] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Cancel
             </button>
             <button
               type="submit"
-              disabled={!name.trim()}
-              className="flex-1 px-5 py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!name.trim() || isPending}
+              className="flex-1 px-5 py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              Create Collection
+              {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isPending ? 'Creating...' : 'Create Collection'}
             </button>
           </div>
         </form>

@@ -19,10 +19,13 @@ export interface UploadFile {
   thumbnailUrl?: string
   preview?: string
   error?: string
+  sessionId?: string // Upload session ID from backend
+  assetId?: string // Asset ID after auto-save as draft
   // Metadata fields for tagging
   title: string
   description: string
   category: string
+  categoryId: string // Category ID for backend
   tags: string[]
   isAI: boolean
   isEditorial: boolean

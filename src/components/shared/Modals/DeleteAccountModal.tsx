@@ -6,20 +6,19 @@ import { useState } from 'react'
 interface DeleteAccountModalProps {
   userName: string
   onClose: () => void
-  onConfirm: () => void
+  onConfirm: (password: string, reason?: string) => void
 }
 
 export function DeleteAccountModal({ userName, onClose, onConfirm }: DeleteAccountModalProps) {
-  const [confirmText, setConfirmText] = useState('')
+  const [password, setPassword] = useState('')
+  const [reason, setReason] = useState('')
   const [deleting, setDeleting] = useState(false)
-  const isValid = confirmText === 'DELETE'
 
   const handleDelete = async () => {
-    if (!isValid) return
+    if (!password) return
     setDeleting(true)
-    // Simulate deletion
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    onConfirm()
+    onConfirm(password, reason || undefined)
+    setDeleting(false)
   }
 
   return (
@@ -64,32 +63,51 @@ export function DeleteAccountModal({ userName, onClose, onConfirm }: DeleteAccou
               </ul>
             </div>
 
-            <p className="text-[13px] text-[#666] mb-4"
-              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              To confirm, type <strong className="text-[#111]">DELETE</strong> in the box below:
-            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  Confirm your password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] placeholder:text-[#999] outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+                />
+              </div>
 
-            <input
-              type="text"
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="Type DELETE to confirm"
-              className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] placeholder:text-[#999] outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all"
-              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
-            />
+              <div>
+                <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  Reason (optional)
+                </label>
+                <textarea
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Help us improve by telling us why you're leaving..."
+                  rows={3}
+                  className="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] placeholder:text-[#999] outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all resize-none"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Actions */}
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 py-3 border border-[#D0D0D0] text-[#111] text-[14px] font-semibold rounded-full hover:bg-[#F8F8F8] transition-colors"
+              disabled={deleting}
+              className="flex-1 py-3 border border-[#D0D0D0] text-[#111] text-[14px] font-semibold rounded-full hover:bg-[#F8F8F8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Cancel
             </button>
             <button
               onClick={handleDelete}
-              disabled={!isValid || deleting}
+              disabled={!password || deleting}
               className="flex-1 py-3 bg-red-600 text-white text-[14px] font-semibold rounded-full hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               {deleting ? 'Deleting...' : 'Delete Account'}

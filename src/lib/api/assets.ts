@@ -129,4 +129,48 @@ export const assetsApi = {
     
     return api.get<BackendAsset[]>(`/assets/contributor/${contributorId}/more?${params.toString()}`)
   },
+
+  /**
+   * Create asset after upload completes
+   */
+  create: (payload: {
+    uploadSessionId: string
+    title: string
+    description?: string
+    categoryId: string
+    tags?: string[]
+    isAI?: boolean
+    isEditorial?: boolean
+    modelRelease?: boolean
+    propertyRelease?: boolean
+    isDraft?: boolean
+  }) =>
+    api.post<BackendAsset>('/assets', payload),
+
+  /**
+   * Update asset
+   */
+  update: (id: string, payload: Partial<{
+    title: string
+    description?: string
+    categoryId: string
+    tags?: string[]
+    isAI?: boolean
+    isEditorial?: boolean
+    modelRelease?: boolean
+    propertyRelease?: boolean
+  }>) =>
+    api.patch<BackendAsset>(`/assets/${id}`, payload),
+
+  /**
+   * Submit draft for review
+   */
+  submitDraft: (id: string) =>
+    api.patch<BackendAsset>(`/assets/${id}/submit`, {}),
+
+  /**
+   * Delete asset
+   */
+  delete: (id: string) =>
+    api.delete<{ success: boolean; message: string }>(`/assets/${id}`),
 }

@@ -1,25 +1,36 @@
 'use client'
 
-import { useState } from 'react'
-import { MessageCircle, Mail, Book, HelpCircle, ChevronDown, ChevronUp, Send, Check } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { MessageCircle, Mail, Book, HelpCircle, ChevronDown, ChevronUp, Send, Check, Loader2, Ticket } from 'lucide-react'
 import Link from 'next/link'
-import { LiveChatModal } from '@/components/shared/Modals/LiveChatModal'
-import { SUPPORT_FAQ_ITEMS, SUPPORT_CONTACT_OPTIONS } from '@/lib/mock/dashboard'
+import { SUPPORT_CONTACT_OPTIONS } from '@/lib/mock/dashboard'
+import { useCreateTicket, useFAQ, useSupportContactInfo } from '@/hooks/useSupport'
+import TicketSuccessModal from '@/components/modals/TicketSuccessModal'
 
 export default function SupportPage() {
   const [openFaq, setOpenFaq] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [subject, setSubject] = useState('')
-  const [showLiveChat, setShowLiveChat] = useState(false)
+  const [category, setCategory] = useState('TECHNICAL')
   const [emailCopied, setEmailCopied] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [createdTicketId, setCreatedTicketId] = useState<string>('')
+  const contactFormRef = useRef<HTMLDivElement>(null)
+
+  const { mutate: createTicket, isPending: isCreating } = useCreateTicket()
+  const { data: faqData, isLoading: faqLoading } = useFAQ()
+  const { data: contactInfo } = useSupportContactInfo()
+
+  const supportEmail = contactInfo?.email || 'support@234photos.com'
 
   const handleContactAction = (type: string) => {
     switch (type) {
       case 'chat':
-        setShowLiveChat(true)
+        // Scroll to contact form instead of opening live chat
+        contactFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         break
       case 'email':
-        navigator.clipboard.writeText('support@234photos.com')
+        navigator.clipboard.writeText(supportEmail)
         setEmailCopied(true)
         setTimeout(() => setEmailCopied(false), 2000)
         break
@@ -35,11 +46,27 @@ export default function SupportPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Support request:', { subject, message })
-    // Reset form
-    setSubject('')
-    setMessage('')
-    alert('Your message has been sent! We\'ll get back to you within 24 hours.')
+    
+    createTicket(
+      {
+        subject,
+        message,
+        category,
+        priority: 'NORMAL',
+      },
+      {
+        onSuccess: (data) => {
+          setCreatedTicketId(data.id)
+          setShowSuccessModal(true)
+          setSubject('')
+          setMessage('')
+          setCategory('TECHNICAL')
+        },
+        onError: (error: any) => {
+          alert(error.response?.data?.message || 'Failed to create ticket. Please try again.')
+        },
+      }
+    )
   }
 
   return (
@@ -50,10 +77,17 @@ export default function SupportPage() {
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
           How can we help you?
         </h1>
-        <p className="text-[14px] text-[#666]"
+        <p className="text-[14px] text-[#666] mb-4"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
           Get answers to your questions or reach out to our support team
         </p>
+        <Link
+          href="/support/tickets"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-[#EE2B24] text-[#EE2B24] text-[14px] font-semibold rounded-full hover:bg-[#FFF5F5] transition-colors"
+          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+          <Ticket className="w-4 h-4" />
+          View My Tickets
+        </Link>
       </div>
 
       {/* Quick Contact Options */}
@@ -62,6 +96,9 @@ export default function SupportPage() {
           const Icon = option.icon === 'MessageCircle' ? MessageCircle : option.icon === 'Mail' ? Mail : Book
           const actionType = index === 0 ? 'chat' : index === 1 ? 'email' : 'help'
           const isEmailCopied = actionType === 'email' && emailCopied
+          
+          // Override email description with backend value
+          const description = actionType === 'email' ? supportEmail : option.description
           
           return (
             <div key={option.title} className="bg-white rounded-2xl border border-[#F0F0F0] p-6 hover:border-[#EE2B24] hover:shadow-md transition-all">
@@ -74,7 +111,7 @@ export default function SupportPage() {
               </h3>
               <p className="text-[13px] text-[#666] mb-3"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {option.description}
+                {description}
               </p>
               <p className="text-[11px] text-[#888] mb-4"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
@@ -93,6 +130,8 @@ export default function SupportPage() {
                     <Check className="w-4 h-4" />
                     Email copied!
                   </>
+                ) : actionType === 'chat' ? (
+                  'Start a ticket'
                 ) : (
                   option.action
                 )}
@@ -112,51 +151,65 @@ export default function SupportPage() {
           </h2>
         </div>
 
-        <div className="space-y-6">
-          {SUPPORT_FAQ_ITEMS.map((category, catIdx) => (
-            <div key={catIdx}>
-              <h3 className="text-[14px] font-bold text-[#888] uppercase tracking-wide mb-3"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                {category.category}
-              </h3>
-              <div className="space-y-2">
-                {category.questions.map((item, qIdx) => {
-                  const id = `${catIdx}-${qIdx}`
-                  const isOpen = openFaq === id
-                  return (
-                    <div key={id} className="border border-[#F0F0F0] rounded-xl overflow-hidden">
-                      <button
-                        onClick={() => toggleFaq(id)}
-                        className="w-full flex items-center justify-between p-4 text-left hover:bg-[#F8F8F8] transition-colors">
-                        <span className="text-[14px] font-semibold text-[#111] pr-4"
-                          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                          {item.q}
-                        </span>
-                        {isOpen ? (
-                          <ChevronUp className="w-5 h-5 text-[#666] shrink-0" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-[#666] shrink-0" />
-                        )}
-                      </button>
-                      {isOpen && (
-                        <div className="px-4 pb-4 pt-0">
-                          <p className="text-[13px] text-[#666] leading-relaxed"
-                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                            {item.a}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+        {faqLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-12 bg-gray-200 rounded-xl mb-2" />
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : faqData && faqData.length > 0 ? (
+          <div className="space-y-6">
+            {faqData.map((category, catIdx) => (
+              <div key={catIdx}>
+                <h3 className="text-[14px] font-bold text-[#888] uppercase tracking-wide mb-3"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  {category.category}
+                </h3>
+                <div className="space-y-2">
+                  {category.questions.map((item, qIdx) => {
+                    const id = `${catIdx}-${qIdx}`
+                    const isOpen = openFaq === id
+                    return (
+                      <div key={id} className="border border-[#F0F0F0] rounded-xl overflow-hidden">
+                        <button
+                          onClick={() => toggleFaq(id)}
+                          className="w-full flex items-center justify-between p-4 text-left hover:bg-[#F8F8F8] transition-colors">
+                          <span className="text-[14px] font-semibold text-[#111] pr-4"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                            {item.q}
+                          </span>
+                          {isOpen ? (
+                            <ChevronUp className="w-5 h-5 text-[#666] shrink-0" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-[#666] shrink-0" />
+                          )}
+                        </button>
+                        {isOpen && (
+                          <div className="px-4 pb-4 pt-0">
+                            <p className="text-[13px] text-[#666] leading-relaxed"
+                              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                              {item.a}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-[#888]">
+            <p>No FAQ items available at the moment.</p>
+          </div>
+        )}
       </div>
 
       {/* Contact Form */}
-      <div className="bg-white rounded-2xl border border-[#F0F0F0] p-6">
+      <div ref={contactFormRef} className="bg-white rounded-2xl border border-[#F0F0F0] p-6 scroll-mt-6">
         <h2 className="text-[18px] font-bold text-[#111] mb-4"
           style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
           Still need help?
@@ -170,6 +223,24 @@ export default function SupportPage() {
           <div>
             <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Category
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+              className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] outline-none focus:border-[#EE2B24] focus:ring-2 focus:ring-[#FFE5E5] transition-all"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              <option value="TECHNICAL">Technical Issue</option>
+              <option value="BILLING">Billing & Payments</option>
+              <option value="CONTENT">Content & Licensing</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[12px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1.5"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Subject
             </label>
             <input
@@ -178,6 +249,8 @@ export default function SupportPage() {
               onChange={(e) => setSubject(e.target.value)}
               placeholder="What do you need help with?"
               required
+              minLength={5}
+              maxLength={200}
               className="w-full h-[42px] px-4 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] placeholder:text-[#999] outline-none focus:border-[#EE2B24] focus:ring-2 focus:ring-[#FFE5E5] transition-all"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
             />
@@ -193,6 +266,8 @@ export default function SupportPage() {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Describe your issue or question in detail..."
               required
+              minLength={10}
+              maxLength={5000}
               rows={6}
               className="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl text-[13.5px] text-[#111] placeholder:text-[#999] outline-none focus:border-[#EE2B24] focus:ring-2 focus:ring-[#FFE5E5] transition-all resize-none"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
@@ -201,10 +276,20 @@ export default function SupportPage() {
 
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 w-full py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
+            disabled={isCreating}
+            className="flex items-center justify-center gap-2 w-full py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            <Send className="w-4 h-4" />
-            Send Message
+            {isCreating ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                Send Message
+              </>
+            )}
           </button>
         </form>
       </div>
@@ -249,8 +334,12 @@ export default function SupportPage() {
         </div>
       </div>
 
-      {/* Live Chat Modal */}
-      {showLiveChat && <LiveChatModal onClose={() => setShowLiveChat(false)} />}
+      {/* Success Modal */}
+      <TicketSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        ticketId={createdTicketId}
+      />
     </div>
   )
 }

@@ -2,23 +2,33 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Globe, Lock, MoreVertical, Trash2, Edit2, Plus } from 'lucide-react'
-import { MOCK_ASSETS } from '@/lib/mock/searchAssets'
-import { MOCK_COLLECTION_DETAIL } from '@/lib/mock'
+import { ArrowLeft, Globe, Lock, MoreVertical, Trash2, Edit2, Plus, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { AssetStatsModal } from '@/components/shared/Modals/AssetStatsModal'
 import { EditCollectionModal } from '@/components/shared/Modals/EditCollectionModal'
+import { AddAssetsToCollectionModal } from '@/components/shared/Modals/AddAssetsToCollectionModal'
+import { useCollection, useDeleteCollection, useUpdateCollection, useRemoveAssetsFromCollection } from '@/hooks/useCollections'
+import { useToast } from '@/components/ui/toast-provider'
 import Link from 'next/link'
+import { formatDistanceToNow } from 'date-fns'
 
 export default function CollectionDetailPage() {
-  useParams<{ id: string }>() // Get id from URL params
+  const params = useParams<{ id: string }>()
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
+  const { showToast } = useToast()
   const [showMenu, setShowMenu] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [collection, setCollection] = useState(MOCK_COLLECTION_DETAIL)
-  const [selectedAsset, setSelectedAsset] = useState<typeof MOCK_COLLECTION_DETAIL.assets[0] | null>(null)
+  const [selectedAsset, setSelectedAsset] = useState<any>(null)
+  const [showAddAssetsModal, setShowAddAssetsModal] = useState(false)
+  const [showDeleteCollectionModal, setShowDeleteCollectionModal] = useState(false)
+  const [assetToRemove, setAssetToRemove] = useState<any>(null)
   const isContributor = user?.role === 'contributor' && user?.isContributor
+
+  const { data: collection, isLoading, error } = useCollection(params.id)
+  const { mutate: deleteCollection, isPending: isDeleting } = useDeleteCollection()
+  const { mutate: updateCollection, isPending: isUpdating } = useUpdateCollection()
+  const { mutate: removeAssets, isPending: isRemoving } = useRemoveAssetsFromCollection()
 
   useEffect(() => {
     if (!isContributor) {
@@ -30,35 +40,95 @@ export default function CollectionDetailPage() {
     return null
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#EE2B24]" />
+      </div>
+    )
+  }
+
+  if (error || !collection) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="text-4xl mb-4">😕</div>
+        <h2 className="text-xl font-semibold text-[#111] mb-2">Collection not found</h2>
+        <p className="text-[#666] mb-4">This collection may have been deleted or you don't have access to it</p>
+        <Link
+          href="/my-assets"
+          className="px-6 py-3 bg-[#EE2B24] text-white text-[14px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
+          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+          Back to My Assets
+        </Link>
+      </div>
+    )
+  }
+
   const handleDelete = () => {
-    if (confirm(`Delete "${collection.name}"? This cannot be undone.`)) {
-      console.log('Deleting collection...')
-      router.push('/my-assets')
-    }
+    deleteCollection(params.id, {
+      onSuccess: () => {
+        showToast('success', 'Collection deleted successfully')
+        router.push('/my-assets')
+      },
+      onError: (error: any) => {
+        showToast('error', error.message || 'Failed to delete collection')
+      },
+    })
+    setShowDeleteCollectionModal(false)
   }
 
   const handleToggleVisibility = () => {
-    setCollection(prev => ({ ...prev, isPublic: !prev.isPublic }))
+    updateCollection(
+      {
+        id: params.id,
+        payload: { isPublic: !collection.isPublic },
+      },
+      {
+        onSuccess: () => {
+          showToast('success', `Collection is now ${!collection.isPublic ? 'public' : 'private'}`)
+        },
+        onError: (error: any) => {
+          showToast('error', error.message || 'Failed to update collection')
+        },
+      }
+    )
     setShowMenu(false)
   }
 
   const handleEditSave = (data: { name: string; description: string; isPublic: boolean }) => {
-    setCollection(prev => ({
-      ...prev,
-      name: data.name,
-      description: data.description,
-      isPublic: data.isPublic,
-    }))
+    updateCollection(
+      {
+        id: params.id,
+        payload: data,
+      },
+      {
+        onSuccess: () => {
+          showToast('success', 'Collection updated successfully')
+          setShowEditModal(false)
+        },
+        onError: (error: any) => {
+          showToast('error', error.message || 'Failed to update collection')
+        },
+      }
+    )
   }
 
   const handleRemoveAsset = (assetId: string) => {
-    if (confirm('Remove this asset from the collection?')) {
-      setCollection(prev => ({
-        ...prev,
-        assets: prev.assets.filter(a => a.id !== assetId),
-        assetCount: prev.assetCount - 1,
-      }))
-    }
+    removeAssets(
+      {
+        id: params.id,
+        assetIds: [assetId],
+      },
+      {
+        onSuccess: () => {
+          showToast('success', 'Asset removed from collection')
+          setAssetToRemove(null)
+        },
+        onError: (error: any) => {
+          showToast('error', error.message || 'Failed to remove asset')
+        },
+      }
+    )
   }
 
   return (
@@ -103,13 +173,14 @@ export default function CollectionDetailPage() {
           )}
           <p className="text-[12px] text-[#888] mt-2"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            {collection.assetCount} assets · Created {collection.createdAt}
+            {collection.assetCount} assets · Created {formatDistanceToNow(new Date(collection.createdAt), { addSuffix: true })}
           </p>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2 relative">
           <button
+            onClick={() => setShowAddAssetsModal(true)}
             className="px-4 py-2 border border-[#D0D0D0] text-[#111] text-[13px] font-semibold rounded-full hover:border-[#999] transition-colors"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
             <Plus className="w-4 h-4 inline mr-1" />
@@ -141,21 +212,33 @@ export default function CollectionDetailPage() {
                     setShowMenu(false)
                     handleToggleVisibility()
                   }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors"
+                  disabled={isUpdating}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  {collection.isPublic ? <Lock className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
-                  Make {collection.isPublic ? 'private' : 'public'}
+                  {isUpdating ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : collection.isPublic ? (
+                    <Lock className="w-4 h-4" />
+                  ) : (
+                    <Globe className="w-4 h-4" />
+                  )}
+                  {isUpdating ? 'Updating...' : `Make ${collection.isPublic ? 'private' : 'public'}`}
                 </button>
                 <div className="h-px bg-[#F0F0F0] my-1" />
                 <button
                   onClick={() => {
                     setShowMenu(false)
-                    handleDelete()
+                    setShowDeleteCollectionModal(true)
                   }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#EE2B24] hover:bg-[#FFF0F0] transition-colors"
+                  disabled={isDeleting}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#EE2B24] hover:bg-[#FFF0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                  <Trash2 className="w-4 h-4" />
-                  Delete collection
+                  {isDeleting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  {isDeleting ? 'Deleting...' : 'Delete collection'}
                 </button>
               </div>
             </>
@@ -177,12 +260,12 @@ export default function CollectionDetailPage() {
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
             Add assets from your library to build this collection
           </p>
-          <Link
-            href="/my-assets"
+          <button
+            onClick={() => setShowAddAssetsModal(true)}
             className="px-5 py-2.5 bg-[#EE2B24] text-white text-[13.5px] font-semibold rounded-full hover:bg-[#d42520] transition-colors"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-            Go to My Assets
-          </Link>
+            Add Assets
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -193,8 +276,8 @@ export default function CollectionDetailPage() {
                 className="w-full h-full"
               >
                 <img
-                  src={asset.src}
-                  alt={asset.alt}
+                  src={asset.thumbnailUrl}
+                  alt={asset.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </button>
@@ -202,16 +285,17 @@ export default function CollectionDetailPage() {
                 <div className="absolute bottom-0 left-0 right-0 p-3">
                   <p className="text-white text-[11px] font-medium line-clamp-2"
                     style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    {asset.alt}
+                    {asset.title}
                   </p>
                 </div>
               </div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleRemoveAsset(asset.id)
+                    setAssetToRemove(asset)
                   }}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-10 pointer-events-auto"
+                  disabled={isRemoving}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-10 pointer-events-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Trash2 className="w-3.5 h-3.5 text-[#EE2B24]" />
                 </button>
@@ -235,6 +319,98 @@ export default function CollectionDetailPage() {
           onClose={() => setShowEditModal(false)}
           onSave={handleEditSave}
         />
+      )}
+
+      {/* Add Assets Modal */}
+      {showAddAssetsModal && (
+        <AddAssetsToCollectionModal
+          collectionId={params.id}
+          collectionName={collection.name}
+          existingAssetIds={collection.assets.map(a => a.id)}
+          onClose={() => setShowAddAssetsModal(false)}
+        />
+      )}
+
+      {/* Delete Collection Confirmation Modal */}
+      {showDeleteCollectionModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+            <h3 className="text-[18px] font-bold text-[#111] mb-2"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Delete Collection?
+            </h3>
+            <p className="text-[14px] text-[#666] mb-6"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Are you sure you want to delete "{collection.name}"? This action cannot be undone. The assets will remain in your library.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteCollectionModal(false)}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 bg-[#F5F5F5] text-[#111] text-[14px] font-semibold rounded-full hover:bg-[#EBEBEB] transition-colors disabled:opacity-50"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 bg-red-600 text-white text-[14px] font-semibold rounded-full hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete Collection'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Asset Confirmation Modal */}
+      {assetToRemove && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+            <h3 className="text-[18px] font-bold text-[#111] mb-2"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Remove Asset?
+            </h3>
+            <p className="text-[14px] text-[#666] mb-6"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              Remove "{assetToRemove.title}" from this collection? The asset will remain in your library.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setAssetToRemove(null)}
+                disabled={isRemoving}
+                className="flex-1 py-2.5 bg-[#F5F5F5] text-[#111] text-[14px] font-semibold rounded-full hover:bg-[#EBEBEB] transition-colors disabled:opacity-50"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleRemoveAsset(assetToRemove.id)}
+                disabled={isRemoving}
+                className="flex-1 py-2.5 bg-red-600 text-white text-[14px] font-semibold rounded-full hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
+              >
+                {isRemoving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Removing...
+                  </>
+                ) : (
+                  'Remove Asset'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

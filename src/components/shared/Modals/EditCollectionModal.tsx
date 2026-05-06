@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { X, Globe, Lock } from 'lucide-react'
 import { ModalBackdrop } from './ModalBackdrop'
-import type { Collection } from '@/types'
+import type { Collection } from '@/lib/api/collections'
 
 interface EditCollectionModalProps {
   collection: Pick<Collection, 'name' | 'description' | 'isPublic'>
@@ -13,7 +13,7 @@ interface EditCollectionModalProps {
 
 export function EditCollectionModal({ collection, onClose, onSave }: EditCollectionModalProps) {
   const [name, setName] = useState(collection.name)
-  const [description, setDescription] = useState(collection.description || '')
+  const [description, setDescription] = useState(collection.description ?? '')
   const [isPublic, setIsPublic] = useState(collection.isPublic)
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -28,7 +28,7 @@ export default function CollectionPage() {
   const { data: collection, isLoading, error } = useQuery({
     queryKey: ['collections', slug],
     queryFn: async () => {
-      return api.get<any>(`/collections/${slug}`)
+      return api.get<any>(`/collections/slug/${slug}`)
     },
     enabled: !!slug,
   })
