@@ -19,7 +19,7 @@ interface AssetCardProps {
 
 export function AssetCard({ asset, isLiked = false, onClick, onDownload, onSaveToBoard, onLike }: AssetCardProps) {
   const [loaded, setLoaded] = useState(false)
-  const contributorName = asset.contributor
+  const contributorName = asset.contributor || 'Unknown'
   const avatar = asset.contributorAvatar || getContributorAvatar(contributorName)
   const username = getContributorUsername(contributorName)
 

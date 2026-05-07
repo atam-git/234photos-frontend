@@ -4,20 +4,29 @@ import { useState } from 'react'
 import { Plus, Lock, Users, MoreHorizontal, Trash2, Edit2, Share2, FolderOpen, LogOut } from 'lucide-react'
 import { CreateBoardModal } from '@/components/shared/Modals/CreateBoardModal'
 import { ConfirmModal } from '@/components/shared/Modals/ConfirmModal'
+import { RenameBoardModal } from '@/components/shared/Modals/RenameBoardModal'
+import { ShareBoardModal } from '@/components/shared/Modals/ShareBoardModal'
 import Link from 'next/link'
-import { useBoards, useDeleteBoard, useRemoveCollaborator } from '@/hooks/useBoards'
+import { useBoards, useDeleteBoard, useRemoveCollaborator, useUpdateBoard } from '@/hooks/useBoards'
 import { useAuthStore } from '@/stores/authStore'
 
 export default function BoardsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [confirmAction, setConfirmAction] = useState<{ type: 'delete' | 'leave'; boardId: string; boardName: string } | null>(null)
+  const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null)
+  const [shareTarget, setShareTarget] = useState<{ id: string; name: string; isPublic: boolean; shareLink?: string | null } | null>(null)
 
   // Fetch boards from API
   const { data: boards = [], isLoading, error } = useBoards()
   const { mutate: deleteBoard } = useDeleteBoard()
   const { mutate: removeCollaborator } = useRemoveCollaborator()
+  const { mutate: updateBoard } = useUpdateBoard()
   const currentUser = useAuthStore((state) => state.user)
+
+  const handleRenameBoard = (boardId: string, newName: string) => {
+    updateBoard({ boardId, data: { name: newName } })
+  }
 
   const handleDeleteBoard = (boardId: string, boardName: string) => {
     setConfirmAction({ type: 'delete', boardId, boardName })
@@ -219,7 +228,7 @@ export default function BoardsPage() {
                           <button
                             onClick={() => {
                               setActiveMenu(null)
-                              // TODO: Open edit modal
+                              setRenameTarget({ id: board.id, name: board.name })
                             }}
                             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors rounded-lg mx-1"
                             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif', width: 'calc(100% - 8px)' }}>
@@ -228,11 +237,16 @@ export default function BoardsPage() {
                           </button>
                         )}
                         {/* Share - for everyone if not public */}
-                        {!board.isPublic && (
+                        {isOwner && (
                           <button
                             onClick={() => {
                               setActiveMenu(null)
-                              // TODO: Share board
+                              setShareTarget({
+                                id: board.id,
+                                name: board.name,
+                                isPublic: board.isPublic,
+                                shareLink: board.shareLink,
+                              })
                             }}
                             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-[#444] hover:bg-[#F5F5F7] transition-colors rounded-lg mx-1"
                             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif', width: 'calc(100% - 8px)' }}>
@@ -293,6 +307,27 @@ export default function BoardsPage() {
           variant="danger"
           onConfirm={executeConfirmAction}
           onCancel={() => setConfirmAction(null)}
+        />
+      )}
+
+      {/* Rename Board Modal */}
+      {renameTarget && (
+        <RenameBoardModal
+          boardId={renameTarget.id}
+          currentName={renameTarget.name}
+          onClose={() => setRenameTarget(null)}
+          onRename={handleRenameBoard}
+        />
+      )}
+
+      {/* Share Board Modal */}
+      {shareTarget && (
+        <ShareBoardModal
+          boardId={shareTarget.id}
+          boardName={shareTarget.name}
+          isShared={shareTarget.isPublic}
+          shareLink={shareTarget.shareLink || undefined}
+          onClose={() => setShareTarget(null)}
         />
       )}
     </div>

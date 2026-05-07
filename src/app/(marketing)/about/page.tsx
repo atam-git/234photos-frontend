@@ -38,9 +38,13 @@ export default function AboutPage() {
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               For too long, Africa has been represented in global media through a narrow, often inaccurate lens. When brands search for "African business" or "Lagos street", they find images shot by outsiders that miss the nuance, energy and diversity of real African life.
             </p>
+            <p className="text-[15px] text-[#555] leading-[1.8] mb-4"
+              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+              234photos exists to change that. We connect African photographers, videographers and creatives with the global brands and businesses who need authentic African visuals — and we make sure the creators get paid fairly for their work.
+            </p>
             <p className="text-[15px] text-[#555] leading-[1.8]"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              234photos exists to change that. We connect African photographers, videographers and illustrators with the global brands and creators who need authentic African visuals — and we make sure the creators get paid fairly for their work.
+              Every image in our library is created by African contributors who understand the culture, context and stories behind their work. We use AI-powered tagging and moderation to ensure quality, while our credit-based pricing model makes authentic African content accessible to creators and businesses worldwide.
             </p>
           </div>
         </section>

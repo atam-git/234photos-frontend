@@ -1,11 +1,21 @@
+'use client'
+
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import Link from 'next/link'
-import { ARTICLES, CATEGORY_COLORS } from '@/lib/mock/editorial'
+import { useQuery } from '@tanstack/react-query'
+import { articlesApi } from '@/lib/api/articles'
+import { CATEGORY_COLORS } from '@/lib/mock/editorial'
 
 export default function EditorialPage() {
-  const featured = ARTICLES.find((a) => a.featured)
-  const rest = ARTICLES.filter((a) => !a.featured)
+  const { data: articles, isLoading } = useQuery({
+    queryKey: ['articles', 'all'],
+    queryFn: () => articlesApi.getAll({ limit: 20 }),
+  })
+
+  const allArticles = articles?.articles || []
+  const featured = allArticles.find((a) => a.author)
+  const rest = allArticles.filter((a) => a.id !== featured?.id)
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -17,15 +27,15 @@ export default function EditorialPage() {
           <div className="max-w-[1280px] mx-auto">
             <span className="text-[#EE2B24] text-[11px] font-bold uppercase tracking-[1.5px]"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              234photos Editorial
+              234Photos Editorial
             </span>
             <h1 className="text-[#111] text-[36px] md:text-[44px] font-extrabold leading-[1.1] tracking-[-1px] mt-2 mb-3"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              African news & entertainment
+              Stories from Africa
             </h1>
-            <p className="text-[#666] text-[15px] max-w-[480px]"
+            <p className="text-[#666] text-[15px] max-w-[520px]"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              Real-time editorial coverage across music, sports, culture and business from every corner of the continent.
+              Discover the latest in African photography, culture, business and creative industries — told by the people who live it.
             </p>
           </div>
         </section>
@@ -33,74 +43,113 @@ export default function EditorialPage() {
         <section className="px-4 md:px-6 py-12">
           <div className="max-w-[1280px] mx-auto">
 
-            {/* Featured */}
-            {featured && (
-              <Link href={`/editorial/${featured.slug}`} className="group block mb-12">
-                <div className="relative rounded-2xl overflow-hidden h-[400px] md:h-[480px] bg-[#111]">
-                  <img src={featured.coverImage} alt={featured.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-[#EE2B24] text-white text-[10px] font-bold uppercase tracking-[1px] px-2.5 py-1 rounded"
-                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      Featured
-                    </span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="bg-[#EE2B24] text-white text-[10px] font-bold uppercase tracking-[0.5px] px-2 py-0.5 rounded"
-                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        {featured.category}
-                      </span>
-                      <span className="text-white/70 text-[13px]"
-                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        {featured.source}
-                      </span>
+            {isLoading ? (
+              <div className="space-y-12">
+                {/* Featured skeleton */}
+                <div className="rounded-2xl overflow-hidden h-[400px] md:h-[480px] bg-gray-200 animate-pulse" />
+                {/* Grid skeleton */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="space-y-3">
+                      <div className="h-[200px] rounded-xl bg-gray-200 animate-pulse" />
+                      <div className="h-3 bg-gray-200 rounded w-1/3 animate-pulse" />
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
+                      <div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
                     </div>
-                    <h2 className="text-white text-[22px] md:text-[28px] font-bold leading-snug mb-2 max-w-[700px] group-hover:underline underline-offset-2"
-                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {featured.title}
-                    </h2>
-                    <span className="text-white/60 text-[13px]"
-                      style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                      {featured.date} · {featured.readTime}
-                    </span>
-                  </div>
+                  ))}
                 </div>
-              </Link>
-            )}
-
-            {/* Article grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rest.map((article) => (
-                <Link key={article.slug} href={`/editorial/${article.slug}`} className="group flex flex-col">
-                  <div className="relative h-[200px] rounded-xl overflow-hidden bg-[#E8E8E8] mb-3">
-                    <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                    <div className="absolute top-2 left-2">
-                      <span className={`text-[10px] font-bold uppercase tracking-[0.5px] px-2 py-0.5 rounded ${CATEGORY_COLORS[article.category] ?? 'bg-[#F0F0F0] text-[#555]'}`}
-                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                        {article.category}
-                      </span>
+              </div>
+            ) : allArticles.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-[#666] text-[15px]"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  No articles available yet
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Featured */}
+                {featured && (
+                  <Link href={`/editorial/${featured.slug}`} className="group block mb-12">
+                    <div className="relative rounded-2xl overflow-hidden h-[400px] md:h-[480px] bg-[#111]">
+                      <img src={featured.coverImage} alt={featured.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-[#EE2B24] text-white text-[10px] font-bold uppercase tracking-[1px] px-2.5 py-1 rounded"
+                          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                          Featured
+                        </span>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                        <div className="flex items-center gap-2 mb-3">
+                          {featured.category && (
+                            <span className="bg-[#EE2B24] text-white text-[10px] font-bold uppercase tracking-[0.5px] px-2 py-0.5 rounded"
+                              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                              {featured.category}
+                            </span>
+                          )}
+                          <span className="text-white/70 text-[13px]"
+                            style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                            {featured.author.name}
+                          </span>
+                        </div>
+                        <h2 className="text-white text-[22px] md:text-[28px] font-bold leading-snug mb-2 max-w-[700px] group-hover:underline underline-offset-2"
+                          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                          {featured.title}
+                        </h2>
+                        <span className="text-white/60 text-[13px]"
+                          style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                          {new Date(featured.publishedAt).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })} · {featured.readTime} min read
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-[11.5px] text-[#888] mb-1.5"
-                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    {article.source} · {article.date}
-                  </p>
-                  <h3 className="text-[15px] font-bold text-[#111] leading-snug mb-2 group-hover:text-[#EE2B24] transition-colors line-clamp-2"
-                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    {article.title}
-                  </h3>
-                  <p className="text-[13px] text-[#666] leading-relaxed line-clamp-2"
-                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    {article.excerpt}
-                  </p>
-                  <span className="text-[12px] text-[#999] mt-2"
-                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                    {article.readTime}
-                  </span>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                )}
+
+                {/* Article grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {rest.map((article) => (
+                    <Link key={article.slug} href={`/editorial/${article.slug}`} className="group flex flex-col">
+                      <div className="relative h-[200px] rounded-xl overflow-hidden bg-[#E8E8E8] mb-3">
+                        <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                        {article.category && (
+                          <div className="absolute top-2 left-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-[0.5px] px-2 py-0.5 rounded ${CATEGORY_COLORS[article.category] ?? 'bg-[#F0F0F0] text-[#555]'}`}
+                              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                              {article.category}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[11.5px] text-[#888] mb-1.5"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        {article.author.name} · {new Date(article.publishedAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric', 
+                          year: 'numeric' 
+                        })}
+                      </p>
+                      <h3 className="text-[15px] font-bold text-[#111] leading-snug mb-2 group-hover:text-[#EE2B24] transition-colors line-clamp-2"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        {article.title}
+                      </h3>
+                      <p className="text-[13px] text-[#666] leading-relaxed line-clamp-2"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        {article.excerpt}
+                      </p>
+                      <span className="text-[12px] text-[#999] mt-2"
+                        style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                        {article.readTime} min read
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </section>
       </main>

@@ -1,20 +1,69 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { ContributorApplicationModal } from '@/components/shared/Modals/ContributorApplicationModal'
 import Link from 'next/link'
 import { useAuthStore } from '@/stores/authStore'
-import { CONTRIBUTOR_STEPS, CONTRIBUTOR_STATS, CONTRIBUTOR_FAQS } from '@/lib/mock/marketing'
+import { CONTRIBUTOR_STEPS, CONTRIBUTOR_FAQS } from '@/lib/mock/marketing'
+import { assetsApi } from '@/lib/api/assets'
+
+// Helper to format numbers
+function formatNumber(num: number): string {
+  if (num >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(1)}M+`
+  }
+  if (num >= 1_000) {
+    return `${(num / 1_000).toFixed(1)}K+`
+  }
+  return num.toString()
+}
+
+// Helper to format currency (kobo to Naira)
+function formatCurrency(kobo: number): string {
+  const naira = kobo / 100
+  if (naira >= 1_000_000_000) {
+    return `₦${(naira / 1_000_000_000).toFixed(1)}B+`
+  }
+  if (naira >= 1_000_000) {
+    return `₦${(naira / 1_000_000).toFixed(1)}M+`
+  }
+  if (naira >= 1_000) {
+    return `₦${(naira / 1_000).toFixed(1)}K+`
+  }
+  return `₦${naira.toLocaleString('en-NG')}`
+}
 
 export default function ContributePage() {
   const router = useRouter()
   const [showContributorModal, setShowContributorModal] = useState(false)
+  const [stats, setStats] = useState<{
+    totalContributors: number
+    countriesRepresented: number
+    totalEarnings: number
+    totalAssets: number
+  } | null>(null)
+  const [loading, setLoading] = useState(true)
+  
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const user = useAuthStore((state) => state.user)
   const isContributor = user?.role === 'contributor' && user?.isContributor
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const data = await assetsApi.getContributorStats()
+        setStats(data)
+      } catch (error) {
+        console.error('Failed to fetch contributor stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchStats()
+  }, [])
 
   const handleStartContributing = () => {
     if (!isLoggedIn) {
@@ -68,14 +117,86 @@ export default function ContributePage() {
         {/* Stats */}
         <section className="bg-[#F5F5F7] px-4 md:px-6 py-12">
           <div className="max-w-[1000px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-            {CONTRIBUTOR_STATS.map((s) => (
-              <div key={s.value} className="text-center">
-                <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
-                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{s.value}</p>
-                <p className="text-[#666] text-[13px] mt-1"
-                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>{s.label}</p>
-              </div>
-            ))}
+            {loading ? (
+              // Loading skeletons
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="text-center animate-pulse">
+                  <div className="h-10 bg-gray-300 rounded w-24 mx-auto mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-32 mx-auto" />
+                </div>
+              ))
+            ) : stats ? (
+              <>
+                <div className="text-center">
+                  <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    {formatNumber(stats.totalContributors)}
+                  </p>
+                  <p className="text-[#666] text-[13px] mt-1"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    Active contributors
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    {stats.countriesRepresented}
+                  </p>
+                  <p className="text-[#666] text-[13px] mt-1"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    African countries
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    {formatCurrency(stats.totalEarnings)}
+                  </p>
+                  <p className="text-[#666] text-[13px] mt-1"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    Paid to contributors
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    {formatNumber(stats.totalAssets)}
+                  </p>
+                  <p className="text-[#666] text-[13px] mt-1"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                    Assets in library
+                  </p>
+                </div>
+              </>
+            ) : (
+              // Error state - show placeholder
+              <>
+                <div className="text-center">
+                  <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>100K+</p>
+                  <p className="text-[#666] text-[13px] mt-1"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Active contributors</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>54</p>
+                  <p className="text-[#666] text-[13px] mt-1"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>African countries</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>₦3.2B+</p>
+                  <p className="text-[#666] text-[13px] mt-1"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Paid to contributors</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[#EE2B24] text-[36px] font-extrabold tracking-[-1px]"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>50M+</p>
+                  <p className="text-[#666] text-[13px] mt-1"
+                    style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>Assets in library</p>
+                </div>
+              </>
+            )}
           </div>
         </section>
 
@@ -130,7 +251,7 @@ export default function ContributePage() {
             </h2>
             <p className="text-[#666] text-[14px] mb-8"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              Join 100,000+ African creators already earning on 234photos.
+              Join {stats ? formatNumber(stats.totalContributors) : '100,000+'} African creators already earning on 234photos.
             </p>
             <button
               onClick={handleStartContributing}

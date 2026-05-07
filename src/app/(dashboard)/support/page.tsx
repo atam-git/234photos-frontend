@@ -5,6 +5,7 @@ import { MessageCircle, Mail, Book, HelpCircle, ChevronDown, ChevronUp, Send, Ch
 import Link from 'next/link'
 import { SUPPORT_CONTACT_OPTIONS } from '@/lib/mock/dashboard'
 import { useCreateTicket, useFAQ, useSupportContactInfo } from '@/hooks/useSupport'
+import { useToast } from '@/components/ui/toast-provider'
 import TicketSuccessModal from '@/components/modals/TicketSuccessModal'
 
 export default function SupportPage() {
@@ -16,6 +17,7 @@ export default function SupportPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [createdTicketId, setCreatedTicketId] = useState<string>('')
   const contactFormRef = useRef<HTMLDivElement>(null)
+  const { showToast } = useToast()
 
   const { mutate: createTicket, isPending: isCreating } = useCreateTicket()
   const { data: faqData, isLoading: faqLoading } = useFAQ()
@@ -63,7 +65,7 @@ export default function SupportPage() {
           setCategory('TECHNICAL')
         },
         onError: (error: any) => {
-          alert(error.response?.data?.message || 'Failed to create ticket. Please try again.')
+          showToast('error', error.response?.data?.message || 'Failed to create ticket. Please try again.')
         },
       }
     )

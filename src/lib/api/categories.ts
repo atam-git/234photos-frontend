@@ -7,6 +7,7 @@ export interface Category {
   description: string | null
   icon: string | null
   displayOrder: number
+  thumbnailUrl: string | null
   _count: {
     assets: number
   }
@@ -15,8 +16,9 @@ export interface Category {
 /**
  * Get all active categories
  */
-export async function getCategories(): Promise<Category[]> {
-  return api.get<Category[]>('/categories')
+export async function getCategories(limit?: number): Promise<Category[]> {
+  const params = limit ? `?limit=${limit}` : ''
+  return api.get<Category[]>(`/categories${params}`)
 }
 
 /**

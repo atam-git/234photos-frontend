@@ -1,21 +1,16 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useState, useCallback } from 'react'
-import { SlidersHorizontal } from 'lucide-react'
+import { useState } from 'react'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { Breadcrumb } from '@/components/shared/Breadcrumb'
 import { MasonryGrid } from '@/components/features/search/MasonryGrid'
-import { FilterSidebar } from '@/components/features/search/FilterSidebar'
-import { FilterBottomSheet } from '@/components/features/search/FilterBottomSheet'
-import { ActiveFilterChips } from '@/components/features/search/ActiveFilterChips'
-import { SortDropdown } from '@/components/features/search/SortDropdown'
 import { AuthModal } from '@/components/shared/Modals/AuthModal'
 import { DownloadModal } from '@/components/shared/Modals/DownloadModal'
 import { SaveToBoardModal } from '@/components/shared/Modals/SaveToBoardModal'
 import { QuickPreviewModal } from '@/components/shared/Modals/QuickPreviewModal'
-import type { Asset, ModalState, ActiveFilters } from '@/types'
+import type { Asset, ModalState } from '@/types'
 import { useAuthStore } from '@/stores/authStore'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
@@ -28,22 +23,14 @@ export default function CollectionPage() {
   const { data: collection, isLoading, error } = useQuery({
     queryKey: ['collections', slug],
     queryFn: async () => {
-      return api.get<any>(`/collections/slug/${slug}`)
+      return api.get<any>(`/collections/${slug}`)
     },
     enabled: !!slug,
   })
 
-  const [filters, setFilters] = useState<ActiveFilters>({})
-  const [sort, setSort] = useState('relevance')
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
 
-  const handleFilterChange = useCallback((key: keyof ActiveFilters, value: string | undefined) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-  }, [])
-
   const closeModal = () => setModal({ type: 'none' })
-  const activeFilterCount = Object.values(filters).filter(Boolean).length
 
   const results = collection?.assets || []
 
@@ -52,12 +39,35 @@ export default function CollectionPage() {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="mb-4 text-4xl">⏳</div>
-            <p className="text-[#666]">Loading collection...</p>
+        
+        {/* Hero skeleton */}
+        <div className="relative h-[220px] md:h-[280px] overflow-hidden bg-gray-200 animate-pulse">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.6s_infinite] [background-size:200%_100%]" />
+          <div className="absolute inset-0 flex flex-col justify-end px-4 md:px-6 pb-8">
+            <div className="max-w-[1280px] mx-auto w-full">
+              <div className="h-4 bg-white/20 rounded w-48 mb-4" />
+              <div className="h-9 bg-white/30 rounded w-64 mb-2" />
+              <div className="h-4 bg-white/20 rounded w-40" />
+            </div>
+          </div>
+        </div>
+
+        {/* Grid skeleton */}
+        <main className="flex-1 max-w-[1280px] mx-auto w-full px-4 md:px-6 py-6">
+          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-[10px]">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="break-inside-avoid mb-[10px] animate-pulse">
+                <div 
+                  className="w-full bg-gray-200 rounded-xl"
+                  style={{ aspectRatio: i % 3 === 0 ? '3/4' : i % 3 === 1 ? '4/3' : '1/1' }}
+                >
+                  <div className="w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.6s_infinite] [background-size:200%_100%]" />
+                </div>
+              </div>
+            ))}
           </div>
         </main>
+
         <Footer />
       </div>
     )
@@ -107,42 +117,13 @@ export default function CollectionPage() {
       </div>
 
       <main className="flex-1 max-w-[1280px] mx-auto w-full px-4 md:px-6 py-6">
-        {/* Controls */}
-        <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-          <div className="flex items-center gap-2.5 flex-wrap flex-1 min-w-0">
-            {sidebarCollapsed && (
-              <button
-                onClick={() => setSidebarCollapsed(false)}
-                className="hidden lg:flex items-center gap-2 px-3.5 py-[7px] border border-[#D0D0D0] rounded-full text-[13px] font-medium text-[#111] bg-white hover:border-[#999] transition-colors shrink-0"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                Filters
-                {activeFilterCount > 0 && (
-                  <span className="w-5 h-5 rounded-full bg-[#EE2B24] text-white text-[10px] font-bold flex items-center justify-center">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-            )}
-            <FilterBottomSheet filters={filters} onChange={handleFilterChange} activeCount={activeFilterCount} />
-            <ActiveFilterChips filters={filters} resultCount={results.length} query="" onRemove={(key) => handleFilterChange(key, undefined)} onClearAll={() => setFilters({})} />
-          </div>
-          <SortDropdown value={sort} onChange={setSort} />
-        </div>
-
-        <div className="flex gap-8">
-          <FilterSidebar filters={filters} onChange={handleFilterChange} collapsed={sidebarCollapsed} onToggleCollapse={() => setSidebarCollapsed(true)} />
-          <div className="flex-1 min-w-0">
-            <MasonryGrid
-              assets={results}
-              onAssetClick={(asset) => setModal({ type: 'preview', asset })}
-              onDownload={(asset) => setModal({ type: 'download', asset })}
-              onSaveToBoard={(asset) => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
-              onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
-            />
-          </div>
-        </div>
+        <MasonryGrid
+          assets={results}
+          onAssetClick={(asset) => setModal({ type: 'preview', asset })}
+          onDownload={(asset) => setModal({ type: 'download', asset })}
+          onSaveToBoard={(asset) => isLoggedIn ? setModal({ type: 'board', asset }) : setModal({ type: 'auth', defaultTab: 'login' })}
+          onLike={() => setModal({ type: 'auth', defaultTab: 'login' })}
+        />
       </main>
 
       <Footer />

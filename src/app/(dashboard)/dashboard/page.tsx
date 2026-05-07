@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react'
-import { DASHBOARD_BADGES } from '@/lib/mock/dashboard'
 import { useAuthStore } from '@/stores/authStore'
 import { BadgeDetailsModal } from '@/components/shared/Modals/BadgeDetailsModal'
 import { LeaderboardModal } from '@/components/shared/Modals/LeaderboardModal'
@@ -12,6 +11,7 @@ import { ProfileCompletionBanner } from '@/components/shared/ProfileCompletionBa
 import { useToast } from '@/components/ui/toast-provider'
 import { useDashboardStats, useTopAssets, useRecentActivity } from '@/hooks/useDashboard'
 import { useProfileCompletion } from '@/hooks/useUsers'
+import { useBadges } from '@/hooks/useBadges'
 import Link from 'next/link'
 
 export default function DashboardPage() {
@@ -23,13 +23,12 @@ export default function DashboardPage() {
   const { data: topAssets, isLoading: topAssetsLoading } = useTopAssets(4)
   const { data: recentActivity, isLoading: activityLoading } = useRecentActivity(5)
   const { data: profileCompletion } = useProfileCompletion()
+  const { data: badges, isLoading: badgesLoading } = useBadges()
   
   const isContributor = user?.role === 'contributor' && user?.isContributor
   const isPendingContributor = user?.role === 'contributor' && !user?.isContributor
   const isRejectedContributor = user?.role === 'contributor' && (user as any).applicationStatus === 'rejected'
   
-  const [selectedBadge, setSelectedBadge] = useState<typeof DASHBOARD_BADGES[0] | null>(null)
-  const [showLeaderboard, setShowLeaderboard] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState<any>(null)
 
   useEffect(() => {
@@ -486,25 +485,29 @@ export default function DashboardPage() {
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               Badges
             </h2>
-            <div className="text-center py-4">
-              <div className="text-3xl mb-2">🏆</div>
-              <p className="text-[12px] text-[#888]"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                Coming soon
-              </p>
-            </div>
+            {badgesLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-2 animate-pulse">
+                    <div className="w-6 h-6 bg-gray-200 rounded" />
+                    <div className="h-4 w-24 bg-gray-200 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <div className="text-3xl mb-2">🏆</div>
+                <p className="text-[12px] text-[#888]"
+                  style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
+                  Coming soon
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Modals */}
-      {selectedBadge && (
-        <BadgeDetailsModal
-          badge={selectedBadge}
-          onClose={() => setSelectedBadge(null)}
-        />
-      )}
-
       {selectedAsset && (
         <AssetStatsModal
           asset={selectedAsset}

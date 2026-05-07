@@ -128,12 +128,85 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="mb-4 text-4xl">⏳</div>
-            <p className="text-[#666]">Loading profile...</p>
+        
+        {/* Profile hero skeleton */}
+        <section className="bg-[#F5F5F7] border-b border-[#E8E8E8]">
+          <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 animate-pulse">
+              
+              {/* Avatar skeleton */}
+              <div className="w-24 h-24 rounded-full bg-gray-300 shrink-0 ring-4 ring-white shadow-md" />
+
+              {/* Info skeleton */}
+              <div className="flex-1 min-w-0 w-full">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="flex-1">
+                    {/* Name */}
+                    <div className="h-7 bg-gray-300 rounded w-48 mb-2" />
+                    
+                    {/* Meta info */}
+                    <div className="flex items-center gap-3 mb-3 flex-wrap">
+                      <div className="h-4 bg-gray-200 rounded w-32" />
+                      <div className="h-4 bg-gray-200 rounded w-28" />
+                      <div className="h-5 bg-gray-200 rounded w-16" />
+                    </div>
+                    
+                    {/* Bio */}
+                    <div className="space-y-2 max-w-[520px]">
+                      <div className="h-4 bg-gray-200 rounded w-full" />
+                      <div className="h-4 bg-gray-200 rounded w-4/5" />
+                    </div>
+                    
+                    {/* Social links */}
+                    <div className="flex items-center gap-3 mt-3">
+                      <div className="w-4 h-4 bg-gray-200 rounded" />
+                      <div className="w-4 h-4 bg-gray-200 rounded" />
+                      <div className="w-4 h-4 bg-gray-200 rounded" />
+                    </div>
+                  </div>
+
+                  {/* Follow button skeleton */}
+                  <div className="h-10 w-28 bg-gray-300 rounded-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* Stats skeleton */}
+            <div className="flex items-center gap-8 mt-8 pt-6 border-t border-[#E8E8E8] flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-200 rounded" />
+                <div className="h-5 bg-gray-300 rounded w-12" />
+                <div className="h-4 bg-gray-200 rounded w-16" />
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-200 rounded" />
+                <div className="h-5 bg-gray-300 rounded w-12" />
+                <div className="h-4 bg-gray-200 rounded w-20" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Content skeleton */}
+        <main className="flex-1 max-w-[1280px] mx-auto w-full px-4 md:px-6 py-8">
+          {/* Tabs skeleton */}
+          <div className="flex gap-1 border-b border-[#F0F0F0] mb-6">
+            <div className="h-10 w-32 bg-gray-200 rounded-t" />
+            <div className="h-10 w-32 bg-gray-100 rounded-t" />
+          </div>
+
+          {/* Grid skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {[...Array(15)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[3/4] bg-gray-200 rounded-lg mb-2" />
+                <div className="h-3 bg-gray-200 rounded w-3/4 mb-1" />
+                <div className="h-3 bg-gray-100 rounded w-1/2" />
+              </div>
+            ))}
           </div>
         </main>
+
         <Footer />
       </div>
     )
@@ -319,11 +392,14 @@ export default function ProfilePage() {
 
             {/* Loading state - initial load only */}
             {assetsLoading && allAssets.length === 0 && (
-              <div className="flex items-center justify-center py-16">
-                <div className="text-center">
-                  <div className="mb-4 text-4xl">⏳</div>
-                  <p className="text-[#666]">Loading assets...</p>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {[...Array(15)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-[3/4] bg-gray-200 rounded-lg mb-2" />
+                    <div className="h-3 bg-gray-200 rounded w-3/4 mb-1" />
+                    <div className="h-3 bg-gray-100 rounded w-1/2" />
+                  </div>
+                ))}
               </div>
             )}
 
@@ -396,11 +472,26 @@ export default function ProfilePage() {
 
             {/* Loading state */}
             {collectionsLoading && (
-              <div className="flex items-center justify-center py-16">
-                <div className="text-center">
-                  <div className="mb-4 text-4xl">⏳</div>
-                  <p className="text-[#666]">Loading collections...</p>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    {/* Collection thumbnail skeleton - 2x2 grid */}
+                    <div className="aspect-[4/3] bg-gray-200 rounded-t-xl grid grid-cols-2 gap-0.5 p-0.5">
+                      <div className="bg-gray-300" />
+                      <div className="bg-gray-300" />
+                      <div className="bg-gray-300" />
+                      <div className="bg-gray-300" />
+                    </div>
+                    
+                    {/* Collection info skeleton */}
+                    <div className="bg-white rounded-b-xl border border-t-0 border-[#F0F0F0] p-3.5">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                      <div className="h-3 bg-gray-100 rounded w-full mb-1" />
+                      <div className="h-3 bg-gray-100 rounded w-2/3 mb-2" />
+                      <div className="h-3 bg-gray-100 rounded w-20" />
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 

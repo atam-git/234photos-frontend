@@ -2,18 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { CreditCard, Download, Package, Plus, Check, Calendar } from 'lucide-react'
-// FUTURE: re-enable when implementing saved-card tokenization (Flutterwave Inline.js + /v3/tokenized-charges)
-// import { MoreVertical, Edit2, Trash2 } from 'lucide-react'
+import { CreditCard, Download, Package, Plus, Calendar } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
-import type { PaymentMethod } from '@/types'
-// FUTURE: saved payment methods are not yet implemented — using empty array until tokenization is wired up
-// import { MOCK_PAYMENT_METHODS } from '@/lib/mock'
-const MOCK_PAYMENT_METHODS: PaymentMethod[] = []
 import { TransactionDetailsModal } from '@/components/shared/Modals/TransactionDetailsModal'
 import { PurchaseCreditsModal } from '@/components/shared/Modals/PurchaseCreditsModal'
-import { AddPaymentMethodModal } from '@/components/shared/Modals/AddPaymentMethodModal'
-import { UpgradeSubscriptionModal } from '@/components/shared/Modals/UpgradeSubscriptionModal'
 import type { BillingTab, BillingModalType } from '@/types'
 import { useCreditPackages, useTransactions, useCreditsBalance, useVerifyPayment } from '@/hooks/usePayments'
 import { useToast } from '@/components/ui/toast-provider'
@@ -28,9 +20,6 @@ export default function BillingPage() {
   const [modal, setModal] = useState<BillingModalType>('none')
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null)
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null)
-  // FUTURE: re-enable when saved-cards list is restored
-  // const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
   // API hooks
   const { data: packagesData, isLoading: packagesLoading } = useCreditPackages()
@@ -263,45 +252,6 @@ export default function BillingPage() {
               </div>
             )}
           </div>
-
-          {/*
-            FUTURE: Saved Payment Methods
-            -----------------------------
-            Currently checkout uses Flutterwave's Standard Hosted Payment page,
-            which collects card details on Flutterwave's side every time. There
-            is no point showing a "saved cards" list until we implement card
-            tokenization (Flutterwave Inline.js + /v3/tokenized-charges) so
-            users can actually pay with one click using a stored token.
-
-            When re-enabling, restore:
-              - MOCK_PAYMENT_METHODS / real GET /payments/methods endpoint
-              - MoreVertical / Edit2 / Trash2 imports above
-              - openMenuId state
-              - the AddPaymentMethodModal "Add card" trigger
-
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[16px] font-bold text-[#111]"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                Payment Methods
-              </h2>
-              <button
-                onClick={() => setModal('addCard')}
-                className="flex items-center gap-2 px-4 py-2 border border-[#D0D0D0] text-[#111] text-[13px] font-medium rounded-full hover:bg-[#F5F5F7] transition-colors"
-                style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-                <Plus className="w-4 h-4" />
-                Add card
-              </button>
-            </div>
-            <div className="space-y-3">
-              {MOCK_PAYMENT_METHODS.map((method) => (
-                <div key={method.id} className="bg-white rounded-xl border border-[#F0F0F0] p-4 flex items-center justify-between">
-                  ... saved card row + edit/delete dropdown ...
-                </div>
-              ))}
-            </div>
-          </div>
-          */}
         </div>
       )}
 
@@ -465,53 +415,14 @@ export default function BillingPage() {
       {modal === 'purchase' && selectedPackage && (
         <PurchaseCreditsModal
           package={selectedPackage}
-          paymentMethods={MOCK_PAYMENT_METHODS}
           onClose={() => {
             setModal('none')
             setSelectedPackage(null)
           }}
-          onConfirm={(paymentMethodId, promoCode) => {
-            // Handle purchase logic
-            console.log('Purchase confirmed:', { paymentMethodId, promoCode, package: selectedPackage })
+          onConfirm={() => {
+            // PurchaseCreditsModal handles initialize-payment + redirect itself.
             setModal('none')
             setSelectedPackage(null)
-          }}
-        />
-      )}
-
-      {modal === 'addCard' && (
-        <AddPaymentMethodModal
-          onClose={() => {
-            setModal('none')
-            setSelectedPaymentMethod(null)
-          }}
-          onConfirm={(data) => {
-            // Handle add/edit card logic
-            console.log(selectedPaymentMethod ? 'Card updated:' : 'Card added:', data)
-            setModal('none')
-            setSelectedPaymentMethod(null)
-          }}
-          editingMethod={selectedPaymentMethod}
-        />
-      )}
-
-      {modal === 'upgrade' && (
-        <UpgradeSubscriptionModal
-          planName="Pro"
-          planPrice={49}
-          planCredits={50}
-          planFeatures={[
-            '50 credits monthly',
-            'Unused credits roll over',
-            'Priority support',
-            'Early access to new features'
-          ]}
-          paymentMethods={MOCK_PAYMENT_METHODS}
-          onClose={() => setModal('none')}
-          onConfirm={(paymentMethodId, billingCycle) => {
-            // Handle upgrade logic
-            console.log('Upgrade confirmed:', { paymentMethodId, billingCycle })
-            setModal('none')
           }}
         />
       )}

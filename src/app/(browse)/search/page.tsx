@@ -111,15 +111,7 @@ function SearchPageInner() {
 
   // Fetch search results from API
   const { data: searchData, isLoading, error } = useSearch(searchApiParams)
-  
-  console.log('Search results:', { 
-    isLoading, 
-    error: error?.message,
-    total: searchData?.total,
-    hits: searchData?.hits?.length,
-    query
-  })
-  
+
   const results = searchData?.hits || []
   const total = searchData?.total || 0
   const totalPages = searchData?.totalPages || 0
@@ -312,10 +304,7 @@ function SearchPageInner() {
         <DownloadModal
           asset={modal.asset}
           onClose={closeModal}
-          onConfirm={(options) => {
-            console.log('Download:', modal.asset.id, options)
-            closeModal()
-          }}
+          onConfirm={() => closeModal()}
         />
       )}
 

@@ -20,15 +20,11 @@ export function ShareBoardModal({ boardId, boardName, isShared: initialIsShared,
   const { mutate: shareBoard, isPending: isSharing } = useShareBoard()
   const { mutate: unshareBoard, isPending: isUnsharing } = useUnshareBoard()
 
-  console.log('ShareBoardModal rendered:', { boardId, boardName, isShared, shareToken, initialIsShared, initialShareLink })
-
   const shareUrl = shareToken ? `${window.location.origin}/boards/shared/${shareToken}` : ''
 
   const handleShare = () => {
-    console.log('handleShare called, boardId:', boardId)
     shareBoard(boardId, {
       onSuccess: (board) => {
-        console.log('Share success:', board)
         setIsShared(true)
         setShareToken(board.shareLink || '')
       },
@@ -39,11 +35,9 @@ export function ShareBoardModal({ boardId, boardName, isShared: initialIsShared,
   }
 
   const handleUnshare = () => {
-    console.log('handleUnshare called')
     if (confirm('Remove share link? Anyone with the link will lose access.')) {
       unshareBoard(boardId, {
         onSuccess: () => {
-          console.log('Unshare success')
           setIsShared(false)
           setShareToken('')
         },

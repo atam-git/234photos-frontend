@@ -74,16 +74,17 @@ export const PRICING_FAQS = [
 ]
 
 export const BUYER_STEPS = [
-  { n: '01', title: 'Search', desc: 'Type a keyword or upload an image to find visually similar assets. Filter by type, orientation, license and more.' },
-  { n: '02', title: 'Preview', desc: 'Click any asset to see a full watermarked preview. Check dimensions, license terms and contributor details.' },
-  { n: '03', title: 'Download', desc: 'Choose your license type and download. Assets are yours to use forever under the terms of your license.' },
+  { n: '01', title: 'Browse or search', desc: 'Explore featured collections, trending content, or search by keyword. Filter by category, orientation and more.' },
+  { n: '02', title: 'Buy credits', desc: 'Purchase a credit package that fits your needs. Credits never expire and can be used anytime.' },
+  { n: '03', title: 'Preview & download', desc: 'View watermarked previews, check details, then download high-resolution files. 1 credit = 1 download.' },
+  { n: '04', title: 'Use anywhere', desc: 'Full commercial license included. Use images in websites, apps, marketing materials, products and more.' },
 ]
 
 export const CONTRIBUTOR_STEPS = [
-  { n: '01', title: 'Create your account', desc: 'Sign up free in under 2 minutes. No approval needed to get started.' },
-  { n: '02', title: 'Upload your work', desc: 'Drag and drop up to 100 files at once. We support JPG, PNG, SVG, MP4 and MOV.' },
-  { n: '03', title: 'Add metadata', desc: 'Our AI suggests tags automatically. Review, edit and submit for review.' },
-  { n: '04', title: 'Get approved & earn', desc: 'Assets go live within 24–48 hours. Earn royalties every time your work is downloaded.' },
+  { n: '01', title: 'Create your account', desc: 'Sign up and apply to become a contributor. Tell us about your work and photography specialties.' },
+  { n: '02', title: 'Upload your work', desc: 'Drag and drop JPG or PNG files. Our AI automatically tags images and detects inappropriate content.' },
+  { n: '03', title: 'Review & submit', desc: 'Add titles, descriptions and review AI-generated tags. Submit for moderation or save as draft.' },
+  { n: '04', title: 'Get approved & earn', desc: 'Assets are reviewed within 24-48 hours. Earn 30-50% royalties every time your work is downloaded.' },
 ]
 
 export const CONTRIBUTOR_STATS = [
@@ -101,7 +102,16 @@ export const CONTRIBUTOR_FAQS = [
   { q: 'When and how do I get paid?', a: 'Earnings are paid monthly via bank transfer, PayPal or mobile money once you reach the ₦5,000 minimum threshold.' },
 ]
 
-export const CONTACT_TOPICS = ['General enquiry', 'Licensing question', 'Contributor support', 'Enterprise / sales', 'Press & media', 'Report an issue']
+export const CONTACT_TOPICS = [
+  'General enquiry',
+  'Licensing question',
+  'Contributor application',
+  'Payment & credits',
+  'Technical support',
+  'Enterprise / sales',
+  'Press & media',
+  'Report content issue',
+]
 
 export const LICENSES = [
   {
@@ -150,10 +160,10 @@ export const TEAM_MEMBERS = [
 ]
 
 export const COMPANY_VALUES = [
-  { title: 'Authenticity', desc: 'We believe Africa deserves to be represented on its own terms — not through a foreign lens.' },
-  { title: 'Creator-first', desc: 'Contributors are the heart of 234photos. We build every feature with their success in mind.' },
-  { title: 'Quality', desc: 'Every asset is reviewed by our team to ensure it meets our standards for technical quality and cultural authenticity.' },
-  { title: 'Community', desc: 'We\'re building more than a marketplace — we\'re fostering a community of African creatives supporting each other.' },
+  { title: 'Authenticity', desc: 'Every image is created by African contributors who understand the culture, context and stories behind their work. No outsider perspectives — just real African life.' },
+  { title: 'Creator-first', desc: 'Contributors earn 30-50% royalties per download and keep their credits forever. We build every feature with their success in mind.' },
+  { title: 'Quality & Safety', desc: 'AI-powered moderation and human review ensure every asset meets our standards for technical quality, cultural authenticity and content safety.' },
+  { title: 'Fair Pricing', desc: 'Our credit-based model means no subscriptions, no hidden fees. Buy credits once, use them forever. Simple, transparent pricing for everyone.' },
 ]
 
 export const FEATURED_COLLECTIONS = [

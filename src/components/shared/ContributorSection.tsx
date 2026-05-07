@@ -1,12 +1,45 @@
-import Link from 'next/link'
+'use client'
 
-const stats = [
-  { value: '100K+', label: 'African\ncontributors' },
-  { value: '50M+', label: 'Assets in library' },
-  { value: '54', label: 'Countries\nearning' },
-]
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { assetsApi } from '@/lib/api/assets'
+
+// Helper to format numbers
+function formatNumber(num: number): string {
+  if (num >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(1)}M+`
+  }
+  if (num >= 1_000) {
+    return `${(num / 1_000).toFixed(1)}K+`
+  }
+  return num.toString()
+}
 
 export function ContributorSection() {
+  const [stats, setStats] = useState<{
+    totalContributors: number
+    countriesRepresented: number
+    totalAssets: number
+  } | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const data = await assetsApi.getContributorStats()
+        setStats({
+          totalContributors: data.totalContributors,
+          countriesRepresented: data.countriesRepresented,
+          totalAssets: data.totalAssets,
+        })
+      } catch (error) {
+        console.error('Failed to fetch contributor stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchStats()
+  }, [])
   return (
     <section className="relative overflow-hidden min-h-[340px]">
       {/* Background image */}
@@ -49,16 +82,64 @@ export function ContributorSection() {
 
           {/* Right: stats */}
           <div className="flex items-center gap-9 shrink-0">
-            {stats.map((stat) => (
-              <div key={stat.value} className="flex flex-col items-center gap-1">
-                <span className="text-white text-[34px] font-bold leading-none tracking-[-0.5px]">
-                  {stat.value}
-                </span>
-                <span className="text-white/70 text-[12px] font-normal leading-[1.4] text-center whitespace-pre-line">
-                  {stat.label}
-                </span>
-              </div>
-            ))}
+            {loading ? (
+              // Loading skeletons
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-1 animate-pulse">
+                  <div className="h-9 w-20 bg-white/20 rounded" />
+                  <div className="h-4 w-16 bg-white/10 rounded" />
+                </div>
+              ))
+            ) : stats ? (
+              <>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-white text-[34px] font-bold leading-none tracking-[-0.5px]">
+                    {formatNumber(stats.totalContributors)}
+                  </span>
+                  <span className="text-white/70 text-[12px] font-normal leading-[1.4] text-center whitespace-pre-line">
+                    African{'\n'}contributors
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-white text-[34px] font-bold leading-none tracking-[-0.5px]">
+                    {formatNumber(stats.totalAssets)}
+                  </span>
+                  <span className="text-white/70 text-[12px] font-normal leading-[1.4] text-center">
+                    Assets in library
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-white text-[34px] font-bold leading-none tracking-[-0.5px]">
+                    {stats.countriesRepresented}
+                  </span>
+                  <span className="text-white/70 text-[12px] font-normal leading-[1.4] text-center whitespace-pre-line">
+                    Countries{'\n'}earning
+                  </span>
+                </div>
+              </>
+            ) : (
+              // Error fallback
+              <>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-white text-[34px] font-bold leading-none tracking-[-0.5px]">100K+</span>
+                  <span className="text-white/70 text-[12px] font-normal leading-[1.4] text-center whitespace-pre-line">
+                    African{'\n'}contributors
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-white text-[34px] font-bold leading-none tracking-[-0.5px]">50M+</span>
+                  <span className="text-white/70 text-[12px] font-normal leading-[1.4] text-center">
+                    Assets in library
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-white text-[34px] font-bold leading-none tracking-[-0.5px]">54</span>
+                  <span className="text-white/70 text-[12px] font-normal leading-[1.4] text-center whitespace-pre-line">
+                    Countries{'\n'}earning
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -6,11 +6,13 @@ import { useDownloads } from '@/hooks/useDownloads'
 import type { LicenseFilter } from '@/types'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
+import { useToast } from '@/components/ui/toast-provider'
 
 export default function DownloadsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [licenseFilter, setLicenseFilter] = useState<LicenseFilter>('all')
   const [page, setPage] = useState(1)
+  const { showToast } = useToast()
 
   // Fetch downloads from API
   const { data, isLoading, error } = useDownloads({
@@ -85,7 +87,7 @@ export default function DownloadsPage() {
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000)
     } catch (error: any) {
       console.error('Re-download failed:', error)
-      alert(error.message || 'Failed to re-download asset')
+      showToast('error', error.message || 'Failed to re-download asset')
     }
   }
   return (

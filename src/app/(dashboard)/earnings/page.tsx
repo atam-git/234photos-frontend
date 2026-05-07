@@ -480,7 +480,7 @@ export default function EarningsPage() {
           }}
           onClose={() => setSelectedWithdrawal(null)}
           onRetry={() => {
-            console.log('Retry withdrawal:', selectedWithdrawal.id)
+            // No retry endpoint exists; reopen the WithdrawModal so the user can resubmit.
             setSelectedWithdrawal(null)
             setShowWithdrawModal(true)
           }}

@@ -45,6 +45,18 @@ export interface UpdateCollectionPayload {
 
 export const collectionsApi = {
   /**
+   * Get all public collections
+   */
+  getAll: () =>
+    api.get<Collection[]>('/collections'),
+
+  /**
+   * Get featured public collections
+   */
+  getFeatured: () =>
+    api.get<Collection[]>('/collections/featured'),
+
+  /**
    * Create a new collection
    */
   create: (payload: CreateCollectionPayload) =>
@@ -85,4 +97,10 @@ export const collectionsApi = {
    */
   removeAssets: (id: string, assetIds: string[]) =>
     api.delete<{ success: boolean }>(`/collections/${id}/assets`, { assetIds }),
+
+  /**
+   * Get user's public collections by username
+   */
+  getUserCollections: (username: string) =>
+    api.get<Collection[]>(`/users/${username}/collections`),
 }

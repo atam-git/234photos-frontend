@@ -1,25 +1,18 @@
 'use client'
 
 import { X, Tag } from 'lucide-react'
-// FUTURE: re-import CreditCard when saved-cards picker is restored
-// import { CreditCard } from 'lucide-react'
 import { useState } from 'react'
-import type { PaymentMethod } from '@/types'
 import type { CreditPackage } from '@/lib/api/payments'
 import { useInitializePayment } from '@/hooks/usePayments'
 import { useToast } from '@/components/ui/toast-provider'
 
 interface PurchaseCreditsModalProps {
   package: CreditPackage
-  paymentMethods: PaymentMethod[]
   onClose: () => void
   onConfirm: (paymentMethodId: string, promoCode?: string) => void
 }
 
-export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, onConfirm }: PurchaseCreditsModalProps) {
-  // FUTURE: re-enable when saved-card tokenization (Flutterwave Inline.js) is implemented
-  // const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods.find(pm => pm.isDefault)?.id || paymentMethods[0]?.id)
-  void paymentMethods // suppress unused-prop lint until saved-cards UI is restored
+export function PurchaseCreditsModal({ package: pkg, onClose }: PurchaseCreditsModalProps) {
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
   
@@ -93,31 +86,7 @@ export function PurchaseCreditsModal({ package: pkg, paymentMethods, onClose, on
             </div>
           </div>
 
-          {/*
-            FUTURE: Saved Payment Method Picker
-            -----------------------------------
-            Hidden for now because checkout always redirects to Flutterwave's
-            hosted payment page where the user enters card details directly.
-            Re-enable once we wire up Flutterwave Inline.js + tokenization
-            (POST /v3/tokenized-charges) so a stored token can actually be
-            used to charge a saved card without re-entering details.
-
-          <div>
-            <label className="block text-[13px] font-semibold text-[#111] mb-3"
-              style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
-              Payment Method
-            </label>
-            <div className="space-y-2">
-              {paymentMethods.map((method) => (
-                <button key={method.id} ...>
-                  ... saved card row ...
-                </button>
-              ))}
-            </div>
-          </div>
-          */}
-
-          {/* Hosted-checkout notice (stand-in until tokenization is implemented) */}
+          {/* Hosted-checkout notice */}
           <div className="rounded-xl border border-[#F0F0F0] bg-[#F8F8F8] p-3 text-[12px] text-[#666]"
             style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
             You&apos;ll be redirected to Flutterwave&apos;s secure checkout to enter your card details.

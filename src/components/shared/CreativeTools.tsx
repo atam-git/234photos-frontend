@@ -6,7 +6,7 @@ const tools = [
       'Create on-brand content for social media, events and campaigns — with African templates built in.',
     cta: 'Try Editor →',
     href: '/editor',
-    badge: null,
+    badge: { label: 'SOON', color: 'bg-[#F0F0F0] text-[#888]' },
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="4" y="8" width="18" height="2.5" rx="1.25" fill="#EE2B24" opacity="0.85" />
@@ -25,7 +25,7 @@ const tools = [
       'Describe the African scene you need — AI generates it in seconds, commercially licensed and ready to use.',
     cta: 'Generate now →',
     href: '/ai-generator',
-    badge: { label: 'NEW', color: 'bg-[#EE2B24] text-white' },
+    badge: { label: 'SOON', color: 'bg-[#F0F0F0] text-[#888]' },
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="16" r="12" fill="#FFEAEA" />
@@ -43,7 +43,7 @@ const tools = [
       'Instantly remove backgrounds from product shots, portraits and event photos with one click.',
     cta: 'Remove background →',
     href: '/background-remover',
-    badge: null,
+    badge: { label: 'SOON', color: 'bg-[#F0F0F0] text-[#888]' },
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="16" r="12" fill="#FFEAEA" />
@@ -65,7 +65,7 @@ const tools = [
       'Extend, reimagine or modify any image using AI — perfect for adapting visuals to local contexts.',
     cta: 'Try Generative Fill →',
     href: '/generative-fill',
-    badge: { label: 'BETA', color: 'bg-[#F0F0F0] text-[#555]' },
+    badge: { label: 'SOON', color: 'bg-[#F0F0F0] text-[#888]' },
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="5" y="7" width="22" height="18" rx="3" stroke="#EE2B24" strokeWidth="1.75" strokeDasharray="3 2" fill="#FFEAEA" />
@@ -142,13 +142,12 @@ export function CreativeTools() {
               </div>
 
               {/* CTA */}
-              <a
-                href="#"
-                className="text-[#EE2B24] text-[13px] font-semibold leading-[19.5px] hover:underline self-start mt-1"
+              <span
+                className="text-[#999] text-[13px] font-semibold leading-[19.5px] self-start mt-1 cursor-not-allowed"
                 style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}
               >
                 {tool.cta}
-              </a>
+              </span>
             </div>
           ))}
         </div>

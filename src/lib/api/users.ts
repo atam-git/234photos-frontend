@@ -59,5 +59,5 @@ export const usersApi = {
     api.get<ProfileCompletion>('/users/me/profile-completion'),
 
   getByUsername: (username: string) =>
-    api.get<BackendUser>(`/users/username/${username}`),
+    api.get<BackendUser>(`/users/${username}`),
 }

@@ -122,11 +122,10 @@ export function Footer() {
             <ul className="flex flex-col gap-[11px]">
               {[
                 { label: 'About us', href: '/about' },
-                { label: 'Our mission', href: '/mission' },
-                { label: 'Newsroom', href: '/newsroom' },
-                { label: 'Blog', href: '/blog' },
-                { label: 'Careers', href: '/careers' },
-                { label: 'Partnerships', href: '/partnerships' },
+                { label: 'How it works', href: '/how-it-works' },
+                { label: 'Editorial', href: '/editorial' },
+                { label: 'Pricing', href: '/pricing' },
+                { label: 'Contact us', href: '/contact' },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
@@ -140,18 +139,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Support Column */}
+          {/* Browse Column */}
           <div className="flex flex-col gap-4">
             <h4 className="text-[#555] text-[11px] font-bold uppercase tracking-[1px] leading-[150%]">
-              Support
+              Browse
             </h4>
             <ul className="flex flex-col gap-[11px]">
               {[
-                { label: 'Help centre', href: '/help' },
-                { label: 'Contact us', href: '/contact' },
-                { label: 'Accessibility', href: '/accessibility' },
-                { label: 'Free trial', href: '/free-trial' },
-                { label: 'Free images', href: '/free-images' },
+                { label: 'Search images', href: '/search' },
+                { label: 'Collections', href: '/collections' },
+                { label: 'Categories', href: '/search' },
+                { label: 'Trending', href: '/search?sortBy=popular' },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
@@ -172,11 +170,10 @@ export function Footer() {
             </h4>
             <ul className="flex flex-col gap-[11px]">
               {[
-                { label: 'Submit images', href: '/submit' },
-                { label: 'Contributor FAQ', href: '/contributor-faq' },
-                { label: 'Contributor blog', href: '/contributor-blog' },
-                { label: 'Forum', href: '/forum' },
-                { label: 'Affiliate programme', href: '/affiliate' },
+                { label: 'Start contributing', href: '/contribute' },
+                { label: 'How it works', href: '/how-it-works' },
+                { label: 'Pricing & earnings', href: '/pricing' },
+                { label: 'Contact support', href: '/contact' },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
@@ -201,7 +198,6 @@ export function Footer() {
                 { label: 'Terms of service', href: '/terms' },
                 { label: 'Privacy policy', href: '/privacy' },
                 { label: 'Cookie policy', href: '/cookies' },
-                { label: 'Do not sell my data', href: '/do-not-sell' },
               ].map((item) => (
                 <li key={item.label}>
                   <Link

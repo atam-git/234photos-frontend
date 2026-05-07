@@ -6,6 +6,7 @@ import { Loader2, CheckCircle, XCircle } from 'lucide-react'
 import { useVerifyEmail, useResendVerification } from '@/hooks/useContributor'
 import { useAuthStore } from '@/stores/authStore'
 import { tokenStore } from '@/lib/api/tokenStore'
+import { useToast } from '@/components/ui/toast-provider'
 
 function VerifyEmailContent() {
   const router = useRouter()
@@ -19,6 +20,7 @@ function VerifyEmailContent() {
   
   const { mutate: verifyEmail } = useVerifyEmail()
   const { mutate: resendVerification, isPending: isResending } = useResendVerification()
+  const { showToast } = useToast()
 
   useEffect(() => {
     if (!token) {
@@ -68,16 +70,16 @@ function VerifyEmailContent() {
 
   const handleResend = () => {
     if (!email) {
-      alert('Please enter your email address')
+      showToast('error', 'Please enter your email address')
       return
     }
 
     resendVerification(email, {
       onSuccess: () => {
-        alert('Verification email sent! Please check your inbox.')
+        showToast('success', 'Verification email sent! Please check your inbox.')
       },
       onError: (error: any) => {
-        alert(error.response?.data?.message || 'Failed to resend verification email')
+        showToast('error', error.response?.data?.message || 'Failed to resend verification email')
       },
     })
   }

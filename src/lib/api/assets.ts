@@ -86,6 +86,28 @@ export interface AssetFilters {
 
 export const assetsApi = {
   /**
+   * Get platform statistics
+   */
+  getStats: () =>
+    api.get<{
+      totalAssets: number
+      totalContributors: number
+      assetsLast24h: number
+      countriesServed: number
+    }>('/assets/stats'),
+
+  /**
+   * Get contributor statistics for marketing page
+   */
+  getContributorStats: () =>
+    api.get<{
+      totalContributors: number
+      countriesRepresented: number
+      totalEarnings: number // In kobo
+      totalAssets: number
+    }>('/assets/contributor-stats'),
+
+  /**
    * List assets with optional filters
    */
   list: (filters: AssetFilters = {}) => {

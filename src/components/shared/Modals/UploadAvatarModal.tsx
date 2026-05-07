@@ -2,6 +2,7 @@
 
 import { X, Upload, Check } from 'lucide-react'
 import { useState, useRef } from 'react'
+import { useToast } from '@/components/ui/toast-provider'
 
 interface UploadAvatarModalProps {
   currentAvatar?: string
@@ -15,16 +16,17 @@ export function UploadAvatarModal({ currentAvatar, userName, onClose, onUpload }
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { showToast } = useToast()
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert('File size must be less than 2MB')
+        showToast('error', 'File size must be less than 2MB')
         return
       }
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file')
+        showToast('error', 'Please select an image file')
         return
       }
       setSelectedFile(file)

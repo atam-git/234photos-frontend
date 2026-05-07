@@ -207,20 +207,14 @@ export default function BoardDetailPage() {
           <div className="flex items-center gap-2 relative">
             {/* Share button - for everyone */}
             <button 
-              onClick={() => {
-                console.log('Share button clicked, board:', board)
-                setModal({ type: 'share' })
-              }}
+              onClick={() => setModal({ type: 'share' })}
               className="flex items-center gap-2 px-4 py-2 border border-[#D0D0D0] text-[#111] text-[13px] font-medium rounded-full hover:bg-[#F5F5F7] transition-colors"
               style={{ fontFamily: 'var(--font-jakarta), Plus Jakarta Sans, sans-serif' }}>
               <Share2 className="w-4 h-4" />
               Share
             </button>
             <button 
-              onClick={() => {
-                console.log('Menu button clicked, showMenu:', showMenu)
-                setShowMenu(!showMenu)
-              }}
+              onClick={() => setShowMenu(!showMenu)}
               className="w-9 h-9 rounded-full border border-[#D0D0D0] hover:bg-[#F5F5F7] flex items-center justify-center transition-colors">
               <MoreHorizontal className="w-4 h-4 text-[#666]" />
             </button>
@@ -234,7 +228,6 @@ export default function BoardDetailPage() {
                   {isOwner && (
                     <button
                       onClick={() => {
-                        console.log('Rename clicked')
                         setShowMenu(false)
                         setModal({ type: 'rename' })
                       }}
@@ -247,7 +240,6 @@ export default function BoardDetailPage() {
                   {/* Collaborators - for everyone */}
                   <button
                     onClick={() => {
-                      console.log('Manage Collaborators clicked')
                       setShowMenu(false)
                       setModal({ type: 'collaborators' })
                     }}

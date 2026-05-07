@@ -30,11 +30,7 @@ export function useCollection(id: string) {
 export function useUserCollections(username: string) {
   return useQuery({
     queryKey: ['collections', 'user', username],
-    queryFn: async () => {
-      // TODO: Add endpoint to get public collections by username
-      // For now, return empty array with proper type
-      return [] as Collection[]
-    },
+    queryFn: () => collectionsApi.getUserCollections(username),
     enabled: !!username,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })

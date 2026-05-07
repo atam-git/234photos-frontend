@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, Mail, UserPlus, Trash2, Users, Crown, Link2, Check } from 'lucide-react'
 import { useCollaborators, useAddCollaborator, useRemoveCollaborator } from '@/hooks/useBoards'
 import { useAuthStore } from '@/stores/authStore'
+import { useToast } from '@/components/ui/toast-provider'
 import { ConfirmModal } from './ConfirmModal'
 
 interface ManageCollaboratorsModalProps {
@@ -31,6 +32,7 @@ export function ManageCollaboratorsModal({
   const [copied, setCopied] = useState(false)
   const [confirmAction, setConfirmAction] = useState<{ type: 'remove' | 'leave'; userId: string; userName: string } | null>(null)
   const currentUser = useAuthStore((state) => state.user)
+  const { showToast } = useToast()
 
   // Fetch collaborators
   const { data: collaborators = [], isLoading } = useCollaborators(boardId)
@@ -59,7 +61,7 @@ export function ManageCollaboratorsModal({
           setEmailOrUsername('')
         },
         onError: (error: any) => {
-          alert(error.response?.data?.message || 'Failed to add collaborator')
+          showToast('error', error.response?.data?.message || 'Failed to add collaborator')
         },
       }
     )

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { X, Send, Loader2 } from 'lucide-react'
 import { useCreateTicket } from '@/hooks/useSupport'
+import { useToast } from '@/components/ui/toast-provider'
 
 interface CreateTicketModalProps {
   isOpen: boolean
@@ -14,6 +15,7 @@ export default function CreateTicketModal({ isOpen, onClose, onSuccess }: Create
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [category, setCategory] = useState('TECHNICAL')
+  const { showToast } = useToast()
 
   const { mutate: createTicket, isPending: isCreating } = useCreateTicket()
 
@@ -36,7 +38,7 @@ export default function CreateTicketModal({ isOpen, onClose, onSuccess }: Create
           onClose()
         },
         onError: (error: any) => {
-          alert(error.response?.data?.message || 'Failed to create ticket. Please try again.')
+          showToast('error', error.response?.data?.message || 'Failed to create ticket. Please try again.')
         },
       }
     )

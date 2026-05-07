@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/providers'
+import { CookieConsent } from '@/components/shared/CookieConsent'
 
 const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta' })
 
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${plusJakartaSans.className} ${plusJakartaSans.variable}`}>
         <Providers>{children}</Providers>
+        <CookieConsent />
       </body>
     </html>
   )

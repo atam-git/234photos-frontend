@@ -631,10 +631,7 @@ export default function DiscoverPage() {
         <DownloadModal
           asset={modal.asset}
           onClose={closeModal}
-          onConfirm={(options) => {
-            console.log('Download:', modal.asset.id, options)
-            closeModal()
-          }}
+          onConfirm={() => closeModal()}
         />
       )}
       {modal.type === 'board' && (
