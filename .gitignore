@@ -49,7 +49,7 @@ lerna-debug.log*
 next-env.d.ts
 
 # Generated types (regenerate with npm run generate:types)
-src/types/generated/api.ts
+# src/types/generated/api.ts - DISABLED: api.ts should be committed for Vercel builds
 
 # IDE
 .vscode/*
